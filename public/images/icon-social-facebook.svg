@@ -1,0 +1,22 @@
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <rect id="path-1" x="0" y="0" width="32" height="32" rx="3"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="32" height="32" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(-1233.000000, -38.000000)">
+            <g transform="translate(1028.000000, 38.000000)">
+                <g transform="translate(165.000000, 0.000000)">
+                    <g transform="translate(40.000000, 0.000000)">
+                        <use stroke="#298DCF" mask="url(#mask-2)" stroke-width="2" fill="#FFFFFF" xlink:href="#path-1"></use>
+                        <g transform="translate(12.307692, 8.615385)" fill="#298DCF">
+                            <path d="M1.46923498,2.82153003 L1.46923498,4.82650369 L0,4.82650369 L0,7.27880295 L1.46923498,7.27880295 L1.46923498,14.5671149 L4.48741834,14.5671149 L4.48741834,7.27961222 L6.51282613,7.27961222 C6.51282613,7.27961222 6.70260063,6.10373867 6.79506006,4.817804 L4.49915279,4.817804 L4.49915279,3.1407882 C4.49915279,2.89031823 4.82791992,2.5536607 5.15365227,2.5536607 L6.79829715,2.5536607 L6.79829715,0.000202318231 L4.56166913,0.000202318231 C1.39498419,0.000202318231 1.46923498,2.4549294 1.46923498,2.82153003 L1.46923498,2.82153003 Z"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

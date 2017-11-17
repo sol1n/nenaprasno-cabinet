@@ -1,0 +1,160 @@
+{% extends "blocks/page" %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <ul>
+            <li><a href="{{ MAIN_SITE }}">Главная</a></li>
+            <li><a href="{{ route('login') }}">Личный кабинет</a></li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block content %}
+  <div class="page-title">
+      Риски и рекомендации
+  </div>
+
+  <div class="main-wrapper">
+
+      {% include "blocks/aside" %}
+      
+      <div class="main-wrapper-column">
+          <div class="cabinet-risks">
+              <div class="cabinet-risks-title">
+                  Ваши риски
+              </div>
+              
+              <div class="cabinet-risks-list">
+                {% for result in results.raw %}
+                  {% set disease = diseases.get(result.TestResult.diseaseId) %}
+                  <div class="cabinet-risks-list-item cabinet-risks-list-item-{{ result.TestResult.levelOfRisk }}">
+                      <div class="cabinet-risks-list-item-label"></div>
+                      <div class="cabinet-risks-list-item-name">
+                          {{ disease.name }}
+                      </div>
+                      <div class="cabinet-risks-list-item-value c-{{ result.TestResult.levelOfRisk }}-risk">
+                          {{ trans('risks.' ~ result.TestResult.levelOfRisk ) }}
+                      </div>
+                  </div>
+                {% endfor %}
+              </div>
+
+              <div class="cabinet-risks-legend-row">
+                  <div class="cabinet-risks-legend-col">
+                      <div class="cabinet-risks-legend">
+                          <div class="cabinet-risks-legend-title c-low-risk">
+                              Низкий риск
+                          </div>
+
+                          Риск ниже, чем в популяции, на данный момент не требуется никаких диагностических мероприятий для раннего выявления или профилактики этого заболевания. Вероятность вреда от возможного вмешательства (в том числе и диагностического) превышает вероятность его пользы.
+                      </div>
+                  </div>
+
+                  <div class="cabinet-risks-legend-col">
+                      <div class="cabinet-risks-legend">
+                          <div class="cabinet-risks-legend-title c-medium-risk">
+                              Средний риск
+                          </div>
+
+                          Средний риск, Вам требуется медицинское вмешательство для снижения риска смерти от этого вида рака (скрининг или иные виды профилактики рака). Вероятность пользы от медицинского вмешательства превышает вероятность вреда.
+                      </div>
+                  </div>                            
+
+                  <div class="cabinet-risks-legend-col">
+                      <div class="cabinet-risks-legend">
+                          <div class="cabinet-risks-legend-title c-high-risk">
+                              Высокий риск
+                          </div>
+
+                          Высокий риск. Вам требуется особое медицинское наблюдение или вмешательство для радикального снижения риска смерти от этого вида рака.
+                      </div>
+                  </div>
+              </div>
+
+              {% if procedures|length %}
+
+                <div class="cabinet-risks-title m-t-lg">
+                    Рекомендации
+                </div>
+
+                <form method="#" class="cabinet-risks-recommendations m-b-lg">
+                    <div class="cabinet-risks-recommendations-heading">
+                        <div class="cabinet-risks-recommendations-heading-name">
+                            Направление
+                        </div>
+                        <div class="cabinet-risks-recommendations-heading-date">
+                            Пройти обследование
+                        </div>
+                        <div class="cabinet-risks-recommendations-heading-clinics">
+                            Клиники
+                        </div>
+                        <div class="cabinet-risks-recommendations-heading-button">
+                            &nbsp;
+                        </div>
+                    </div>
+
+                  
+                    {% for procedure in procedures %}
+                      {% set medicalProcedure = medicalProcedures.get(procedure.id) %}
+                        <div class="cabinet-risks-recommendation">
+                            <div class="cabinet-risks-recommendation-name">
+                                <div class="cabinet-risks-recommendation-title">
+                                    {{ procedure.description }}
+                                </div>
+                                {{ procedure.name }}
+                            </div>
+                            <div class="cabinet-risks-recommendation-date">
+                              {% if procedure.nextDate %}
+                                {{ procedure.date|date('d.m.Y') }}
+                              {% else %}
+                                В ближайшее время
+                              {% endif %}
+                            </div>
+                            <div class="cabinet-risks-recommendation-clinics">
+                              {% if procedure.clinics|length %}
+                                <a data-tooltip data-html="risk-{{ procedure.id }}-clinics" data-position="bottom" data-trigger="click" data-arrow="true">
+                                    {{ source("icon-geomarker") }}
+                                    <span class="link-dotted">
+                                        Список клиник
+                                    </span>
+                                </a>
+
+                                <div id="risk-{{ procedure.id }}-clinics" style="display: none">
+                                    <div class="cabinet-risks-recommendation-clinics-list">
+                                      {% for clinic in procedure.clinics %}
+                                        <a href="#" target="_blank" class="cabinet-risks-recommendation-clinics-list-item">
+                                            <div class="cabinet-risks-recommendation-clinics-name">
+                                              {{ clinic.name }}
+                                            </div>
+                                            <div class="cabinet-risks-recommendation-clinics-desc">
+                                              {{ clinic.address }}
+                                            </div>
+                                        </a>
+                                      {% endfor %}
+                                    </div>
+                                </div>
+                              {% endif %}
+                            </div>
+                            <div class="cabinet-risks-recommendation-button">
+                                <a href="#" class="button button-round">
+                                    Уже проходил
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="cabinet-risks-recommendations-subscribe">
+                        <div class="form-control-checkbox">
+                            <input id="recommendations-subscribe" name="agreement" required="" type="checkbox">
+                            <label for="recommendations-subscribe">
+                                Отказаться от напоминаний по e-mail
+                            </label>
+                        </div>
+                    </div>
+                </form>
+              {% endif %}
+          </div>
+          
+      </div>
+  </div>
+{% endblock %}

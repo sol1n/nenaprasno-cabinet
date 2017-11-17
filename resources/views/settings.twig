@@ -1,0 +1,185 @@
+{% extends "blocks/page" %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <ul>
+            <li><a href="{{ MAIN_SITE }}">Главная</a></li>
+            <li><a href="{{ route('settings') }}">Настройки</a></li>
+        </ul>
+    </div>
+{% endblock %}
+ 
+
+{% block content %}
+  <div class="page-title">
+      Настройки
+  </div>
+
+  <div class="main-wrapper">
+      
+      {% include "blocks/aside" %}
+
+      <div class="main-wrapper-column">
+          <form action="{{ route('save-profile') }}" method="POST" class="cabinet-profile">
+            {{ csrf_field() }}
+              <div class="cabinet-profile-card">
+                  <div class="cabinet-profile-title">
+                      Персональные данные
+                  </div>
+
+                  <div class="cabinet-profile-subtitle">
+                      1. Личные данные
+                  </div>
+
+                  <div class="cabinet-profile-control">
+                      <label class="cabinet-profile-label">ФИО</label>
+                      <input type="text" class="form-input" name="firstName" placeholder="Введите имя" value="{{ profile.fields.firstName }}" required>
+                  </div>
+
+                  <div class="row">
+                      <div class="col-xs-12 col-md-6">
+                          <div class="cabinet-profile-control">
+                              <label class="cabinet-profile-label">Дата рождения</label>
+                              <input name="birthday" type="text" class="form-input" value="{{ profile.fields.birthday }}" data-flatpickr placeholder="дд.мм.гггг">
+                          </div>
+                      </div>
+                      <div class="col-xs-12 col-md-6">
+                          <div class="cabinet-profile-control">
+                              <label class="cabinet-profile-label">Пол</label>
+
+                              <div class="form-control-radio-tabs" style="width: 100%;">
+                                  <div class="form-control-radio-tab">
+                                      <input id="cabinet-profile-sex-male" type="radio" name="sex" value="0" {% if profile.fields.sex == 0 %}checked{% endif %} autocomplete="off">
+                                      <label for="cabinet-profile-sex-male">Мужчина</label>
+                                  </div>
+
+                                  <div class="form-control-radio-tab">
+                                      <input id="cabinet-profile-sex-female" type="radio" name="sex" value="1" {% if profile.fields.sex == 1 %}checked{% endif %} autocomplete="off">
+                                      <label for="cabinet-profile-sex-female">Женщина</label>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+
+                  <div class="cabinet-profile-subtitle">
+                      2. Контактные данные
+                  </div>
+
+                  <div class="row">
+                      <div class="col-xs-12 col-md-6">
+                          <div class="cabinet-profile-control">
+                              <label class="cabinet-profile-label">E-mail</label>
+                              <input name="email" type="email" class="form-input" value="{{ profile.fields.email }}" placeholder="Введите e-mail">
+                          </div>
+                      </div>
+                      <div class="col-xs-12 col-md-6">
+                          <div class="cabinet-profile-control">
+                              <label class="cabinet-profile-label">Мобильный телефон</label>
+                              <input name="phoneNumber" type="tel" class="form-input" value="{{ profile.fields.phoneNumber }}" placeholder="Введите телефон" data-inputmask="'mask': '+7 999 999-99-99'">
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="cabinet-profile-subtitle">
+                      3. Местонахождение
+                  </div>
+
+                  <div class="row">
+                      <div class="col-xs-12 col-md-6">
+                          <div class="cabinet-profile-control">
+                              <label class="cabinet-profile-label">Город</label>
+                              <input name="city" type="text" class="form-input" value="{{ profile.fields.city }}" placeholder="Введите город">
+                          </div>
+                      </div>
+                      <div class="col-xs-12 col-md-6">
+                          <div class="cabinet-profile-control">
+                              <label class="cabinet-profile-label">Район</label>
+                              <input name="region" type="text" class="form-input" value="{{ profile.fields.region }}" placeholder="Введите район">
+                          </div>
+
+                          <div class="cabinet-profile-submit">
+                              <div class="row">
+                                  <div class="col-xs-6">
+                                      <a href="#" class="button button-white button-round button-block">
+                                          Отмена
+                                      </a>
+                                  </div>
+                                  <div class="col-xs-6">
+                                      <button type="submit" class="button button-blue button-round button-block">
+                                          Сохранить
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+            </form>
+            <form action="{{ route('change-password') }}" method="POST" class="cabinet-profile">
+              {{ csrf_field() }}
+              <div class="cabinet-profile-card">
+                  <div class="cabinet-profile-title">
+                      Безопасность
+                  </div>
+
+                  <div class="cabinet-profile-control">
+                      <label class="cabinet-profile-label">Текущий пароль</label>
+                      <input type="password" class="form-input" name="oldpassword" placeholder="Введите пароль">
+                  </div>
+
+                  <div class="cabinet-profile-control">
+                      <label class="cabinet-profile-label">Новый пароль</label>
+                      <input type="password" class="form-input" name="newpassword" placeholder="Новый пароль">
+                  </div>
+
+                  <div class="cabinet-profile-control">
+                      <label class="cabinet-profile-label">Повторите новый пароль</label>
+                      <input type="password" class="form-input" name="repeatpassword" placeholder="Повторите пароль">
+                  </div>
+
+                  <div class="cabinet-profile-submit">
+                      <button type="submit" class="button button-blue button-round">
+                          Сохранить
+                      </button>
+                  </div>
+              </div>
+            </form>
+            <form action="{{ route('save-profile') }}" method="POST" class="cabinet-profile">
+              {{ csrf_field() }}
+              <div class="cabinet-profile-card">
+                  <div class="cabinet-profile-title">
+                      Настройка уведомлений
+                  </div>
+
+                  <div class="cabinet-profile-control">
+                      <div class="form-control-checkbox">
+                          <input id="cabinet-profile-subscribe" name="subscribe" type="checkbox">
+                          <label for="cabinet-profile-subscribe">
+                              Хочу получать новости «Фонда профилактики рака» (не чаще 1 р/нед)
+                          </label>
+                      </div>
+                  </div>
+
+                  <div class="cabinet-profile-control">
+                      <div class="form-control-checkbox">
+                          <input id="cabinet-profile-notifications" name="notifications" type="checkbox">
+                          <label for="cabinet-profile-notifications">
+                              Получать уведомления о прохождении обследования
+                          </label>
+                      </div>
+                  </div>
+
+                  <div class="cabinet-profile-submit">
+                      <button type="submit" class="button button-blue button-round">
+                          Сохранить
+                      </button>
+                  </div>
+              </div>
+          </form>
+
+      </div>
+  </div>
+{% endblock %}

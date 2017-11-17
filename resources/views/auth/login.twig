@@ -1,0 +1,40 @@
+{% extends "blocks/page" %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <ul>
+            <li><a href="{{ MAIN_SITE }}">Главная</a></li>
+            <li><a href="{{ route('login') }}">Личный кабинет</a></li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-wrapper-column">
+
+        <form action="/login/" method="POST" class="cabinet-profile">
+            {{ csrf_field() }}
+            <div class="cabinet-profile-card m-t-lg m-b-lg" style="max-width: 570px; margin-left: auto; margin-right: auto;">
+                <div class="cabinet-profile-title">
+                    Войти на сайт
+                </div>
+
+                <div class="cabinet-profile-control">
+                    <label class="cabinet-profile-label">Логин</label>
+                    <input autofocus type="text" class="form-input" name="login" placeholder="Введите пароль" required>
+                </div>
+
+                <div class="cabinet-profile-control">
+                    <label class="cabinet-profile-label">Пароль</label>
+                    <input type="password" class="form-input" name="password" placeholder="Новый пароль" required>
+                </div>
+
+                <div class="cabinet-profile-submit">
+                    <button type="submit" class="button button-blue button-round">
+                        Сохранить
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

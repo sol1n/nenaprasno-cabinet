@@ -1,0 +1,96 @@
+<?php
+
+namespace App;
+
+use App\Form;
+use App\Backend;
+use Carbon\Carbon;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Client;
+use Illuminate\Http\Request;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
+
+class TestResult
+{
+    const REQUEST_PATH = 'testResults/byUser/';
+
+    public $raw;
+
+    static function get($userId)
+    {
+      $backend = app(Backend::Class);
+      $client = new Client();
+      try {
+          $r = $client->get($backend->url . self::REQUEST_PATH . $userId . '?recommendation=true', ['headers' => [
+              'X-Appercode-Session-Token' => $backend->token
+          ]]);
+      } catch (RequestException $e) {
+          throw new \Exception('Error while getting test results');
+      };
+
+      $result = new self;
+      $result->raw = json_decode($r->getBody()->getContents());
+
+      return $result;
+    }
+
+    static function getUserData($userId)
+    {
+      $backend = app(Backend::Class);
+      $client = new Client();
+
+      try {
+          $r = $client->get($backend->url . 'forms/1/response', ['headers' => [
+              'X-Appercode-Session-Token' => $backend->token
+          ]]);
+      } catch (RequestException $e) {
+          throw new \Exception('Error while getting user data');
+      };
+
+      $result = new self;
+      $result->raw = json_decode($r->getBody()->getContents());
+
+      return $result;
+    }
+
+    private function getClinicsForProcedure($clinics, $procedureId)
+    {
+      $clinicsSet = [];
+      foreach ($clinics as $clinic) {
+        if (in_array($procedureId, $clinic['medicalProcedures'])) {
+          $clinicsSet[] = $clinic;
+        }
+      }
+      return $clinicsSet;
+    }
+
+    public function getProcedures($medicalProcedures, $clinics)
+    {
+      $data = [];
+
+      if (isset($this->raw)) {
+        foreach ($this->raw as $result) {
+          if (isset($result->Recommendations) && $result->Recommendations) {
+            $created = new Carbon($result->TestResult->createdAt);
+
+            foreach ($result->Recommendations as $recommendation) {
+              $procedure = $medicalProcedures[$recommendation->medicalProcedureId];
+              $data[$procedure['id']] = [
+                'id' => $recommendation->medicalProcedureId,
+                'name' => $procedure['name'] ?? null,
+                'description' => $procedure['description'] ?? null,
+                'repeatCount' => $recommendation->repeatCount,
+                'clinics' => $this->getClinicsForProcedure($clinics, $procedure['id']),
+                'nextDate' => isset($procedure['periodicity']) && $procedure['periodicity'] ? $created->addDays($procedure['periodicity']) : null,
+                'date' => $created
+              ];
+            }
+          }
+        }
+        return collect($data)->all();
+      } else {
+        return null;
+      }
+    }
+}
