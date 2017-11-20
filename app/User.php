@@ -35,7 +35,7 @@ class User
     protected function baseUrl(): String
     {
         return 'users';
-    } 
+    }
 
     public function token(): string
     {
@@ -53,7 +53,7 @@ class User
 
     public function __construct()
     {
-        $backend = app(Backend::Class);
+        $backend = app(Backend::class);
         if (session($backend->code . '-session-token')) {
             $this->token = session($backend->code . '-session-token');
         }
@@ -67,7 +67,9 @@ class User
         $client = new Client;
 
         try {
-            $r = $client->get($backend->url . 'users/' . $this->id . '/profiles', [
+            $r = $client->get(
+                $backend->url . 'users/' . $this->id . '/profiles',
+                [
                 'headers' => ['X-Appercode-Session-Token' => $backend->token]]
             );
         } catch (RequestException $e) {
@@ -78,12 +80,10 @@ class User
 
         $profiles = new Collection;
 
-        if (count($json))
-        {
-            foreach($json as $profile)
-            {
-                $schema = app(SchemaManager::Class)->find($profile['schemaId'])->withRelations();
-                $object = app(ObjectManager::Class)->find($schema, $profile['itemId']);
+        if (count($json)) {
+            foreach ($json as $profile) {
+                $schema = app(SchemaManager::class)->find($profile['schemaId'])->withRelations();
+                $object = app(ObjectManager::class)->find($schema, $profile['itemId']);
                 $profiles->put($schema->id, ['object' => $object->withRelations(), 'code' => $schema->id]);
             }
         }
@@ -104,15 +104,14 @@ class User
             }
 
             $this->profiles = $profiles->sortBy('code');
-        }
-        else{
+        } else {
             $this->profiles = $profiles;
         }
 
         return $this;
     }
 
-    public static function build(Array $data): User
+    public static function build(array $data): User
     {
         $user = new self();
         $user->token = null;
@@ -127,10 +126,8 @@ class User
 
         $user->language = null;
         $languages = Language::list();
-        foreach ($languages as $long => $short)
-        {
-            if ($data['language'] == $short)
-            {
+        foreach ($languages as $long => $short) {
+            if ($data['language'] == $short) {
                 $user->language = collect(['short' => $short, 'long' => $long]);
             }
         }
@@ -138,7 +135,7 @@ class User
         return $user;
     }
 
-    public static function login(Backend $backend, Array $credentials, Bool $storeSession = true): User
+    public static function login(Backend $backend, array $credentials, Bool $storeSession = true): User
     {
         $client = new Client;
 
@@ -164,8 +161,7 @@ class User
         $backend->token = $json['sessionId'];
 
         
-        if ($storeSession)
-        {
+        if ($storeSession) {
             $user->storeSession($backend);
         }
 
@@ -186,8 +182,10 @@ class User
         $client = new Client;
 
         try {
-            $r = $client->post($backend->url . 'login/byToken', [
-                'headers' => ['Content-Type' => 'application/json'], 
+            $r = $client->post(
+                $backend->url . 'login/byToken',
+                [
+                'headers' => ['Content-Type' => 'application/json'],
                 'body' => '"' . $this->refreshToken . '"']
             );
         } catch (RequestException $e) {
@@ -201,8 +199,7 @@ class User
         $this->id = $json['userId'];
         $language = session($backend->code . '-language');
 
-        if ($storeSession)
-        {
+        if ($storeSession) {
             $this->storeSession($backend, $language);
         }
 
@@ -234,7 +231,6 @@ class User
         }
 
         return $result;
-
     }
 
     public static function list(Backend $backend, $params = []): Collection
@@ -257,16 +253,14 @@ class User
             $r = $client->get($backend->url  . 'users/?' . $getParams, ['headers' => [
                 'X-Appercode-Session-Token' => $backend->token
             ]]);
-        }
-        catch (RequestException $e) {
+        } catch (RequestException $e) {
             throw new UsersListGetException;
         };
 
         $json = json_decode($r->getBody()->getContents(), 1);
         
         $result = new Collection;
-        foreach ($json as $raw)
-        {
+        foreach ($json as $raw) {
             $result->push(self::build($raw));
         }
 
@@ -275,10 +269,10 @@ class User
 
     public static function findMultiple(Backend $backend, $params) : Collection
     {
-
     }
 
-    public static function getUsersAmount($backend, $params = []) {
+    public static function getUsersAmount($backend, $params = [])
+    {
         $result = 0;
         $client = new Client;
         $params['take'] = 0;
@@ -290,11 +284,10 @@ class User
             $r = $client->get($backend->url  . 'users/?' . $query, ['headers' => [
                 'X-Appercode-Session-Token' => $backend->token
             ]]);
-        }
-        catch (RequestException $e) {
+        } catch (RequestException $e) {
             throw new UsersListGetException;
         };
-        if ($r->getHeader('x-appercode-totalitems')){
+        if ($r->getHeader('x-appercode-totalitems')) {
             $result = $r->getHeader('x-appercode-totalitems')[0];
         }
 
@@ -308,8 +301,7 @@ class User
             $r = $client->get($backend->url  . 'users/' . $id, ['headers' => [
                 'X-Appercode-Session-Token' => $backend->token
             ]]);
-        }
-        catch (RequestException $e) {
+        } catch (RequestException $e) {
             throw new UserNotFoundException;
         };
 
@@ -318,16 +310,19 @@ class User
         return self::build($json);
     }
 
-    public function save(Array $fields, Backend $backend): User
+    public function save(array $fields, Backend $backend): User
     {
         $client = new Client;
+        $r = $client->put($backend->url  . 'users/' . $this->id, [
+                'headers' => ['X-Appercode-Session-Token' => $backend->token],
+                'json' => $fields
+            ]);
         try {
             $r = $client->put($backend->url  . 'users/' . $this->id, [
                 'headers' => ['X-Appercode-Session-Token' => $backend->token],
                 'json' => $fields
             ]);
-        }
-        catch (RequestException $e) {
+        } catch (RequestException $e) {
             throw new UserSaveException;
         };
 
@@ -336,7 +331,7 @@ class User
         return self::build($json);
     }
 
-    public static function create(Array $fields, Backend $backend): User
+    public static function create(array $fields, Backend $backend): User
     {
         $client = new Client;
         try {
@@ -344,8 +339,7 @@ class User
                 'headers' => ['X-Appercode-Session-Token' => $backend->token],
                 'json' => $fields
             ]);
-        }
-        catch (RequestException $e) {
+        } catch (RequestException $e) {
             throw new UserCreateException;
         };
 
@@ -361,8 +355,7 @@ class User
             $r = $client->delete($backend->url  . 'users/' . $this->id, [
                 'headers' => ['X-Appercode-Session-Token' => $backend->token],
             ]);
-        }
-        catch (RequestException $e) {
+        } catch (RequestException $e) {
             throw new UserDeleteException;
         };
 
@@ -371,36 +364,44 @@ class User
 
     public function shortView(): String
     {
-        if (isset(app(\App\Settings::Class)->properties['usersShortView']))
-        {
-            $template = app(\App\Settings::Class)->properties['usersShortView'];
-            if (isset($this->profiles) && (!$this->profiles->isEmpty()))
-            {
-                foreach ($this->profiles as $schema => $profile){
-                    if (isset($profile['object']))
-                    {
-                       foreach ($profile['object']->fields as $code => $value)
-                       {
-                            if ((is_string($value) || is_numeric($value)) && mb_strpos($template, ":$schema.$code:") !== false)
-                            {
+        if (isset(app(\App\Settings::class)->properties['usersShortView'])) {
+            $template = app(\App\Settings::class)->properties['usersShortView'];
+            if (isset($this->profiles) && (!$this->profiles->isEmpty())) {
+                foreach ($this->profiles as $schema => $profile) {
+                    if (isset($profile['object'])) {
+                        foreach ($profile['object']->fields as $code => $value) {
+                            if ((is_string($value) || is_numeric($value)) && mb_strpos($template, ":$schema.$code:") !== false) {
                                 $template = str_replace(":$schema.$code:", $value, $template);
                             }
-                       }
+                        }
                     }
                 }
                 $template = str_replace(":id:", $this->id, $template);
                 $template = str_replace(":username:", $this->username, $template);
                 return $template;
-            }
-            else
-            {
+            } else {
                 return $this->username;
             }
-        }
-        else
-        {
+        } else {
             return $this->username;
         }
     }
 
+    /**
+     * Change current user`s password via non-administrative session
+     * @param  Backend $backend
+     * @param  $userId
+     * @param  array $data contains "oldPassword" & "newPassword" values
+     * @return
+     */
+    public static function changePassword(Backend $backend, $userId, $data)
+    {
+        $client = new Client;
+        $r = $client->put($backend->url  . 'users/' . $userId . '/changePassword', [
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'json' => $data
+        ]);
+
+        return true;
+    }
 }

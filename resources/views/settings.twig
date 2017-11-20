@@ -27,9 +27,19 @@
                       Персональные данные
                   </div>
 
+                  {% if errors.all()|length %}
+                    <div class="cabinet-profile-control">
+                      {% for error in errors.all() %}
+                        <p><b>{{ trans(error) }}</b></p>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+
                   <div class="cabinet-profile-subtitle">
                       1. Личные данные
                   </div>
+
+                  
 
                   <div class="cabinet-profile-control">
                       <label class="cabinet-profile-label">ФИО</label>
@@ -40,7 +50,7 @@
                       <div class="col-xs-12 col-md-6">
                           <div class="cabinet-profile-control">
                               <label class="cabinet-profile-label">Дата рождения</label>
-                              <input name="birthday" type="text" class="form-input" value="{{ profile.fields.birthday }}" data-flatpickr placeholder="дд.мм.гггг">
+                              <input name="birthdate" type="text" class="form-input" value="{{ profile.fields.birthdate|date('d.m.Y') }}" data-flatpickr placeholder="дд.мм.гггг">
                           </div>
                       </div>
                       <div class="col-xs-12 col-md-6">
@@ -118,6 +128,7 @@
               </div>
 
             </form>
+
             <form action="{{ route('change-password') }}" method="POST" class="cabinet-profile">
               {{ csrf_field() }}
               <div class="cabinet-profile-card">
@@ -127,17 +138,17 @@
 
                   <div class="cabinet-profile-control">
                       <label class="cabinet-profile-label">Текущий пароль</label>
-                      <input type="password" class="form-input" name="oldpassword" placeholder="Введите пароль">
+                      <input type="password"  class="form-input" name="password" placeholder="Текущий пароль">
                   </div>
 
                   <div class="cabinet-profile-control">
                       <label class="cabinet-profile-label">Новый пароль</label>
-                      <input type="password" class="form-input" name="newpassword" placeholder="Новый пароль">
+                      <input type="password"  class="form-input" name="newpassword" placeholder="Новый пароль">
                   </div>
 
                   <div class="cabinet-profile-control">
                       <label class="cabinet-profile-label">Повторите новый пароль</label>
-                      <input type="password" class="form-input" name="repeatpassword" placeholder="Повторите пароль">
+                      <input type="password" required class="form-input" name="confirm" placeholder="Повторите пароль">
                   </div>
 
                   <div class="cabinet-profile-submit">
@@ -147,7 +158,7 @@
                   </div>
               </div>
             </form>
-            <form action="{{ route('save-profile') }}" method="POST" class="cabinet-profile">
+            <form action="{{ route('save-subscribes') }}" method="POST" class="cabinet-profile">
               {{ csrf_field() }}
               <div class="cabinet-profile-card">
                   <div class="cabinet-profile-title">
@@ -156,7 +167,7 @@
 
                   <div class="cabinet-profile-control">
                       <div class="form-control-checkbox">
-                          <input id="cabinet-profile-subscribe" name="subscribe" type="checkbox">
+                          <input id="cabinet-profile-subscribe" {% if profile.fields.getEmails %}checked{% endif %} name="subscribe" type="checkbox">
                           <label for="cabinet-profile-subscribe">
                               Хочу получать новости «Фонда профилактики рака» (не чаще 1 р/нед)
                           </label>
@@ -165,7 +176,7 @@
 
                   <div class="cabinet-profile-control">
                       <div class="form-control-checkbox">
-                          <input id="cabinet-profile-notifications" name="notifications" type="checkbox">
+                          <input id="cabinet-profile-notifications" {% if profile.fields.getNotifications %}checked{% endif %} name="notifications" type="checkbox">
                           <label for="cabinet-profile-notifications">
                               Получать уведомления о прохождении обследования
                           </label>

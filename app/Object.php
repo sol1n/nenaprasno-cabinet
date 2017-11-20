@@ -17,6 +17,7 @@ use GuzzleHttp\Exception\ClientException;
 use App\Exceptions\Object\ObjectSaveException;
 use App\Exceptions\Object\ObjectCreateException;
 use App\Exceptions\Object\ObjectNotFoundException;
+use App\Exceptions\Backend\TokenExpiredException;
 use App\Exceptions\User\UserNotFoundException;
 use App\Traits\Controllers\ModelActions;
 use App\Traits\Models\FieldsFormats;
@@ -38,12 +39,12 @@ class Object
     public function save($data, Backend $backend, $language = null): Object
     {
         $this->fields = static::prepareRawData($data, $this->schema, true);
+        
         $headers = [
             'X-Appercode-Session-Token' => $backend->token
         ];
 
-        if ($language !== null)
-        {
+        if ($language !== null) {
             $headers['X-Appercode-Language'] = $language;
         }
 
@@ -51,7 +52,7 @@ class Object
 
         try {
             $r = $client->put($backend->url . 'objects/' . $this->schema->id . '/' . $this->id, [
-                'headers' => $headers, 
+                'headers' => $headers,
                 'json' => $this->fields
             ]);
         } catch (ServerException $e) {
@@ -128,9 +129,19 @@ class Object
         $client = new Client;
         $url = $backend->url . 'objects/' . $schema->id . ($query ? '?' . $query : '');
 
-        $r = $client->get($url, ['headers' => [
-            'X-Appercode-Session-Token' => $backend->token
-        ]]);
+        try {
+            $r = $client->get($url, ['headers' => [
+                'X-Appercode-Session-Token' => $backend->token
+            ]]);
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                if ($e->getResponse()->getStatusCode() == 401) {
+                    throw new TokenExpiredException;
+                }
+            }
+            throw new Exception('Can`t get list of objects');
+        };
+
 
         $json = json_decode($r->getBody()->getContents(), 1);
 
@@ -147,8 +158,7 @@ class Object
 
         if ($query) {
             $query = http_build_query($query);
-        }
-        else {
+        } else {
             $query = http_build_query(['take' => 200]);
         }
 
@@ -185,7 +195,8 @@ class Object
         return $list;
     }
 
-    public static function count(Schema $schema, Backend $backend, $query = []) {
+    public static function count(Schema $schema, Backend $backend, $query = [])
+    {
         $result = 0;
         $client = new Client;
 
@@ -201,7 +212,7 @@ class Object
             'X-Appercode-Session-Token' => $backend->token
         ]]);
 
-        if ($r->getHeader('x-appercode-totalitems')){
+        if ($r->getHeader('x-appercode-totalitems')) {
             $result = $r->getHeader('x-appercode-totalitems')[0];
         }
 
@@ -216,13 +227,11 @@ class Object
         $object->updatedAt = new Carbon($data['updatedAt']);
         $object->fields = self::prepareRawData($data, $schema);
 
-        if (! is_null($localizedData))
-        {
-           $object->languages = [];
-            foreach ($localizedData as $language => $data)
-            {
+        if (! is_null($localizedData)) {
+            $object->languages = [];
+            foreach ($localizedData as $language => $data) {
                 $object->languages[$language] = self::prepareRawData($data, $schema);
-            } 
+            }
         }
         
         $object->schema = $schema;
@@ -232,8 +241,7 @@ class Object
 
     private function getUserRelation($field)
     {
-        if (! isset($this->relations['ref Users']))
-        {
+        if (! isset($this->relations['ref Users'])) {
             $count = $this->getRelationUserCount($field);
             $users = [];
             if ($count > config('objects.ref_count_for_select')) {
@@ -241,27 +249,23 @@ class Object
                 if (isset($this->fields[$field['name']])) {
                     if (is_array($this->fields[$field['name']])) {
                         if (
-                            isset($this->fields[$field['name']][0]) && 
-                            is_object($this->fields[$field['name']][0]))
-                        {
-                            foreach ($this->fields[$field['name']] as $obj)
-                            {
+                            isset($this->fields[$field['name']][0]) &&
+                            is_object($this->fields[$field['name']][0])) {
+                            foreach ($this->fields[$field['name']] as $obj) {
                                 $userIds[] = $obj->id;
                             }
                         }
                         $userIds = $this->fields[$field['name']];
-                    }
-                    elseif (is_object($this->fields[$field['name']])) {
+                    } elseif (is_object($this->fields[$field['name']])) {
                         $userIds = [$this->fields[$field['name']]->id];
                     } else {
                         $userIds = [$this->fields[$field['name']]];
                     }
                 }
 
-                $users = $userIds ? app(\App\Services\UserManager::Class)->findMultipleWithProfiles($userIds) : [];
-            }
-            else {
-                $users = app(\App\Services\UserManager::Class)->allWithProfiles();
+                $users = $userIds ? app(\App\Services\UserManager::class)->findMultipleWithProfiles($userIds) : [];
+            } else {
+                $users = app(\App\Services\UserManager::class)->allWithProfiles();
             }
             $this->relations['ref Users'] = $users;
         }
@@ -270,25 +274,19 @@ class Object
     private function getObjectRelation($field, Schema $schema)
     {
         $index = 'ref ' . $schema->id;
-        if (! isset($this->relations[$index]))
-        {
+        if (! isset($this->relations[$index])) {
             $count = $this->getRelationObjectCount($field, $schema);
             if ($count > config('objects.ref_count_for_select')) {
                 $objectIds = [];
 
-                if (isset($this->fields[$field['name']]) && is_array($this->fields[$field['name']])) 
-                {
+                if (isset($this->fields[$field['name']]) && is_array($this->fields[$field['name']])) {
                     $objectIds = $this->fields[$field['name']];
-                } 
-                elseif (isset($this->fields[$field['name']])) 
-                {
+                } elseif (isset($this->fields[$field['name']])) {
                     $objectIds = [$this->fields[$field['name']]];
                 }
-                $elements = $objectIds ? app(\App\Services\ObjectManager::Class)->search($schema, ['take' => -1, 'where' => json_encode(['id' => ['$in' => $objectIds]])]) : [];
-            }
-            else 
-            {
-                $elements = app(\App\Services\ObjectManager::Class)->search($schema, ['take' => -1]);
+                $elements = $objectIds ? app(\App\Services\ObjectManager::class)->search($schema, ['take' => -1, 'where' => json_encode(['id' => ['$in' => $objectIds]])]) : [];
+            } else {
+                $elements = app(\App\Services\ObjectManager::class)->search($schema, ['take' => -1]);
             }
             $this->relations[$index] = $elements;
         }
@@ -297,7 +295,7 @@ class Object
     private function getFileRelation($field)
     {
         $relation = [];
-        if (isset($this->fields[$field['name']]) and $this->fields[$field['name']])  {
+        if (isset($this->fields[$field['name']]) and $this->fields[$field['name']]) {
             $filesIds = [];
             if (is_array($this->fields[$field['name']])) {
                 $filesIds = $this->fields[$field['name']];
@@ -320,40 +318,36 @@ class Object
     private function getRelation($field)
     {
         $code = str_replace('ref ', '', $field['type']);
-        if ($code == 'Users')
-        {
+        if ($code == 'Users') {
             $this->getUserRelation($field);
-        }
-        elseif ($code == 'Files')
-        {
+        } elseif ($code == 'Files') {
             $this->getFileRelation($field);
-        }
-        else
-        {
-            $schema = app(\App\Services\SchemaManager::Class)->find($code);
+        } else {
+            $schema = app(\App\Services\SchemaManager::class)->find($code);
             $this->getObjectRelation($field, $schema);
         }
     }
 
-    private function getRelationUserCount($field) {
+    private function getRelationUserCount($field)
+    {
         return app(UserManager::class)->count();
     }
 
-    private function getRelationObjectCount($field, Schema $schema) {
+    private function getRelationObjectCount($field, Schema $schema)
+    {
         return app(ObjectManager::class)->count($schema);
     }
 
-    public function getRelationCount($field) {
+    public function getRelationCount($field)
+    {
         if (mb_strpos($field['type'], 'ref') !== false) {
             $code = str_replace('ref ', '', $field['type']);
             if ($code == 'Users') {
                 return $this->getRelationUserCount($field);
-            }
-            elseif ($code == 'Files') {
+            } elseif ($code == 'Files') {
                 return 1;
-            }
-            else {
-                $schema = app(\App\Services\SchemaManager::Class)->find($code);
+            } else {
+                $schema = app(\App\Services\SchemaManager::class)->find($code);
                 return $this->getRelationObjectCount($field, $schema);
             }
         }
@@ -369,10 +363,8 @@ class Object
     {
         $this->relations = [];
 
-        foreach ($this->schema->fields as $field)
-        {
-            if (mb_strpos($field['type'], 'ref ') !== false)
-            {
+        foreach ($this->schema->fields as $field) {
+            if (mb_strpos($field['type'], 'ref ') !== false) {
                 $this->getRelation($field);
             }
         }
@@ -381,24 +373,21 @@ class Object
 
     public function shortView(): String
     {
-        if ($template = $this->schema->getShortViewTemplate())
-        {
-            foreach ($this->fields as $key => $field){
-                if ((is_string($field) || is_numeric($field)) && mb_strpos($template, ":$key:") !== false)
-                {
+        if ($template = $this->schema->getShortViewTemplate()) {
+            foreach ($this->fields as $key => $field) {
+                if ((is_string($field) || is_numeric($field)) && mb_strpos($template, ":$key:") !== false) {
                     $template = str_replace(":$key:", $field, $template);
                 }
             }
             $template = str_replace(":id:", $this->id, $template);
             return $template;
-        }
-        else
-        {
+        } else {
             return $this->id;
         }
     }
 
-    public function hasLocalizedFields() : bool {
+    public function hasLocalizedFields() : bool
+    {
         $result = false;
         foreach ($this->schema->fields as $field) {
             if (isset($field['localized']) and $field['localized']) {

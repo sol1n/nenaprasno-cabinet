@@ -17,66 +17,66 @@ class TestResult
 
     public $raw;
 
-    static function get($userId)
+    public static function get($userId)
     {
-      $backend = app(Backend::Class);
-      $client = new Client();
-      try {
-          $r = $client->get($backend->url . self::REQUEST_PATH . $userId . '?recommendation=true', ['headers' => [
+        $backend = app(Backend::class);
+        $client = new Client();
+        try {
+            $r = $client->get($backend->url . self::REQUEST_PATH . $userId . '?recommendation=true', ['headers' => [
               'X-Appercode-Session-Token' => $backend->token
           ]]);
-      } catch (RequestException $e) {
-          throw new \Exception('Error while getting test results');
-      };
+        } catch (RequestException $e) {
+            throw new \Exception('Error while getting test results');
+        };
 
-      $result = new self;
-      $result->raw = json_decode($r->getBody()->getContents());
+        $result = new self;
+        $result->raw = json_decode($r->getBody()->getContents());
 
-      return $result;
+        return $result;
     }
 
-    static function getUserData($userId)
+    public static function getUserData($userId)
     {
-      $backend = app(Backend::Class);
-      $client = new Client();
+        $backend = app(Backend::class);
+        $client = new Client();
 
-      try {
-          $r = $client->get($backend->url . 'forms/1/response', ['headers' => [
+        try {
+            $r = $client->get($backend->url . 'forms/1/response', ['headers' => [
               'X-Appercode-Session-Token' => $backend->token
           ]]);
-      } catch (RequestException $e) {
-          throw new \Exception('Error while getting user data');
-      };
+        } catch (RequestException $e) {
+            throw new \Exception('Error while getting user data');
+        };
 
-      $result = new self;
-      $result->raw = json_decode($r->getBody()->getContents());
+        $result = new self;
+        $result->raw = json_decode($r->getBody()->getContents());
 
-      return $result;
+        return $result;
     }
 
     private function getClinicsForProcedure($clinics, $procedureId)
     {
-      $clinicsSet = [];
-      foreach ($clinics as $clinic) {
-        if (in_array($procedureId, $clinic['medicalProcedures'])) {
-          $clinicsSet[] = $clinic;
+        $clinicsSet = [];
+        foreach ($clinics as $clinic) {
+            if (in_array($procedureId, $clinic['medicalProcedures'])) {
+                $clinicsSet[] = $clinic;
+            }
         }
-      }
-      return $clinicsSet;
+        return $clinicsSet;
     }
 
     public function getProcedures($medicalProcedures, $clinics)
     {
-      $data = [];
+        $data = [];
 
-      if (isset($this->raw)) {
-        foreach ($this->raw as $result) {
-          if (isset($result->Recommendations) && $result->Recommendations) {
-            $created = new Carbon($result->TestResult->createdAt);
+        if (isset($this->raw)) {
+            foreach ($this->raw as $result) {
+                if (isset($result->Recommendations) && $result->Recommendations) {
+                    $created = new Carbon($result->TestResult->createdAt);
 
-            foreach ($result->Recommendations as $recommendation) {
-              $procedure = $medicalProcedures[$recommendation->medicalProcedureId];
-              $data[$procedure['id']] = [
+                    foreach ($result->Recommendations as $recommendation) {
+                        $procedure = $medicalProcedures[$recommendation->medicalProcedureId];
+                        $data[$procedure['id']] = [
                 'id' => $recommendation->medicalProcedureId,
                 'name' => $procedure['name'] ?? null,
                 'description' => $procedure['description'] ?? null,
@@ -85,12 +85,12 @@ class TestResult
                 'nextDate' => isset($procedure['periodicity']) && $procedure['periodicity'] ? $created->addDays($procedure['periodicity']) : null,
                 'date' => $created
               ];
+                    }
+                }
             }
-          }
+            return collect($data)->all();
+        } else {
+            return null;
         }
-        return collect($data)->all();
-      } else {
-        return null;
-      }
     }
 }

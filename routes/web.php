@@ -18,7 +18,9 @@ Route::group(['middleware' => ['appercodeAuth', 'CheckProfileExisting']], functi
   Route::get('/', 'CabinetController@dashboard')->name('cabinet');
   Route::get('/settings', 'CabinetController@settings')->name('settings');
   Route::post('/profile', 'CabinetController@saveProfile')->name('save-profile');
+  Route::post('/subscribes', 'CabinetController@subscribes')->name('save-subscribes');
   Route::post('/password', 'CabinetController@changePassword')->name('change-password');
+  Route::post('/declineSubscribe', 'CabinetController@declineSubscribe')->name('decline-subscribe');
 });
 
 

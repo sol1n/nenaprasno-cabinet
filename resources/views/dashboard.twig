@@ -77,81 +77,83 @@
                     Рекомендации
                 </div>
 
-                <form method="#" class="cabinet-risks-recommendations m-b-lg">
-                    <div class="cabinet-risks-recommendations-heading">
-                        <div class="cabinet-risks-recommendations-heading-name">
-                            Направление
+                <div class="cabinet-risks-recommendations-heading">
+                    <div class="cabinet-risks-recommendations-heading-name">
+                        Направление
+                    </div>
+                    <div class="cabinet-risks-recommendations-heading-date">
+                        Пройти обследование
+                    </div>
+                    <div class="cabinet-risks-recommendations-heading-clinics">
+                        Клиники
+                    </div>
+                    <div class="cabinet-risks-recommendations-heading-button">
+                        &nbsp;
+                    </div>
+                </div>
+
+              
+                {% for procedure in procedures %}
+                  {% set medicalProcedure = medicalProcedures.get(procedure.id) %}
+                    <div class="cabinet-risks-recommendation">
+                        <div class="cabinet-risks-recommendation-name">
+                            <div class="cabinet-risks-recommendation-title">
+                                {{ procedure.description }}
+                            </div>
+                            {{ procedure.name }}
                         </div>
-                        <div class="cabinet-risks-recommendations-heading-date">
-                            Пройти обследование
+                        <div class="cabinet-risks-recommendation-date">
+                          {% if procedure.nextDate %}
+                            {{ procedure.date|date('d.m.Y') }}
+                          {% else %}
+                            В ближайшее время
+                          {% endif %}
                         </div>
-                        <div class="cabinet-risks-recommendations-heading-clinics">
-                            Клиники
+                        <div class="cabinet-risks-recommendation-clinics">
+                          {% if procedure.clinics|length %}
+                            <a data-tooltip data-html="risk-{{ procedure.id }}-clinics" data-position="bottom" data-trigger="click" data-arrow="true">
+                                {{ source("icon-geomarker") }}
+                                <span class="link-dotted">
+                                    Список клиник
+                                </span>
+                            </a>
+
+                            <div id="risk-{{ procedure.id }}-clinics" style="display: none">
+                                <div class="cabinet-risks-recommendation-clinics-list">
+                                  {% for clinic in procedure.clinics %}
+                                    <a href="#" target="_blank" class="cabinet-risks-recommendation-clinics-list-item">
+                                        <div class="cabinet-risks-recommendation-clinics-name">
+                                          {{ clinic.name }}
+                                        </div>
+                                        <div class="cabinet-risks-recommendation-clinics-desc">
+                                          {{ clinic.address }}
+                                        </div>
+                                    </a>
+                                  {% endfor %}
+                                </div>
+                            </div>
+                          {% endif %}
                         </div>
-                        <div class="cabinet-risks-recommendations-heading-button">
-                            &nbsp;
+                        <div class="cabinet-risks-recommendation-button">
+                            <a href="#" class="button button-round">
+                                Уже проходил
+                            </a>
                         </div>
                     </div>
-
-                  
-                    {% for procedure in procedures %}
-                      {% set medicalProcedure = medicalProcedures.get(procedure.id) %}
-                        <div class="cabinet-risks-recommendation">
-                            <div class="cabinet-risks-recommendation-name">
-                                <div class="cabinet-risks-recommendation-title">
-                                    {{ procedure.description }}
-                                </div>
-                                {{ procedure.name }}
-                            </div>
-                            <div class="cabinet-risks-recommendation-date">
-                              {% if procedure.nextDate %}
-                                {{ procedure.date|date('d.m.Y') }}
-                              {% else %}
-                                В ближайшее время
-                              {% endif %}
-                            </div>
-                            <div class="cabinet-risks-recommendation-clinics">
-                              {% if procedure.clinics|length %}
-                                <a data-tooltip data-html="risk-{{ procedure.id }}-clinics" data-position="bottom" data-trigger="click" data-arrow="true">
-                                    {{ source("icon-geomarker") }}
-                                    <span class="link-dotted">
-                                        Список клиник
-                                    </span>
-                                </a>
-
-                                <div id="risk-{{ procedure.id }}-clinics" style="display: none">
-                                    <div class="cabinet-risks-recommendation-clinics-list">
-                                      {% for clinic in procedure.clinics %}
-                                        <a href="#" target="_blank" class="cabinet-risks-recommendation-clinics-list-item">
-                                            <div class="cabinet-risks-recommendation-clinics-name">
-                                              {{ clinic.name }}
-                                            </div>
-                                            <div class="cabinet-risks-recommendation-clinics-desc">
-                                              {{ clinic.address }}
-                                            </div>
-                                        </a>
-                                      {% endfor %}
-                                    </div>
-                                </div>
-                              {% endif %}
-                            </div>
-                            <div class="cabinet-risks-recommendation-button">
-                                <a href="#" class="button button-round">
-                                    Уже проходил
-                                </a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    
-                    <div class="cabinet-risks-recommendations-subscribe">
-                        <div class="form-control-checkbox">
-                            <input id="recommendations-subscribe" name="agreement" required="" type="checkbox">
-                            <label for="recommendations-subscribe">
-                                Отказаться от напоминаний по e-mail
-                            </label>
-                        </div>
+                {% endfor %}
+                
+                <div class="cabinet-risks-recommendations-subscribe">
+                  <form action="{{ route('decline-subscribe') }}" method="POST">
+                    {{ csrf_field() }}
+                    <div class="form-control-checkbox">
+                        <input id="recommendations-subscribe" name="subscribe" {% if not profile.fields.getNotifications %}checked{% endif %} type="checkbox">
+                        <label for="recommendations-subscribe">
+                            Отказаться от напоминаний по e-mail
+                        </label>
                     </div>
-                </form>
+                  </form>
+                </div>
+            
               {% endif %}
           </div>
           
