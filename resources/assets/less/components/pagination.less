@@ -1,0 +1,61 @@
+.pagination {
+  font-size: 0;
+  margin-left: -5px;
+  margin-right: -5px;
+}
+
+.pagination-item {
+  display: inline-block;
+  min-width: 36px;
+  height: 36px;
+  font-size: 14px;
+  line-height: 34px;
+  text-align: center;
+  border-radius: 2px;
+  color: #454545;
+  transition: all 200ms;
+  background-color: #F7F6F3;
+  border: 1px solid #F7F6F3;
+  margin: 0 5px 8px;
+
+  &:hover {
+    color: #454545;
+    border-color: #bab9b7;
+    background-color: #e8e7e4;
+    transition: all 200ms;
+  }
+
+  &.active {
+    color: #fff;
+    background-color: #44B8FD;
+    border-color: #419AD5;
+  }
+}
+
+.pagination-item-skip {
+  background-color: transparent;
+  border-color: transparent;
+  min-width: unset;
+
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+.pagination-item-prev,
+.pagination-item-next {
+  padding: 0 13px;
+  color: #918F8E;
+}
+
+.pagination-item-prev {
+  svg {
+    margin-right: 4px;
+  }
+}
+
+.pagination-item-next {
+  svg {
+    margin-left: 4px;
+  }
+}

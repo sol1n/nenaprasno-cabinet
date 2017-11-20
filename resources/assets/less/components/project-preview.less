@@ -1,0 +1,279 @@
+.project-preview {
+  display: flex;
+
+  @media all and (max-width:800px) {
+    flex-direction: column;
+  }
+}
+
+.project-preview-photo {
+  flex: 0 1 670px;
+
+  img {
+    border-radius: 10px;
+    max-width: 100%;
+  }
+
+  @media all and (max-width:800px) {
+    flex-basis: auto;
+  }
+}
+
+.project-preview-content {
+  flex: 1 0 470px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30px;
+
+  @media all and (max-width:800px) {
+    flex-basis: auto;
+  }
+}
+
+.project-preview-content-padding {
+  padding-right: 30px;
+}
+
+.project-preview-content-desc {
+  font-size: 17px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.71);
+  margin-bottom: 20px;
+}
+
+.project-preview-content-goal {
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.project-preview-content-goal-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #44b8fd;
+}
+
+.project-preview-content-button {
+  .button {
+    font-size: 16px;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+
+.project-preview-content-links {
+  font-size: 13px;
+
+  .button {
+    position: relative;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+
+  a:not(.button) {
+    margin-right: 10px;
+    color: rgba(0, 0, 0, 0.7);
+    vertical-align: middle;
+    white-space: nowrap;
+
+    &:hover {
+      color: @c-blue;
+    }
+  }
+}
+
+.project-preview-share {
+  display: inline-block;
+  position: relative;
+  margin-right: 10px;
+
+  a:not(.button) {
+    margin-right: 0;
+  }
+}
+
+.project-preview-share-tooltip {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-top: 10px;
+  width: 110px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #CFCECB;
+  padding: 8px;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  box-shadow: 0 1px 12px 0 rgba(0,0,0,0.16);
+  transition: all 200ms;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+    transition: all 200ms;
+  }
+
+  &::before,
+  &::after {
+    bottom: 100%;
+    left: 50%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  &::before {
+    border-color: rgba(207, 206, 203, 0);
+    border-bottom-color: #CFCECB;
+    border-width: 6px;
+    margin-left: -6px;
+  }
+
+  &::after {
+    border-color: rgba(255, 255, 255, 0);
+    border-bottom-color: #fff;
+    border-width: 5px;
+    margin-left: -5px;
+  }
+}
+
+.project-preview-donation {
+  background: #f7f6f3;
+  padding: 40px 0;
+}
+
+.project-preview-donation-title {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.project-preview-donation-bar {
+  position: relative;
+  height: 8px;
+  font-size: 0;
+  margin-top: 65px;
+  margin-bottom: 30px;
+
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 72px;
+    height: 100%;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.0), #f7f6f3);
+  }
+
+  @media all and (max-width: 1000px) {
+    margin-top: 30px;
+  }
+}
+
+.project-preview-donation-bar-section {
+  display: inline-block;
+  height: 100%;
+}
+
+.project-preview-donation-bar-arrow {
+  top: -18px;
+  position: absolute;
+  font-size: 10px;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 18px;
+    background: #d8d8d8;
+  }
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -4px;
+    top: -8px;
+    width: 7px;
+    height: 7px;
+    border-radius: 14px;
+    border: solid 1px #d0d0d0;
+  }
+
+  @media all and (max-width: 1000px) {
+    display: none;
+  }
+}
+
+.project-preview-donation-bar-arrow-text {
+  position: absolute;
+  top: -25px;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.project-preview-donation-bar-green {
+  background-color: #c8db4c;
+}
+
+.project-preview-donation-bar-green {
+  background-color: #c8db4c;
+}
+
+.project-preview-donation-bar-lily {
+  background-color: #c67d98;
+}
+
+.project-preview-donation-bar-red {
+  background-color: #e64a33;
+}
+
+.project-preview-donation-bar-yellow {
+  background-color: #f8e55d;
+}
+
+.project-preview-donation-bar-blue {
+  background-color: #9bcfdd;
+}
+
+.project-preview-donation-bar-gray {
+  background-color: #dfdbe1;
+}
+
+.project-preview-donation-legend {
+  overflow: hidden;
+}
+
+.project-preview-donation-legend-item {
+  float: left;
+  margin-right: 30px;
+  font-size: 11px;
+  padding-left: 15px;
+  margin-bottom: 15px;
+}
+
+.project-preview-donation-legend-item-name {
+  position: relative;
+  color: #222222;
+  margin-bottom: 4px;
+}
+
+.project-preview-donation-legend-item-dot {
+  position: absolute;
+  left: -15px;
+  top: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 30px;
+}
+
+.project-preview-donation-legend-item-value {
+  color: #888888;
+}

@@ -1,0 +1,62 @@
+.fancybox-slide > .modal-window {
+  padding: 0;
+  text-align: left;
+}
+
+.fancybox-close-small {
+  &::after {
+    content: '';
+    background: url("../images/icon-modal-close.svg") no-repeat center;
+    background-size: 75%;
+    opacity: 0.3;
+    transition: all 200ms;
+  }
+
+  &:hover,
+  &:focus {
+    &::after {
+      opacity: 1;
+      background: url("../images/icon-modal-close.svg") no-repeat center;
+      background-size: 75%;
+      transition: all 200ms;
+      outline: none;
+    }
+  }
+}
+
+.modal-window {
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.35);
+  background-color: #fff;
+}
+
+.modal-window-padding {
+  padding: 0 40px;
+}
+
+.modal-window-title {
+  font-weight: bold;
+  font-size: 26px;
+  margin-top: 30px;
+  margin-bottom: 6px;
+  color: #212121;
+}
+
+.modal-window-subtitle {
+  margin-bottom: 30px;
+  font-size: 13px;
+  color: #666;
+}
+
+.modal-window-sublinks {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.modal-window-footer {
+  border-top: 1px solid #d8d8d9;
+  padding-top: 15px;
+  padding-bottom: 20px;
+}

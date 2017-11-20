@@ -1,0 +1,125 @@
+.how-test-works-block {
+  background-color: #e9f2f9;
+}
+
+.how-test-works-block-title {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.how-test-works-block-items {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.how-test-works-block-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  flex: 1 0 25%;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.47;
+  padding: 0 15px;
+
+  &:last-child {
+    .how-test-works-block-item-num {
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  &:first-child {
+    .how-test-works-block-item-num {
+      &::before {
+        display: none;
+      }
+    }
+  }
+
+  @media (max-width: 900px) {
+    font-size: 13px;
+  }
+
+  @media (max-width: 740px) {
+    flex-basis: 50%;
+    margin-bottom: 20px;
+    font-size: 15px;
+  }
+
+  @media (max-width: 400px) {
+    flex-basis: 100%;
+    flex-direction: row;
+    text-align: left;
+  }
+}
+
+.how-test-works-block-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 90px;
+  height: 90px;
+  border-radius: 90px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
+  margin-bottom: 15px;
+
+  svg, img {
+    max-width: 80%;
+    max-height: 80%;
+  }
+
+  @media (max-width: 400px) {
+    width: 80px;
+    height: 80px;
+    margin-right: 25px;
+  }
+}
+
+.how-test-works-block-item-text {
+  margin-bottom: 30px;
+
+  @media (max-width: 740px) {
+    margin-bottom: 15px;
+  }
+}
+
+.how-test-works-block-item-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 32px;
+  border: solid 2px #2caee4;
+  color: #2caee4;
+  font-size: 13px;
+  font-weight: bold;
+
+  &::after,
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 15px;
+    width: calc(~"50% - 20px");
+    border-bottom: 1px dotted #2caee4;
+  }
+
+  &::after {
+    left: calc(~"50% + 20px");
+  }
+
+  &::before {
+    right: calc(~"50% + 20px");
+  }
+
+  @media (max-width: 740px) {
+    display: none;
+  }
+}

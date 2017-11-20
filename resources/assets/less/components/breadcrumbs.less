@@ -1,0 +1,38 @@
+.breadcrumbs {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 13px;
+
+  & > ul {
+    .ul-reset;
+
+    li {
+      display: inline-block;
+
+      &::after {
+        content: '';
+        display: inline-block;
+        vertical-align: middle;
+        background: url("../images/breadcrumbs-arrow-right.svg") no-repeat;
+        width: 6px;
+        height: 5px;
+        margin-left: 8px;
+        margin-right: 5px;
+      }
+
+      &:last-child {
+        &::after {
+          display: none;
+        }
+      }
+
+      a {
+        color: #222222;
+
+        &:hover {
+          color: #1F79B5;
+        }
+      }
+    }
+  }
+}

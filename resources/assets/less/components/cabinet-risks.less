@@ -1,0 +1,246 @@
+.cabinet-risks {
+
+}
+
+.cabinet-risks-title {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.cabinet-risks-card {
+
+}
+
+.cabinet-risks-list {
+  padding: 10px;
+  background: #eff5fb;
+}
+
+.cabinet-risks-list-item {
+  display: flex;
+  border-radius: 2px;
+  background-color: #ffffff;
+  padding: 19px;
+  margin-bottom: 5px;
+  border-left: 4px solid transparent;
+
+  @media (max-width: 800px) {
+    flex-direction: column;
+  }
+}
+
+.cabinet-risks-list-item-low {
+  border-color: @c-low-risk;
+}
+
+.cabinet-risks-list-item-medium {
+  border-color: @c-medium-risk;
+}
+
+.cabinet-risks-list-item-high {
+  border-color: @c-high-risk;
+}
+
+.cabinet-risks-list-item-value {
+  margin-left: auto;
+  font-weight: bold;
+
+  @media (max-width: 800px) {
+    margin-left: inherit;
+    margin-top: 4px;
+  }
+}
+
+.cabinet-risks-legend {
+  margin: 15px;
+  background: #eff5fb;
+  padding: 16px 20px 20px 20px;
+  font-size: 13px;
+  line-height: 1.31;
+
+  @media (max-width: 800px) {
+    margin-bottom: 10px;
+  }
+}
+
+.cabinet-risks-legend-title {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.cabinet-risks-legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
+}
+
+.cabinet-risks-legend-col {
+  display: flex;
+  flex: 0 0 33.3333%;
+
+  @media (max-width: 800px) {
+    flex-basis: 100%;
+  }
+}
+
+.cabinet-risks-recommendations {
+  padding: 10px;
+  background-color: #eff5fb;
+}
+
+.cabinet-risks-recommendations-heading {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #888888;
+  margin: 10px 20px;
+
+  @media (max-width: 800px) {
+    display: none;
+  }
+}
+
+.cabinet-risks-recommendations-heading-name {
+  flex: 0 0 40%;
+  padding-right: 10px;
+}
+
+.cabinet-risks-recommendations-heading-date {
+  flex-basis: 20%;
+  padding-right: 10px;
+}
+
+.cabinet-risks-recommendations-heading-clinics {
+  flex-basis: 20%;
+  padding-right: 10px;
+}
+
+.cabinet-risks-recommendations-heading-button {
+  flex-basis: 20%;
+}
+
+.cabinet-risks-recommendation {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  background: #fff;
+  padding: 10px 20px;
+  margin-bottom: 5px;
+  border-radius: 2px;
+
+  .form-input {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 13px;
+  }
+
+  @media (max-width: 800px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.cabinet-risks-recommendation-name {
+  flex: 0 0 40%;
+  font-size: 13px;
+  line-height: 1.46;
+  color: #888888;
+  padding-right: 10px;
+
+  @media (max-width: 800px) {
+    margin-bottom: 10px;
+    flex-basis: 100%;
+    width: 100%;
+  }
+}
+
+.cabinet-risks-recommendation-title {
+  font-weight: bold;
+  font-size: 15px;
+  color: #212121;
+  line-height: normal;
+}
+
+.cabinet-risks-recommendation-date {
+  flex: 0 0 20%;
+
+  @media (max-width: 800px) {
+    margin-bottom: 10px;
+  }
+}
+
+.cabinet-risks-recommendation-clinics {
+  position: relative;
+  flex: 0 0 20%;
+
+  a {
+    cursor: pointer;
+  }
+
+  svg {
+    width: 14px;
+    vertical-align: middle;
+
+    * {
+      fill: @c-blue;
+    }
+  }
+
+  @media (max-width: 800px) {
+    flex-basis: 100%;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+.cabinet-risks-recommendation-clinics-list {
+  max-height: 300px;
+  max-width: 300px;
+  overflow-y: auto;
+}
+
+.cabinet-risks-recommendation-clinics-list-item {
+  display: block;
+  padding: 6px 8px;
+  background-color: #fff;
+
+  &:hover,
+  &:focus {
+    background-color: #eff5fb;
+  }
+}
+
+.cabinet-risks-recommendation-clinics-name {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.cabinet-risks-recommendation-clinics-desc {
+  font-size: 12px;
+  color: #888888;
+}
+
+.cabinet-risks-recommendation-enter-date {
+  flex: 0 0 40%;
+  padding-right: 20px;
+
+  @media (max-width: 800px) {
+    margin-bottom: 20px;
+  }
+}
+
+.cabinet-risks-recommendation-button {
+  .button {
+    font-size: 13px;
+    font-weight: normal;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-width: 2px;
+  }
+}
+
+.cabinet-risks-recommendations-subscribe {
+  margin-top: 20px;
+  margin-bottom: 15px;
+}

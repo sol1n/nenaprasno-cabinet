@@ -1,0 +1,63 @@
+.article-block {
+  font-size: 15px;
+  line-height: 24px;
+
+  img {
+    max-width: 100%;
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 42px;
+  }
+
+  h2 {
+    font-weight: normal;
+    font-size: 24px;
+    line-height: 36px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+
+  h4 {
+    font-size: 15px;
+    line-height: 26px;
+  }
+
+  .large-text {
+    color: #666666;
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  small {
+    font-size: 13px;
+    line-height: 16px;
+  }
+
+  ul {
+    .ul-reset;
+
+    li {
+      position: relative;
+      padding-left: 40px;
+      margin-bottom: 10px;
+
+      &::before {
+        position: absolute;
+        left: 15px;
+        top: 0.9em;
+        content: '';
+        background-color: @c-blue-2;
+        width: 10px;
+        height: 1px;
+        display: inline-block;
+        margin-right: 10px;
+        vertical-align: middle;
+      }
+    }
+  }
+}

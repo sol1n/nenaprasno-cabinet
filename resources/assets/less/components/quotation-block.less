@@ -1,0 +1,75 @@
+.quotation-block {
+  display: flex;
+  position: relative;
+  border-top: 1px solid #E4E4E4;
+  border-bottom: 1px solid #E4E4E4;
+  padding-top: 35px;
+  padding-bottom: 30px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  font-size: 13px;
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: -8px;
+    margin-left: -8px;
+    width: 16px;
+    height: 16px;
+    padding: 0 15px;
+    background: url("../images/icon-quotation.svg") no-repeat center #fff;
+  }
+
+  @media all and (max-width: 1080px) {
+    flex-direction: column;
+  }
+}
+
+.quotation-block-author {
+  padding-right: 60px;
+
+  @media all and (max-width: 1080px) {
+    padding-right: 0;
+    margin-bottom: 40px;
+  }
+}
+
+.quotation-block-author-photo {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 12px;
+
+  img {
+    width: 80px;
+    height: 80px;
+    border-radius: 3px;
+  }
+}
+
+.quotation-block-author-name {
+  line-height: 20px;
+}
+
+.quotation-block-author-title {
+  color: #666666;
+  line-height: 16px;
+}
+
+.quotation-block-text {
+  flex: 1 0 70%;
+  font-size: 13px;
+  line-height: 20px;
+
+  p {
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+

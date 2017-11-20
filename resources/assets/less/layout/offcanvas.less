@@ -1,0 +1,91 @@
+.main-offcanvas-overlay {
+  position: fixed;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+  left: -100%;
+  top: 0;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  transition: opacity 300ms, left 100ms 300ms;
+  cursor: pointer;
+
+  &.active {
+    left: 0;
+    opacity: 1;
+    transition: opacity 300ms;
+
+    .main-offcanvas {
+      left: 0;
+      transform: translateX(0px);
+      opacity: 1;
+      transition: all 300ms;
+    }
+  }
+}
+
+.main-offcanvas {
+  position: absolute;
+  width: 300px;
+  height: 100%;
+  overflow-y: auto;
+  left: -300px;
+  top: 0;
+  background: #fff;
+  border-right: 2px solid @c-blue;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.16);
+  opacity: 0;
+  transition: all 300ms;
+}
+
+.main-offcanvas-padding {
+  padding: 0 15px;
+}
+
+.main-offcanvas-menu {
+  .ul-reset;
+  margin-bottom: 25px;
+
+  & > li {
+    & > a {
+      display: block;
+      background: @c-blue;
+      color: #fff;
+      padding: 15px;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255,255,255,.2);
+
+      &:hover,
+      &:focus {
+        background: @c-blue-2;
+      }
+    }
+
+    &.active {
+      & > a {
+        background: @c-blue-2;
+      }
+    }
+
+    & > ul {
+      .ul-reset;
+
+      & > li {
+        & > a {
+          display: block;
+          padding: 10px 15px;
+
+          &::before {
+            content: '—';
+            display: inline-block;
+            margin-right: 10px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.main-offcanvas-user {
+  margin: 15px 0;
+}
