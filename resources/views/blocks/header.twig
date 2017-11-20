@@ -6,8 +6,8 @@
             </svg>
         </a>
         <div class="main-header-logo">
-            <a href="#">
-                <img height="60px;" src="images/logo.svg" alt="Фонд профилактики рака. Живу не напрасно.">
+            <a href="/">
+                <img height="60px;" src="/images/logo.svg" alt="Фонд профилактики рака. Живу не напрасно.">
             </a>
         </div>
         <div class="main-header-right">
@@ -16,33 +16,25 @@
                     Связаться с нами
                 </div>
                 <a href="#" class="main-header-contacts-phone">
-                    <img src="images/call-answer.svg">
+                    <img src="/images/call-answer.svg">
                     +7 812 316-34-34
                 </a>
             </div>
             <div class="main-header-contacts mail-col">
-                <a href="#" class="main-header-contacts-email">
-                    <img src="images/close-envelope.svg">
+                <a href="mailto:fond@nenaprasno.ru" class="main-header-contacts-email">
+                    <img src="/images/close-envelope.svg">
                     fond@nenaprasno.ru
                 </a>
             </div>
 
             <div class="main-header-buttons">
-            <!--
-                <div href="#" class="main-header-button-login">
-                    <a href="#" class="link-dotted">Вход</a> / <a href="#" class="link-dotted">Регистрация</a>
-                </div>
-            -->
 
                 <div class="social-buttons">
-                    <a href="#" target="_blank" title="Вконтакте">
-                        <?php include "images/icon-social-vk.svg"; ?>
+                    <a href="https://vk.com/nenaprasno" target="_blank" title="Вконтакте">
+                        {{ source("icon-social-vk") }}
                     </a>
-                    <a href="#" target="_blank" title="Facebook">
-                        <?php include "images/icon-social-facebook.svg"; ?>
-                    </a>
-                    <a href="#" target="_blank" title="Twitter">
-                        <?php include "images/icon-social-twitter.svg"; ?>
+                    <a href="https://www.facebook.com/nenaprasno" target="_blank" title="Facebook">
+                        {{ source("icon-social-facebook") }}
                     </a>
                 </div>
             </div>
@@ -52,17 +44,28 @@
         <div class="wrapper-nav">
 
             <ul class="main-header-nav-list">
-                <li><a href="#">Главная</a></li>
-                <li><a href="#">Фонд</a></li>
-                <li><a href="#">Проекты</a></li>
-                <li><a href="#">Как помочь?</a></li>
-                <li><a href="#">Публикации</a></li>
-                <li><a href="#">Партнеры</a></li>
-                <li><a href="#">Контакты</a></li>
+                <li>
+                    <a target="_blank" href="{{ MAIN_SITE }}/">Главная</a>
+                </li>
+                <li>
+                    <a target="_blank" href="{{ MAIN_SITE }}/fund/">Фонд</a>
+                </li>
+                <li>
+                    <a target="_blank" href="{{ MAIN_SITE }}/projects/">Проекты</a>
+                </li>
+                <li>
+                    <a target="_blank" href="{{ MAIN_SITE }}/help">Как помочь?</a>
+                </li>
+                <li>
+                    <a target="_blank" href="{{ MAIN_SITE }}/partners/">Партнеры</a>
+                </li>
+                <li>
+                    <a target="_blank" href="{{ MAIN_SITE }}/contacts/">Контакты</a>
+                </li>
             </ul>
 
             <div class="main-header-nav-right">
-                <a href="#" class="button button-red">Помочь прямо сейчас</a>
+                <a href="{{ MAIN_SITE }}#donate" class="button button-red">Помочь прямо сейчас</a>
             </div>
         </div>
     </nav>
