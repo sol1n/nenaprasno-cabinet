@@ -152,10 +152,10 @@ class ObjectManager
     public function create(Schema $schema, array $fields): Object
     {
         $object = $this->model::create($schema, $fields, $this->backend);
-        $this->initList($schema);
-        $this->lists->get($schema->id)->push($object);
+        //$this->initList($schema);
+        //$this->lists->get($schema->id)->push($object);
 
-        $this->saveToCache($schema, $this->lists->get($schema->id));
+        //$this->saveToCache($schema, $this->lists->get($schema->id));
 
         return $object;
     }

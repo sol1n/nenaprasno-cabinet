@@ -94,7 +94,6 @@
 
               
                 {% for procedure in procedures %}
-                  {% set medicalProcedure = medicalProcedures.get(procedure.id) %}
                     <div class="cabinet-risks-recommendation">
                         <div class="cabinet-risks-recommendation-name">
                             <div class="cabinet-risks-recommendation-title">
@@ -102,14 +101,14 @@
                             </div>
                             {{ procedure.name }}
                         </div>
-                        <div class="cabinet-risks-recommendation-date">
+                        <div class="cabinet-risks-recommendation-date cabinet-risks-recommendation-default-state">
                           {% if procedure.nextDate %}
-                            {{ procedure.date|date('d.m.Y') }}
+                            {{ procedure.nextDate|date('d.m.Y') }}
                           {% else %}
                             В ближайшее время
                           {% endif %}
                         </div>
-                        <div class="cabinet-risks-recommendation-clinics">
+                        <div class="cabinet-risks-recommendation-clinics cabinet-risks-recommendation-default-state">
                           {% if procedure.clinics|length %}
                             <a data-tooltip data-html="risk-{{ procedure.id }}-clinics" data-position="bottom" data-trigger="click" data-arrow="true">
                                 {{ source("icon-geomarker") }}
@@ -134,9 +133,18 @@
                             </div>
                           {% endif %}
                         </div>
-                        <div class="cabinet-risks-recommendation-button">
-                            <a href="#" class="button button-round">
+                        <div class="cabinet-risks-recommendation-button cabinet-risks-recommendation-default-state">
+                            <a href="#enter-date" data-enter-date class="button button-round">
                                 Уже проходил
+                            </a>
+                        </div>
+
+                        <div class="cabinet-risks-recommendation-enter-date cabinet-risks-recommendation-enter-date-state">
+                            <input type="text" class="form-input form-input-block" data-flatpickr='{"altInput": true, "altFormat": "d.m.Y"}' value="" placeholder="Выберите дату">
+                        </div>
+                        <div class="cabinet-risks-recommendation-button cabinet-risks-recommendation-enter-date-state">
+                            <a href="#save-date" data-save-date="{{ procedure.id }}" class="button button-blue button-round">
+                                Указать дату
                             </a>
                         </div>
                     </div>

@@ -17,14 +17,6 @@ class CabinetController extends Controller
 {
     const PROFILE_SCHEMA_NAME = 'UserProfiles';
 
-    public function messages()
-    {
-        return [
-            'newpassword.required' => 'A password is required',
-            'repeatpassword.required'  => 'A password is required',
-        ];
-    }
-
     private function getDiseases($schemaManager, $objectManager)
     {
         return $objectManager
@@ -61,6 +53,26 @@ class CabinetController extends Controller
                 return [$item->id => $item->fields];
             });
     }
+
+    private function getProfile($schemaManager, $objectManager, $request)
+    {
+        if (isset($request->profile)) {
+            return $request->profile;
+        } else {
+            $schema = $schemaManager->find(self::PROFILE_SCHEMA_NAME);
+            return $objectManager->find($schema, $request->profileId);
+        }
+    }
+
+    private function getUserProcedures($schemaManager, $objectManager, $userId)
+    {
+        $query = json_encode(['userId' => $userId]);
+        $schema = $schemaManager->find('UserMedicalProcedure');
+        $userProcedures = $objectManager->search($schema, ['take' => -1, 'order' => 'createdAt', 'where' => $query]);
+        return $userProcedures->mapWithKeys(function ($item) {
+            return [$item->fields['procedureId'] => $item->fields['date']];
+        });
+    }
     
     public function dashboard(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
@@ -73,23 +85,15 @@ class CabinetController extends Controller
         $medicalProcedures = $this->getMedicalProcedures($schemaManager, $objectManager);
         $clinics = $this->getClinicsForRegion($region, $schemaManager, $objectManager);
 
+        $userProcedures = $this->getUserProcedures($schemaManager, $objectManager, $userId);
+
         return view('dashboard', [
             'diseases' => $this->getDiseases($schemaManager, $objectManager),
-            'procedures' => $results->getProcedures($medicalProcedures, $clinics),
+            'procedures' => $results->getProcedures($medicalProcedures, $clinics, $userProcedures),
             'results' => $results,
             'profile' => $this->getProfile($schemaManager, $objectManager, $request),
             'selected' => 'cabinet'
         ]);
-    }
-
-    private function getProfile($schemaManager, $objectManager, $request)
-    {
-        if (isset($request->profile)) {
-            return $request->profile;
-        } else {
-            $schema = $schemaManager->find(self::PROFILE_SCHEMA_NAME);
-            return $objectManager->find($schema, $request->profileId);
-        }
     }
 
     public function settings(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
@@ -168,5 +172,34 @@ class CabinetController extends Controller
         $profile = $objectManager->save($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profile->id, $fields);
 
         return redirect()->route('cabinet');
+    }
+
+    public function procedure(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
+    {
+        $userId = session(app(Backend::class)->code . '-id');
+
+        $fields = [
+            'userId' => $userId,
+            'date' => $request->input('date'),
+            'procedureId' => $request->input('procedure')
+        ];
+
+        $schema = $schemaManager->find('UserMedicalProcedure');
+        $result = $objectManager->create($schema, $fields);
+
+        $procedure = $objectManager->find($schemaManager->find('MedicalProcedure'), $request->input('procedure'));
+        $periodicity = $procedure->fields['periodicity'] ?? null;
+
+        if (! is_null($periodicity)) {
+            $nextDate = new Carbon($request->input('date')); 
+            $nextDate = $nextDate->addDays($periodicity)->format('d.m.Y');
+        } else {
+            $nextDate = 'Пройдена';
+        }
+
+        return response()->json([
+            'nextDate' => $nextDate,
+            'procedure' => $procedure
+        ]);
     }
 }
