@@ -14,7 +14,7 @@
 Route::get('/login', 'AuthController@ShowAuthForm')->name('login');
 Route::post('/login', 'AuthController@ProcessLogin');
 
-Route::group(['middleware' => ['appercodeAuth', 'CheckProfileExisting']], function () {
+Route::group(['middleware' => ['appercodeAuth']], function () {
   Route::get('/', 'CabinetController@dashboard')->name('cabinet');
   Route::get('/settings', 'CabinetController@settings')->name('settings');
   Route::post('/profile', 'CabinetController@saveProfile')->name('save-profile');
@@ -22,6 +22,7 @@ Route::group(['middleware' => ['appercodeAuth', 'CheckProfileExisting']], functi
   Route::post('/password', 'CabinetController@changePassword')->name('change-password');
   Route::post('/declineSubscribe', 'CabinetController@declineSubscribe')->name('decline-subscribe');
   Route::post('/procedure', 'CabinetController@procedure');
+  Route::get('/logout', 'AuthController@logout');
 });
 
 

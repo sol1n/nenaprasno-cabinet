@@ -54,13 +54,21 @@ class CabinetController extends Controller
             });
     }
 
-    private function getProfile($schemaManager, $objectManager, $request)
+    private function createProfile($schemaManager, $objectManager, $userId)
     {
-        if (isset($request->profile)) {
-            return $request->profile;
+        return $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
+            'userId' => $userId
+        ]);
+    }
+
+    private function getProfile($schemaManager, $objectManager, int $userId)
+    {
+        $profile = $objectManager->search($schemaManager->find(self::PROFILE_SCHEMA_NAME), ['where' => json_encode(['userId' => $userId])]);
+
+        if ($profile->isEmpty()) {
+            return $this->createProfile($schemaManager, $objectManager, $userId);
         } else {
-            $schema = $schemaManager->find(self::PROFILE_SCHEMA_NAME);
-            return $objectManager->find($schema, $request->profileId);
+            return $profile->first();
         }
     }
 
@@ -79,7 +87,10 @@ class CabinetController extends Controller
         $userId = session(app(Backend::class)->code . '-id');
         $results = TestResult::get($userId);
 
-        $profile = $this->getProfile($schemaManager, $objectManager, $request);
+        if ($userId) {
+            $profile = $this->getProfile($schemaManager, $objectManager, $userId);
+        }
+
         $region = $profile->fields['region'] ?? 'Ленинградская область';
 
         $medicalProcedures = $this->getMedicalProcedures($schemaManager, $objectManager);
@@ -91,14 +102,18 @@ class CabinetController extends Controller
             'diseases' => $this->getDiseases($schemaManager, $objectManager),
             'procedures' => $results->getProcedures($medicalProcedures, $clinics, $userProcedures),
             'results' => $results,
-            'profile' => $this->getProfile($schemaManager, $objectManager, $request),
+            'profile' => $profile,
             'selected' => 'cabinet'
         ]);
     }
 
     public function settings(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
-        $profile = $this->getProfile($schemaManager, $objectManager, $request);
+        $userId = session(app(Backend::class)->code . '-id');
+
+        if ($userId) {
+            $profile = $this->getProfile($schemaManager, $objectManager, $userId);
+        }
 
         $profile->fields['birthdate'] = isset($profile->fields['birthdate']) ? new Carbon($profile->fields['birthdate'], 'UTC') : null;
 
@@ -111,8 +126,9 @@ class CabinetController extends Controller
     public function saveProfile(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
         $fields = $request->except('_token');
+        $userId = session(app(Backend::class)->code . '-id');
 
-        $profile = $this->getProfile($schemaManager, $objectManager, $request);
+        $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         $profile = $objectManager->save($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profile->id, $fields);
 
         return redirect()->route('settings');
@@ -151,12 +167,14 @@ class CabinetController extends Controller
 
     public function subscribes(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
+        $userId = session(app(Backend::class)->code . '-id');
+        
         $fields = [
             'getEmails' => $request->has('subscribe'),
             'getNotifications' => $request->has('notifications')
         ];
 
-        $profile = $this->getProfile($schemaManager, $objectManager, $request);
+        $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         $profile = $objectManager->save($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profile->id, $fields);
 
         return redirect()->route('settings');
@@ -164,11 +182,13 @@ class CabinetController extends Controller
 
     public function declineSubscribe(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
+        $userId = session(app(Backend::class)->code . '-id');
+
         $fields = [
             'getNotifications' => ! $request->has('subscribe')
         ];
 
-        $profile = $this->getProfile($schemaManager, $objectManager, $request);
+        $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         $profile = $objectManager->save($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profile->id, $fields);
 
         return redirect()->route('cabinet');

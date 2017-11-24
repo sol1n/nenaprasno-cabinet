@@ -40,8 +40,11 @@
             <div class="main-header-separator"></div>
 
             <div class="main-header-button-login">
-                <a href="#">Регистрация</a>
-                <a href="#">Вход</a>
+                {% if selected == 'login' %}
+                    <a href="/login">Вход</a>
+                {% else %}
+                    <a href="/logout">Выход</a>
+                {% endif %}
             </div>
         </div>
     </div>

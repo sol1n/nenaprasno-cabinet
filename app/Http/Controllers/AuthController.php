@@ -14,6 +14,7 @@ class AuthController extends Controller
     public function ShowAuthForm()
     {
         return view('auth/login', [
+        'selected' => 'login',
         'message' => session('login-error')
       ]);
     }
@@ -32,6 +33,12 @@ class AuthController extends Controller
             $request->session()->forget(self::REDIRECT_KEY);
             return redirect($redirectTo);
         }
+        return redirect('/');
+    }
+
+    public function logout(Backend $backend)
+    {
+        $backend->logout();
         return redirect('/');
     }
 }
