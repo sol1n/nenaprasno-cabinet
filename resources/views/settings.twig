@@ -30,7 +30,9 @@
                   {% if errors.all()|length %}
                     <div class="cabinet-profile-control">
                       {% for error in errors.all() %}
-                        <p><b>{{ trans(error) }}</b></p>
+                        <div class="cabinet-error">
+                            {{ error }}
+                        </div>
                       {% endfor %}
                     </div>
                   {% endif %}
@@ -97,12 +99,6 @@
                   </div>
 
                   <div class="row">
-                      {# <div class="col-xs-12 col-md-6">
-                          <div class="cabinet-profile-control">
-                              <label class="cabinet-profile-label">Город</label>
-                              <input name="city" type="text" class="form-input" value="{{ profile.fields.city }}" placeholder="Введите город">
-                          </div>
-                      </div> #}
                       <div class="col-xs-12 col-md-12">
                           <div class="cabinet-profile-control">
                               <label class="cabinet-profile-label">Регион</label>

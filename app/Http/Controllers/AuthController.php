@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\User;
 use App\Backend;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
+use App\Exceptions\User\UserCreateException;
 use App\Exceptions\User\WrongCredentialsException;
 
 class AuthController extends Controller
@@ -14,6 +16,14 @@ class AuthController extends Controller
     public function ShowAuthForm()
     {
         return view('auth/login', [
+        'selected' => 'login',
+        'message' => session('login-error')
+      ]);
+    }
+
+    public function ShowRegistrationForm()
+    {
+        return view('auth/registration', [
         'selected' => 'login',
         'message' => session('login-error')
       ]);
@@ -34,6 +44,40 @@ class AuthController extends Controller
             return redirect($redirectTo);
         }
         return redirect('/');
+    }
+
+    public function ProcessRegistration(Backend $backend, Request $request)
+    {
+        $rules = [
+            'login' => 'required',
+            'password' => 'required',
+            'confirm' => 'required|same:password',
+        ];
+
+        $messages = [
+            'required' => 'Поле :attribute является обязательным',
+            'same' => 'Значение поля :attribute должно совпадать со значением поля :other'
+        ];
+
+        $this->validate($request, $rules, $messages);
+
+        try {
+            $user = User::create([
+                'username' => $request->input('login'),
+                'password' => $request->input('password')
+            ], $backend);
+        } catch (UserCreateException $e) {
+            $errors = new MessageBag();
+            $errors->add('registration', $e->getMessage());
+            return redirect()->route('registration')->withErrors($errors);
+        }
+
+        User::login($backend, [
+            'login' => $request->input('login'),
+            'password' => $request->input('password')
+        ]);
+
+        return redirect()->route('settings');
     }
 
     public function logout(Backend $backend)

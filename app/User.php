@@ -336,10 +336,15 @@ class User
         $client = new Client;
         try {
             $r = $client->post($backend->url  . 'users/', [
-                'headers' => ['X-Appercode-Session-Token' => $backend->token],
+                'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
                 'json' => $fields
             ]);
         } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                if ($e->getResponse()->getStatusCode() == 409) {
+                    throw new UserCreateException('Conflict when user creation');
+                }
+            }
             throw new UserCreateException;
         };
 
