@@ -70,32 +70,40 @@ class CabinetController extends Controller
 
     private function createProfile($schemaManager, $objectManager, $userId)
     {
-        $userResponse = Form::getOwnResponses(app(Backend::class), self::FORM_ID)->mapWithKeys(function($item) {
-            $index = $item['value']['value'] ?? null;
+        $userResponse = Form::getOwnResponses(app(Backend::class), self::FORM_ID);
+        if (! is_null($userResponse)) {
+            $userResponse = $userResponse->mapWithKeys(function($item) {
+                $index = $item['value']['value'] ?? null;
 
-            if ($item['controlType'] == 'numberInput') {
-                return [$item['controlId'] => $index];
-            } else {
-                $value = null;
-                if (is_array($item['options']['value'])) {
-                    foreach ($item['options']['value'] as $one) {
-                        if ($index == (integer) $one['value']) {
-                            $value = $one;
+                if ($item['controlType'] == 'numberInput') {
+                    return [$item['controlId'] => $index];
+                } else {
+                    $value = null;
+                    if (is_array($item['options']['value'])) {
+                        foreach ($item['options']['value'] as $one) {
+                            if ($index == (integer) $one['value']) {
+                                $value = $one;
+                            }
                         }
                     }
+                    
+                    return [$item['controlId'] => $value];
                 }
-                
-                return [$item['controlId'] => $value];
-            }
-        })->filter();
-        
-        $profileData = $this->extractProfileData($userResponse);
+            })->filter();
+            
+            $profileData = $this->extractProfileData($userResponse);
 
-        $profileData = array_merge($profileData, [
-            'getEmails' => true,
-            'getNotifications' => true,
-            'userId' => $userId
-        ]);
+            $profileData = array_merge($profileData, [
+                'getEmails' => true,
+                'getNotifications' => true,
+                'userId' => $userId
+            ]);
+        } else {
+            $profileData = [
+                'userId' => $userId
+            ];
+        }
+        
 
         return $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profileData);
     }
