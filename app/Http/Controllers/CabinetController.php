@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Form;
 use App\Backend;
 use Carbon\Carbon;
 use App\TestResult;
@@ -15,6 +16,7 @@ use App\Exceptions\User\WrongCredentialsException;
 
 class CabinetController extends Controller
 {
+    const FORM_ID = 1;
     const PROFILE_SCHEMA_NAME = 'UserProfiles';
 
     private function getDiseases($schemaManager, $objectManager)
@@ -54,11 +56,48 @@ class CabinetController extends Controller
             });
     }
 
+    private function extractProfileData($response)
+    {
+        $birthday = new Carbon();
+        $age = $response['t1-p3-s2-g1-c1'] ?? 0;
+        $birthday->subYears($age)->startOfYear();
+        return [
+            'region' => $response['reg1']['title'] ?? null,
+            'sex' => (integer) $response['t1-p1-s1-g1-c1']['value'],
+            'birthdate' => $birthday->format('d.m.Y')
+        ];
+    }
+
     private function createProfile($schemaManager, $objectManager, $userId)
     {
-        return $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
+        $userResponse = Form::getOwnResponses(app(Backend::class), self::FORM_ID)->mapWithKeys(function($item) {
+            $index = $item['value']['value'] ?? null;
+
+            if ($item['controlType'] == 'numberInput') {
+                return [$item['controlId'] => $index];
+            } else {
+                $value = null;
+                if (is_array($item['options']['value'])) {
+                    foreach ($item['options']['value'] as $one) {
+                        if ($index == (integer) $one['value']) {
+                            $value = $one;
+                        }
+                    }
+                }
+                
+                return [$item['controlId'] => $value];
+            }
+        })->filter();
+        
+        $profileData = $this->extractProfileData($userResponse);
+
+        $profileData = array_merge($profileData, [
+            'getEmails' => true,
+            'getNotifications' => true,
             'userId' => $userId
         ]);
+
+        return $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profileData);
     }
 
     private function getProfile($schemaManager, $objectManager, int $userId)

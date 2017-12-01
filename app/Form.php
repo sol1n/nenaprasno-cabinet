@@ -173,4 +173,29 @@ class Form
         $this->questions = collect($questions);
         return $this;
     }
+
+    public static function getOwnResponses(Backend $backend, $id)
+    {
+        $client = new Client;
+        try {
+            $r = $client->get($backend->url . 'forms/' . $id . '/response/own', ['headers' => [
+                'X-Appercode-Session-Token' => $backend->token
+            ]]);
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                if ($e->getResponse()->getStatusCode() == 401) {
+                    throw new TokenExpiredException;
+                }
+            }
+            throw new \Exception('Error while getting forms list');
+        };
+
+        $decoded = json_decode($r->getBody()->getContents(), 1);
+        if (isset($decoded[0])) {
+            $data = $decoded[0]['data'];
+            return collect($data);
+        }
+
+        return null;
+    }
 }
