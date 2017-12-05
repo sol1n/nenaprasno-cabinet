@@ -104,8 +104,10 @@
                             <div class="cabinet-risks-recommendation-date cabinet-risks-recommendation-default-state">
                               {% if procedure.nextDate %}
                                 {{ procedure.nextDate|date('d.m.Y') }}
-                              {% else %}
+                              {% elseif procedure.firstShown %}
                                 В ближайшее время
+                              {% else %}
+                                Пройдена
                               {% endif %}
                             </div>
                             <div class="cabinet-risks-recommendation-clinics cabinet-risks-recommendation-default-state">
@@ -144,7 +146,12 @@
                             </div>
                             <div class="cabinet-risks-recommendation-button cabinet-risks-recommendation-enter-date-state">
                                 <a href="#save-date" data-save-date="{{ procedure.id }}" class="button button-blue button-round">
-                                    Указать дату
+                                    Сохранить
+                                </a>
+                            </div>
+                            <div class="cabinet-risks-recommendation-button cabinet-risks-recommendation-enter-date-state">
+                                <a href="#return" data-close-enter-date class="button button-round">
+                                    Отмена
                                 </a>
                             </div>
                         </div>

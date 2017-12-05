@@ -84,7 +84,7 @@ class TestResult
                     foreach ($result->Recommendations as $recommendation) {
                         $procedure = $medicalProcedures[$recommendation->medicalProcedureId];
 
-                        $procedureDate = isset($userProcedures[$procedure['id']]) ? new Carbon($userProcedures[$procedure['id']]) : $created;
+                        $procedureDate = isset($userProcedures[$procedure['id']]) ? new Carbon($userProcedures[$procedure['id']]) : null;
 
                         $data[$procedure['id']] = [
                             'id' => $recommendation->medicalProcedureId,
@@ -92,7 +92,8 @@ class TestResult
                             'description' => $procedure['description'] ?? null,
                             'repeatCount' => $recommendation->repeatCount,
                             'clinics' => $this->getClinicsForProcedure($clinics, $procedure['id']),
-                            'nextDate' => isset($procedure['periodicity']) && $procedure['periodicity'] ? $procedureDate->addDays($procedure['periodicity']) : null,
+                            'firstShown' => !is_null($procedureDate),
+                            'nextDate' => isset($procedure['periodicity']) && $procedure['periodicity'] && $procedureDate ? $procedureDate->addDays($procedure['periodicity']) : null,
                             'date' => $created
                           ];
                     }
