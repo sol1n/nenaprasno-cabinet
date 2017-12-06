@@ -92,7 +92,7 @@ class TestResult
                             'description' => $procedure['description'] ?? null,
                             'repeatCount' => $recommendation->repeatCount,
                             'clinics' => $this->getClinicsForProcedure($clinics, $procedure['id']),
-                            'firstShown' => !is_null($procedureDate),
+                            'firstShown' => is_null($procedureDate),
                             'nextDate' => isset($procedure['periodicity']) && $procedure['periodicity'] && $procedureDate ? $procedureDate->addDays($procedure['periodicity']) : null,
                             'date' => $created
                           ];
