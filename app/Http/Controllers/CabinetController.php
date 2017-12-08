@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Cookie;
 use App\User;
 use App\Form;
 use App\Backend;

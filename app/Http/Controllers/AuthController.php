@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Cookie;
 use App\User;
 use App\Backend;
 use Illuminate\Http\Request;
@@ -32,6 +33,13 @@ class AuthController extends Controller
       ]);
     }
 
+    private function shareSession(Request $request, $user)
+    {
+        Cookie::queue(Cookie::make('nenaprasno-user', $user->id, 60*96, '/', env('MAIN_SITE_SHARE_COOKIE')));
+        Cookie::queue(Cookie::make('nenaprasno-token', $user->token(), 60*96));
+        Cookie::queue(Cookie::make('nenaprasno-refresh-token', $user->refreshToken(), 60*96));
+    }
+
     public function ProcessLogin(Backend $backend, Request $request)
     {
         try {
@@ -40,6 +48,8 @@ class AuthController extends Controller
             $request->session()->flash('login-error', 'Wrong сredentials data');
             return redirect('/login/');
         }
+
+        $this->shareSession($request, $user);
 
         if ($request->session()->has(self::REDIRECT_KEY)) {
             $redirectTo = session(self::REDIRECT_KEY);
@@ -75,10 +85,12 @@ class AuthController extends Controller
             return redirect()->route('registration')->withErrors($errors);
         }
 
-        User::login($backend, [
+        $user = User::login($backend, [
             'login' => $request->input('login'),
             'password' => $request->input('password')
         ]);
+
+        $this->shareSession($request, $user);
 
         $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
             'userId' => $user->id,
