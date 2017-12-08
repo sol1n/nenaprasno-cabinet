@@ -16,6 +16,7 @@ class AuthController extends Controller
 {
     const REDIRECT_KEY = 'redirect-after';
     const PROFILE_SCHEMA_NAME = 'UserProfiles';
+    const COOKIE_NAME = 'userInfo';
     
     public function ShowAuthForm()
     {
@@ -40,7 +41,12 @@ class AuthController extends Controller
             'token' => $user->token(),
             'refreshToken' => $user->refreshToken()
         ]);
-        Cookie::queue(Cookie::make('userInfo', $userInfo, 60*96, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false));
+        Cookie::queue(Cookie::make(self::COOKIE_NAME, $userInfo, 60*96, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false));
+    }
+
+    private function clearSession()
+    {
+        Cookie::queue(Cookie::make(self::COOKIE_NAME, null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false));
     }
 
     public function ProcessLogin(Backend $backend, Request $request)
@@ -106,6 +112,7 @@ class AuthController extends Controller
     public function logout(Backend $backend)
     {
         $backend->logout();
+        $this->clearSession();
         return redirect('/');
     }
 }
