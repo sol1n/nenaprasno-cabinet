@@ -35,9 +35,12 @@ class AuthController extends Controller
 
     private function shareSession(Request $request, $user)
     {
-        Cookie::queue(Cookie::make('nenaprasno-user', $user->id, 60*96, '/', env('MAIN_SITE_SHARE_COOKIE')));
-        Cookie::queue(Cookie::make('nenaprasno-token', $user->token(), 60*96, '/', env('MAIN_SITE_SHARE_COOKIE')));
-        Cookie::queue(Cookie::make('nenaprasno-refresh-token', $user->refreshToken(), 60*96, '/', env('MAIN_SITE_SHARE_COOKIE')));
+        $userInfo = json_encode([
+            'id' => $user->id,
+            'token' => $user->token(),
+            'refreshToken' => $user->refreshToken()
+        ]);
+        Cookie::queue(Cookie::make('userInfo', $userInfo, 60*96, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false));
     }
 
     public function ProcessLogin(Backend $backend, Request $request)
