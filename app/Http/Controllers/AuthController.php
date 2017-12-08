@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\User;
 use App\Backend;
 use Illuminate\Http\Request;
+use App\Services\ObjectManager;
+use App\Services\SchemaManager;
 use Illuminate\Support\MessageBag;
 use App\Exceptions\User\UserCreateException;
 use App\Exceptions\User\WrongCredentialsException;
@@ -12,6 +14,7 @@ use App\Exceptions\User\WrongCredentialsException;
 class AuthController extends Controller
 {
     const REDIRECT_KEY = 'redirect-after';
+    const PROFILE_SCHEMA_NAME = 'UserProfiles';
     
     public function ShowAuthForm()
     {
@@ -46,7 +49,7 @@ class AuthController extends Controller
         return redirect('/');
     }
 
-    public function ProcessRegistration(Backend $backend, Request $request)
+    public function ProcessRegistration(Backend $backend, Request $request, ObjectManager $objectManager, SchemaManager $schemaManager)
     {
         $rules = [
             'login' => 'required',
@@ -75,6 +78,11 @@ class AuthController extends Controller
         User::login($backend, [
             'login' => $request->input('login'),
             'password' => $request->input('password')
+        ]);
+
+        $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
+            'userId' => $user->id,
+            'email' => $request->input('login')
         ]);
 
         return redirect()->route('settings');

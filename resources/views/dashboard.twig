@@ -20,6 +20,7 @@
       
       <div class="main-wrapper-column">
           <div class="cabinet-risks">
+            {% if results.raw|length %}
               <div class="cabinet-risks-title">
                   Ваши риски
               </div>
@@ -74,18 +75,18 @@
               {% if procedures|length %}
 
                 <div class="cabinet-risks-title m-t-lg">
-                    Рекомендации
+                    Напоминания об осмотрах
                 </div>
                 <div class="cabinet-risks-recommendations m-b-lg">
                     <div class="cabinet-risks-recommendations-heading">
                         <div class="cabinet-risks-recommendations-heading-name">
-                            Направление
+                            Рекомендация
                         </div>
                         <div class="cabinet-risks-recommendations-heading-date">
-                            Пройти обследование
+                            Дата напоминания
                         </div>
                         <div class="cabinet-risks-recommendations-heading-clinics">
-                            Клиники
+                            Где пройти
                         </div>
                         <div class="cabinet-risks-recommendations-heading-button">
                             &nbsp;
@@ -171,8 +172,17 @@
                 </div>
             
               {% endif %}
-          </div>
-          
+            {% else %}
+              <div class="cabinet-risks-title">
+                Пожалуйста, пройдите онлайн тестирование Screen
+              </div>
+              <div class="cabinet-risks-go-screen">
+                <a href="{{ MAIN_SITE }}/screen/" class="button button-blue button-round">
+                    Перейти на страницу тестирования
+                </a>
+              </div>
+            {% endif %}
+          </div>   
       </div>
   </div>
 {% endblock %}

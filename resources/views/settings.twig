@@ -52,7 +52,16 @@
                       <div class="col-xs-12 col-md-6">
                           <div class="cabinet-profile-control">
                               <label class="cabinet-profile-label">Дата рождения</label>
-                              <input name="birthdate" type="text" class="form-input" value="{{ profile.fields.birthdate|date('d.m.Y') }}" data-flatpickr placeholder="дд.мм.гггг">
+                              <input 
+                                name="birthdate" 
+                                type="text" 
+                                class="form-input" 
+                                {% if not profile.fields.birthdate is null %}
+                                  value="{{ profile.fields.birthdate|date('d.m.Y') }}"
+                                {% endif %}
+                                data-flatpickr 
+                                placeholder="дд.мм.гггг"
+                              >
                           </div>
                       </div>
                       <div class="col-xs-12 col-md-6">
@@ -61,12 +70,25 @@
 
                               <div class="form-control-radio-tabs" style="width: 100%;">
                                   <div class="form-control-radio-tab">
-                                      <input id="cabinet-profile-sex-male" type="radio" name="sex" value="0" {% if profile.fields.sex == 0 %}checked{% endif %} autocomplete="off">
+                                      <input 
+                                        id="cabinet-profile-sex-male" 
+                                        type="radio" name="sex" 
+                                        value="0" 
+                                        {% if profile.fields.sex is same as (0) %}checked{% endif %} 
+                                        autocomplete="off"
+                                      >
                                       <label for="cabinet-profile-sex-male">Мужчина</label>
                                   </div>
 
                                   <div class="form-control-radio-tab">
-                                      <input id="cabinet-profile-sex-female" type="radio" name="sex" value="1" {% if profile.fields.sex == 1 %}checked{% endif %} autocomplete="off">
+                                      <input 
+                                        id="cabinet-profile-sex-female" 
+                                        type="radio" 
+                                        name="sex" 
+                                        value="1" 
+                                        {% if profile.fields.sex is same as (1) %}checked{% endif %} 
+                                        autocomplete="off"
+                                      >
                                       <label for="cabinet-profile-sex-female">Женщина</label>
                                   </div>
                               </div>
@@ -80,12 +102,6 @@
                   </div>
 
                   <div class="row">
-                      <div class="col-xs-12 col-md-6">
-                          <div class="cabinet-profile-control">
-                              <label class="cabinet-profile-label">E-mail</label>
-                              <input name="email" type="email" class="form-input" value="{{ profile.fields.email }}" placeholder="Введите e-mail">
-                          </div>
-                      </div>
                       <div class="col-xs-12 col-md-6">
                           <div class="cabinet-profile-control">
                               <label class="cabinet-profile-label">Мобильный телефон</label>

@@ -104,7 +104,6 @@ class CabinetController extends Controller
             ];
         }
         
-
         return $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profileData);
     }
 

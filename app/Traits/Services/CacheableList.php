@@ -53,8 +53,10 @@ trait CacheableList
         }
         
         $element = $this->model::get($id, $this->backend);
-        $this->list->push($element);
-        $this->saveToCache($this->list);
+        if ($this->list) {
+            $this->list->push($element);
+            $this->saveToCache($this->list);
+        }
 
         return $element;
     }
