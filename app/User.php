@@ -46,6 +46,15 @@ class User
         }
     }
 
+    public function refreshToken(): string
+    {
+        if ($this->refreshToken !== null) {
+            return $this->refreshToken;
+        } else {
+            throw new UnAuthorizedException;
+        }
+    }
+
     public function isAdmin(): bool
     {
         return isset($user->roleId) && $user->roleId == Role::ADMIN;
