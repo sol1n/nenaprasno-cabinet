@@ -24,6 +24,7 @@ use App\Exceptions\User\UserCreateException;
 use App\Exceptions\User\UserGetProfilesException;
 use App\Traits\Controllers\ModelActions;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cookie;
 
 class User
 {
@@ -62,12 +63,12 @@ class User
 
     public function __construct()
     {
-        $backend = app(Backend::class);
-        if (session($backend->code . '-session-token')) {
-            $this->token = session($backend->code . '-session-token');
+        $backend = app(Backend::Class);
+        if (Cookie::get($backend->code . '-session-token')) {
+            $this->token = Cookie::get($backend->code . '-session-token');
         }
-        if (session($backend->code . '-refresh-token')) {
-            $this->refreshToken = session($backend->code .'-refresh-token');
+        if (Cookie::get($backend->code . '-refresh-token')) {
+            $this->refreshToken = Cookie::get($backend->code .'-refresh-token');
         }
     }
 
@@ -179,10 +180,14 @@ class User
 
     public function storeSession(Backend $backend, $language = ''): User
     {
-        request()->session()->put($backend->code . '-session-token', $this->token);
-        request()->session()->put($backend->code . '-refresh-token', $this->refreshToken);
-        request()->session()->put($backend->code . '-id', $this->id);
-        request()->session()->put($backend->code . '-language', $language);
+        $lifetime = env('COOKIE_LIFETIME');
+        if (!$lifetime) {
+            $lifetime = config('auth.cookieLifetime');
+        }
+        Cookie::queue($backend->code . '-session-token', $this->token, $lifetime);
+        Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime);
+        Cookie::queue($backend->code . '-id', $this->id, $lifetime);
+        Cookie::queue($backend->code . '-language', $language, $lifetime);
         return $this;
     }
 
@@ -206,7 +211,7 @@ class User
         $this->token = $json['sessionId'];
         $this->refreshToken = $json['refreshToken'];
         $this->id = $json['userId'];
-        $language = session($backend->code . '-language');
+        $language = Cookie::get($backend->code . '-language');
 
         if ($storeSession) {
             $this->storeSession($backend, $language);
@@ -240,6 +245,14 @@ class User
         }
 
         return $result;
+    }
+
+    public static function forgetSession($backend)
+    {
+        Cookie::queue(Cookie::make($backend->code . '-session-token', null, -2628000));
+        Cookie::queue(Cookie::make($backend->code . '-refresh-token', null, -2628000));
+        Cookie::queue(Cookie::make($backend->code . '-id', null, -2628000));
+        Cookie::queue(Cookie::make($backend->code . '-language', null, -2628000));
     }
 
     public static function list(Backend $backend, $params = []): Collection

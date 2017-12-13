@@ -12,6 +12,7 @@ use App\Exceptions\Backend\BackendNotExists;
 use App\Exceptions\Backend\BackendNotSelected;
 use App\Exceptions\Backend\BackendNoServerProvided;
 use App\Exceptions\Backend\LogoutException;
+use Illuminate\Support\Facades\Cookie;
 
 class Backend
 {
@@ -73,8 +74,8 @@ class Backend
 
         $this->check();
 
-        if (session($this->code . '-session-token')) {
-          $this->token = session($this->code . '-session-token');
+        if (Cookie::get($this->code . '-session-token')) { 
+          $this->token = Cookie::get($this->code . '-session-token');
         }
     }
 
@@ -93,7 +94,7 @@ class Backend
             throw new LogoutException;
         };
 
-        session()->flush();
+        User::forgetSession($this);
         $this->token = null;
       }
     
@@ -102,12 +103,12 @@ class Backend
 
     public function user()
     {
-      return session($this->code . '-id');
+      return Cookie::get($this->code . '-id'); 
     }
 
     public function refreshToken()
     {
-        return session($this->code . '-refresh-token');
+      return Cookie::get($this->code . '-refresh-token'); 
     }
 
     public function authorized()

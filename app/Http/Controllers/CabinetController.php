@@ -131,7 +131,7 @@ class CabinetController extends Controller
     
     public function dashboard(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
-        $userId = session(app(Backend::class)->code . '-id');
+        $userId = app(Backend::class)->user();
         $results = TestResult::get($userId);
 
         if ($userId) {
@@ -156,7 +156,7 @@ class CabinetController extends Controller
 
     public function settings(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
-        $userId = session(app(Backend::class)->code . '-id');
+        $userId = app(Backend::class)->user();
 
         if ($userId) {
             $profile = $this->getProfile($schemaManager, $objectManager, $userId);
@@ -173,7 +173,7 @@ class CabinetController extends Controller
     public function saveProfile(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
         $fields = $request->except('_token');
-        $userId = session(app(Backend::class)->code . '-id');
+        $userId = app(Backend::class)->user();
 
         $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         $profile = $objectManager->save($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profile->id, $fields);
@@ -183,7 +183,7 @@ class CabinetController extends Controller
 
     public function changePassword(Request $request, UserManager $userManager)
     {
-        $userId = session(app(Backend::class)->code . '-id');
+        $userId = app(Backend::class)->user();
 
         $rules = [
             'password' => 'required',
@@ -214,7 +214,7 @@ class CabinetController extends Controller
 
     public function subscribes(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
-        $userId = session(app(Backend::class)->code . '-id');
+        $userId = app(Backend::class)->user();
         
         $fields = [
             'getEmails' => $request->has('subscribe'),
@@ -229,7 +229,7 @@ class CabinetController extends Controller
 
     public function declineSubscribe(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
-        $userId = session(app(Backend::class)->code . '-id');
+        $userId = app(Backend::class)->user();
 
         $fields = [
             'getNotifications' => ! $request->has('subscribe')
@@ -243,7 +243,7 @@ class CabinetController extends Controller
 
     public function procedure(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
-        $userId = session(app(Backend::class)->code . '-id');
+        $userId = app(Backend::class)->user();
 
         $fields = [
             'userId' => $userId,

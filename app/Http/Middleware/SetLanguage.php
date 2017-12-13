@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Backend;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cookie;
 
 class SetLanguage
 {
@@ -19,7 +20,7 @@ class SetLanguage
     {
         $backend = app(Backend::class);
         $defaultLanguage = env('DEFAULT_LANGUAGE');
-        $sessionLanguage = session($backend->code . '-language');
+        $sessionLanguage = Cookie::get($backend->code . '-language');
         if ($sessionLanguage) {
             App::setLocale($sessionLanguage);
         } else {

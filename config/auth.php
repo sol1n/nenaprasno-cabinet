@@ -99,4 +99,5 @@ return [
         ],
     ],
 
+    'cookieLifetime' => 4320
 ];

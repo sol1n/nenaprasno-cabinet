@@ -65,11 +65,11 @@ class Handler extends ExceptionHandler
         if ($exception instanceof UserNotFoundException) {
             return response()->view('errors.user.notfound');
         }
-        if ($exception instanceof TokenExpiredException) {
-            $request->user = isset($request->user) ? $request->user : new User;
-            $request->user->regenerate(app(Backend::Class));
-            return redirect($request->path());
-        }
+        // if ($exception instanceof TokenExpiredException) {
+        //     $request->user = isset($request->user) ? $request->user : new User;
+        //     $request->user->regenerate(app(Backend::Class));
+        //     return redirect($request->path());
+        // }
 
         return parent::render($request, $exception);
     }

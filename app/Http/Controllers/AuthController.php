@@ -111,7 +111,11 @@ class AuthController extends Controller
 
     public function logout(Backend $backend)
     {
-        $backend->logout();
+        try {
+            $backend->logout();
+        } catch (\Exception $e) {
+            //
+        }
         $this->clearSession();
         return redirect('/');
     }

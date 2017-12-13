@@ -20,7 +20,8 @@ class AppercodeAuth
     public function handle(Request $request, Closure $next)
     {
         $backend = app(Backend::Class);
-        if (! isset(app(Backend::Class)->token)) {
+    
+        if (! isset($backend->token)) {
             $request->session()->put(AuthController::REDIRECT_KEY, $request->path());
             return redirect('/login');
         }
