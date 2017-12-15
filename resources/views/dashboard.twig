@@ -137,7 +137,7 @@
                               {% endif %}
                             </div>
                             <div class="cabinet-risks-recommendation-button cabinet-risks-recommendation-default-state">
-                                <a href="#enter-date" data-enter-date class="button button-round">
+                                <a href="#enter-date" data-enter-date class="button button-round {% if not profile.fields.getNotifications %}disabled{% endif %}">
                                     Уже проходил
                                 </a>
                             </div>

@@ -15,7 +15,7 @@
         return false;
     }
 
-    $('[data-enter-date]').on('click', function(){
+    $('[data-enter-date]:enabled').on('click', function(){
         return showDateState(this);
     });
 

@@ -189,10 +189,10 @@ class User
         if (!$lifetime) {
             $lifetime = config('auth.cookieLifetime');
         }
-        Cookie::queue($backend->code . '-session-token', $this->token, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false);
-        Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false);
-        Cookie::queue($backend->code . '-id', $this->id, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false);
-        Cookie::queue($backend->code . '-language', $language, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false);
+        Cookie::queue($backend->code . '-session-token', $this->token, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
+        Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
+        Cookie::queue($backend->code . '-id', $this->id, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
+        Cookie::queue($backend->code . '-language', $language, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         return $this;
     }
 
@@ -254,10 +254,10 @@ class User
 
     public static function forgetSession($backend)
     {
-        Cookie::queue(Cookie::make($backend->code . '-session-token', null, -2628000));
-        Cookie::queue(Cookie::make($backend->code . '-refresh-token', null, -2628000));
-        Cookie::queue(Cookie::make($backend->code . '-id', null, -2628000));
-        Cookie::queue(Cookie::make($backend->code . '-language', null, -2628000));
+        Cookie::queue(Cookie::make($backend->code . '-session-token', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
+        Cookie::queue(Cookie::make($backend->code . '-refresh-token', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
+        Cookie::queue(Cookie::make($backend->code . '-id', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
+        Cookie::queue(Cookie::make($backend->code . '-language', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
     }
 
     public static function list(Backend $backend, $params = []): Collection
