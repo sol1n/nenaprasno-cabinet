@@ -128,6 +128,8 @@ class AuthController extends Controller
             header("Access-Control-Allow-Origin: " . env('MAIN_SITE'));
         }
 
+        header("Access-Control-Allow-Credentials: true");
+
         try {
             $user = new User;
             $backend = app(Backend::class);
