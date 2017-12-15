@@ -15,6 +15,8 @@ Route::get('/login', 'AuthController@ShowAuthForm')->name('login');
 Route::get('/registration', 'AuthController@ShowRegistrationForm')->name('registration');
 Route::post('/login', 'AuthController@ProcessLogin');
 Route::post('/registration', 'AuthController@ProcessRegistration');
+Route::post('/loginByToken', 'AuthController@LoginByToken');
+
 
 Route::group(['middleware' => ['appercodeAuth']], function () {
   Route::get('/', 'CabinetController@dashboard')->name('cabinet');

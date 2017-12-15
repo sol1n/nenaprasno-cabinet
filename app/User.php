@@ -56,6 +56,11 @@ class User
         }
     }
 
+    public function setRefreshToken($token)
+    {
+        $this->refreshToken = $token;
+    }
+
     public function isAdmin(): bool
     {
         return isset($user->roleId) && $user->roleId == Role::ADMIN;
@@ -184,10 +189,10 @@ class User
         if (!$lifetime) {
             $lifetime = config('auth.cookieLifetime');
         }
-        Cookie::queue($backend->code . '-session-token', $this->token, $lifetime);
-        Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime);
-        Cookie::queue($backend->code . '-id', $this->id, $lifetime);
-        Cookie::queue($backend->code . '-language', $language, $lifetime);
+        Cookie::queue($backend->code . '-session-token', $this->token, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false);
+        Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false);
+        Cookie::queue($backend->code . '-id', $this->id, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false);
+        Cookie::queue($backend->code . '-language', $language, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false);
         return $this;
     }
 

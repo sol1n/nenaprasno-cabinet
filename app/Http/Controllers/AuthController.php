@@ -119,4 +119,25 @@ class AuthController extends Controller
         $this->clearSession();
         return redirect('/');
     }
+
+    public function LoginByToken(Request $request)
+    {
+        if (env('APP_DEBUG', false)) {
+            header("Access-Control-Allow-Origin: *");
+        } else {
+            header("Access-Control-Allow-Origin: " . env('MAIN_SITE'));
+        }
+
+        try {
+            $user = new User;
+            $backend = app(Backend::class);
+            $user->setRefreshToken($request->input('token'));
+            $user->regenerate($backend, true);
+
+            return response()->json(['success' => true, 'user' => $user]);
+
+        } catch (WrongCredentialsException $e) {
+            return response()->json(['success' => false]);
+        }
+    }
 }
