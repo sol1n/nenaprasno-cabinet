@@ -122,13 +122,12 @@ class AuthController extends Controller
 
     public function LoginByToken(Request $request)
     {
+        $headers = ['Access-Control-Allow-Credentials' => 'true'];
         if (env('APP_DEBUG', false)) {
-            header("Access-Control-Allow-Origin: *");
+            $headers['Access-Control-Allow-Origin'] =  '*';
         } else {
-            header("Access-Control-Allow-Origin: " . env('MAIN_SITE'));
+            $headers['Access-Control-Allow-Origin'] =  env('MAIN_SITE');
         }
-
-        header("Access-Control-Allow-Credentials: true");
 
         try {
             $user = new User;
@@ -136,10 +135,23 @@ class AuthController extends Controller
             $user->setRefreshToken($request->input('token'));
             $user->regenerate($backend, true);
 
-            return response()->json(['success' => true, 'user' => $user]);
+            return response()->json(['success' => true, 'user' => $user])->withHeaders($headers);
 
         } catch (WrongCredentialsException $e) {
-            return response()->json(['success' => false]);
+            return response()->json(['success' => false])->withHeaders($headers);
         }
+    }
+
+    public function LoginByTokenOptions()
+    {
+        $response = response('');
+        if (env('APP_DEBUG', false)) {
+            $response->header('Access-Control-Allow-Origin', '*');
+        } else {
+            $response->header('Access-Control-Allow-Origin', env('MAIN_SITE'));
+        }
+        $response->header('Access-Control-Allow-Credentials', 'true');
+        $response->header('Access-Methods-Allow-Methods', 'POST, OPTIONS');
+        return $response;
     }
 }

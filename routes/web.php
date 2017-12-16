@@ -16,6 +16,7 @@ Route::get('/registration', 'AuthController@ShowRegistrationForm')->name('regist
 Route::post('/login', 'AuthController@ProcessLogin');
 Route::post('/registration', 'AuthController@ProcessRegistration');
 Route::post('/loginByToken', 'AuthController@LoginByToken');
+Route::options('/loginByToken', 'AuthController@LoginByTokenOptions');
 
 
 Route::group(['middleware' => ['appercodeAuth']], function () {
