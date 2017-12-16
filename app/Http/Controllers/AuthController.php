@@ -138,7 +138,7 @@ class AuthController extends Controller
             return response()->json(['success' => true, 'user' => $user])->withHeaders($headers);
 
         } catch (WrongCredentialsException $e) {
-            return response()->json(['success' => false])->withHeaders($headers);
+            return response('', 401)->withHeaders($headers);
         }
     }
 
@@ -151,6 +151,7 @@ class AuthController extends Controller
             $response->header('Access-Control-Allow-Origin', env('MAIN_SITE'));
         }
         $response->header('Access-Control-Allow-Credentials', 'true');
+        $response->header('Access-Control-Allow-Headers', 'Content-Type');
         $response->header('Access-Methods-Allow-Methods', 'POST, OPTIONS');
         return $response;
     }
