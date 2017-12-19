@@ -49,7 +49,7 @@ class CabinetController extends Controller
 
     private function getClinicsForRegion($region, $schemaManager, $objectManager)
     {
-        $query = json_encode(['region' => $region]);
+        $query = json_encode(['regionId' => $region]);
         return $objectManager
             ->search($schemaManager->find('Clinic'), ['where' => $query, 'take' => -1])
             ->mapWithKeys(function ($item) {
@@ -63,7 +63,7 @@ class CabinetController extends Controller
         $age = $response['t1-p3-s2-g1-c1'] ?? 0;
         $birthday->subYears($age)->startOfYear();
         return [
-            'region' => $response['reg1']['title'] ?? null,
+            'regionId' => (integer) $response['reg1']['value'] ?? null,
             'sex' => (integer) $response['t1-p1-s1-g1-c1']['value'],
             'birthdate' => $birthday->format('d.m.Y')
         ];
@@ -99,6 +99,13 @@ class CabinetController extends Controller
                 'getNotifications' => true,
                 'userId' => $userId
             ]);
+
+            $regions = $objectManager->search($schemaManager->find('Region'), ['take' => -1])->mapWithKeys(function($item){
+                return [$item->fields['value'] => $item->id];
+            });
+
+            $profileData['regionId'] = $regions[$profileData['regionId']] ?? null;
+
         } else {
             $profileData = [
                 'userId' => $userId
@@ -138,10 +145,10 @@ class CabinetController extends Controller
             $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         }
 
-        $region = $profile->fields['region'] ?? 'Ленинградская область';
+        $regionId = $profile->fields['regionId'] ?? null;
 
         $medicalProcedures = $this->getMedicalProcedures($schemaManager, $objectManager);
-        $clinics = $this->getClinicsForRegion($region, $schemaManager, $objectManager);
+        $clinics = $this->getClinicsForRegion($regionId, $schemaManager, $objectManager);
 
         $userProcedures = $this->getUserProcedures($schemaManager, $objectManager, $userId);
 
@@ -162,10 +169,18 @@ class CabinetController extends Controller
             $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         }
 
+        $regions = $objectManager->search($schemaManager->find('Region'), ['take' => -1])->map(function($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->fields['title'] ?? ''
+            ];
+        });
+
         $profile->fields['birthdate'] = isset($profile->fields['birthdate']) ? new Carbon($profile->fields['birthdate'], 'UTC') : null;
 
         return view('settings', [
             'profile' => $profile,
+            'regions' => $regions,
             'selected' => 'settings'
         ]);
     }
@@ -244,22 +259,39 @@ class CabinetController extends Controller
     public function procedure(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
         $userId = app(Backend::class)->user();
+        $procedureId = $request->input('procedure');
 
         $fields = [
             'userId' => $userId,
             'date' => $request->input('date'),
-            'procedureId' => $request->input('procedure')
+            'procedureId' => $procedureId
         ];
 
         $schema = $schemaManager->find('UserMedicalProcedure');
         $result = $objectManager->create($schema, $fields);
 
-        $procedure = $objectManager->find($schemaManager->find('MedicalProcedure'), $request->input('procedure'));
+        $procedure = $objectManager->find($schemaManager->find('MedicalProcedure'), $procedureId);
         $periodicity = $procedure->fields['periodicity'] ?? null;
 
         if (! is_null($periodicity)) {
             $nextDate = new Carbon($request->input('date')); 
             $nextDate = $nextDate->addDays($periodicity)->format('d.m.Y');
+
+            $fields = [
+                'user' => $userId,
+                'procedure' => $procedureId,
+                'date' => $nextDate
+            ];
+
+            $schema = $schemaManager->find('Notification');
+            $query = json_encode(['user' => $userId, 'procedure' => $procedureId]);
+            $exists = $objectManager->search($schema, ['where' => $query]);
+            if ($exists->isEmpty()) {
+                $objectManager->create($schema, $fields);
+            } else {
+                $objectManager->save($schema, $exists->first()->id, $fields);
+            }
+
         } else {
             $nextDate = 'Пройдена';
         }

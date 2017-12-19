@@ -15,7 +15,10 @@
         return false;
     }
 
-    $('[data-enter-date]:enabled').on('click', function(){
+    $('[data-enter-date]').on('click', function(){
+        if ($(this).attr('disabled')) {
+            return false;
+        }
         return showDateState(this);
     });
 
