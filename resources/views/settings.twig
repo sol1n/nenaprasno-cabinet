@@ -41,8 +41,6 @@
                       1. Личные данные
                   </div>
 
-                  
-
                   <div class="cabinet-profile-control">
                       <label class="cabinet-profile-label">ФИО</label>
                       <input type="text" class="form-input" name="firstName" placeholder="Введите имя" value="{{ profile.fields.firstName }}" required>
@@ -106,6 +104,12 @@
                           <div class="cabinet-profile-control">
                               <label class="cabinet-profile-label">Мобильный телефон</label>
                               <input name="phoneNumber" type="tel" class="form-input" value="{{ profile.fields.phoneNumber }}" placeholder="Введите телефон" data-inputmask="'mask': '+7 999 999-99-99'">
+                          </div>
+                      </div>
+                      <div class="col-xs-12 col-md-6">
+                          <div class="cabinet-profile-control">
+                              <label class="cabinet-profile-label">E-mail (логин)</label>
+                              <input name="email" required type="email" class="form-input" value="{{ profile.fields.email }}" placeholder="Введите E-mail">
                           </div>
                       </div>
                   </div>
@@ -200,9 +204,9 @@
 
                   <div class="cabinet-profile-control">
                       <div class="form-control-checkbox">
-                          <input id="cabinet-profile-notifications" {% if profile.fields.getNotifications %}checked{% endif %} name="notifications" type="checkbox">
+                          <input id="cabinet-profile-notifications" name="notifications" {% if not profile.fields.getNotifications %}checked{% endif %} type="checkbox">
                           <label for="cabinet-profile-notifications">
-                              Получать уведомления о прохождении обследования
+                              Отказаться от напоминаний о прохождении обследований
                           </label>
                       </div>
                   </div>

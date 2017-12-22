@@ -191,6 +191,10 @@ class CabinetController extends Controller
         $fields = $request->except('_token');
         $userId = app(Backend::class)->user();
 
+        if (isset($fields['email'])) {
+            app(UserManager::Class)->save($userId, ['username' => $fields['email']]);
+        }
+
         $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         $profile = $objectManager->save($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profile->id, $fields);
 
@@ -234,7 +238,7 @@ class CabinetController extends Controller
         
         $fields = [
             'getEmails' => $request->has('subscribe'),
-            'getNotifications' => $request->has('notifications')
+            'getNotifications' => ! $request->has('notifications')
         ];
 
         $profile = $this->getProfile($schemaManager, $objectManager, $userId);
