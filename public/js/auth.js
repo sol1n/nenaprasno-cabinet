@@ -59,11 +59,17 @@ function loginFb(e){
     FB.getLoginStatus(function(response) {
         console.log(response);
         if (response.authResponse) {
-            handleSocial(SOCIAL_FB, response.authResponse.userID);
+            FB.api('/me?fields=name,email', function(userInfo) {
+                console.log(userInfo);
+            });
+            //handleSocial(SOCIAL_FB, response.authResponse.userID);
         } else {
             FB.login(function(response){
                 if (response.authResponse) {
-                   handleSocial(SOCIAL_FB, response.authResponse.userID);
+                    FB.api('/me', function(userInfo) {
+                        console.log(userInfo);
+                    });
+                   // handleSocial(SOCIAL_FB, response.authResponse.userID);
                 } else {
                     console.log('Походу пользователь передумал логиниться через ФБ');
                 }
