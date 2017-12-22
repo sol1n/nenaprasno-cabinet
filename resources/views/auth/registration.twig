@@ -9,7 +9,18 @@
     </div>
 {% endblock %}
 
+{% block scripts %}
+    {{ parent() }}
+    <script src="https://vk.com/js/api/openapi.js?151" type="text/javascript"></script>
+    <script>
+        const APP_VK = '{{ vkApp }}';
+        const APP_FB = '{{ fbApp }}';
+    </script>
+    <script src="{{ asset('/js/auth.js') }}"></script>
+{% endblock %}
+
 {% block content %}
+
     <div class="main-wrapper-column">
 
         <form action="/registration/" method="POST" class="cabinet-profile">
@@ -48,6 +59,19 @@
                     <button type="submit" class="button button-blue button-round">
                         Зарегистрироваться
                     </button>
+                </div>
+
+                <div>
+                    <h3>Через социальные сети</h3>
+                </div>
+
+                <div>
+                    <a href="#" onclick="loginVk(event)" target="_blank" title="Вконтакте">
+                        {{ source("icon-social-vk") }}
+                    </a>
+                    <a href="#" onclick="loginFb(event)" target="_blank" title="Facebook">
+                        {{ source("icon-social-facebook") }}
+                    </a>
                 </div>
 
                 <div class="cabinet-profile-links">

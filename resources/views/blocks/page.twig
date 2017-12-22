@@ -27,6 +27,9 @@
     {% include "blocks/footer.twig" %}
   {% endblock %}
 
-  <script src="{{ asset('/build/scripts.js') }}"></script>
+
+  {% block scripts %}
+      <script src="{{ asset('/build/scripts.js') }}"></script>
+  {% endblock %}
   </body>
 </html>

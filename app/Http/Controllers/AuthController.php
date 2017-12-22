@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\AjaxResponse;
+use App\Services\UserManager;
 use Cookie;
 use App\User;
 use App\Backend;
 use Illuminate\Http\Request;
 use App\Services\ObjectManager;
 use App\Services\SchemaManager;
+use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use App\Exceptions\User\UserCreateException;
 use App\Exceptions\User\WrongCredentialsException;
@@ -22,7 +25,9 @@ class AuthController extends Controller
     {
         return view('auth/login', [
         'selected' => 'login',
-        'message' => session('login-error')
+        'message' => session('login-error'),
+        'vkApp' => env('VK_APP'),
+        'fbApp' => env('FB_APP')
       ]);
     }
 
@@ -30,7 +35,9 @@ class AuthController extends Controller
     {
         return view('auth/registration', [
         'selected' => 'login',
-        'message' => session('login-error')
+        'message' => session('login-error'),
+        'vkApp' => env('VK_APP'),
+        'fbApp' => env('FB_APP')
       ]);
     }
 
@@ -154,5 +161,64 @@ class AuthController extends Controller
         $response->header('Access-Control-Allow-Headers', 'Content-Type');
         $response->header('Access-Methods-Allow-Methods', 'POST, OPTIONS');
         return $response;
+    }
+
+    public function LoginBySocial(Backend $backend, Request $request, ObjectManager $objectManager, SchemaManager $schemaManager) {
+        $response = new AjaxResponse();
+        $errors = new MessageBag();
+//        $errors->add('registration', $e->getMessage());
+//        return redirect()->route('registration')->withErrors($errors);
+        if (!$userId = $request->input('userId')) {
+            $errors->add('registration', 'Не передан идентификатор пользователя');
+        }
+
+        if (!$networkName = $request->input('networkName')) {
+            $errors->add('registration', 'Не передан название социальной сети');
+        }
+
+
+        if (!$errors->count()) {
+            $login = $networkName . 'user' . $userId;
+            $password = sha1($networkName . $userId . env('PASSWORD_SALT'));
+
+            $isNew = false;
+            try {
+                $user = User::create([
+                    'username' => $login,
+                    'password' => $password
+                ], $backend);
+
+                $isNew = true;
+
+            } catch (UserCreateException $e) {
+                if ($e->getMessage() != 'Conflict when user creation') {
+                    $response->setResponseError($e->getMessage());
+                }
+            }
+
+            if ($response->type != AjaxResponse::ERROR) {
+
+                $user = User::login($backend, [
+                    'login' => $login,
+                    'password' => $password
+                ]);
+
+                $this->shareSession($request, $user);
+
+                if ($isNew) {
+                    $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
+                        'userId' => $user->id,
+                        'email' => $request->input('email')
+                    ]);
+                }
+
+                $response->data = route('settings');
+            }
+        }
+        else {
+            $response->setResponseError($errors->toArray());
+        }
+
+        return response()->json($response);
     }
 }

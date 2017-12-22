@@ -169,6 +169,7 @@ class CabinetController extends Controller
             $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         }
 
+
         $regions = $objectManager->search($schemaManager->find('Region'), ['take' => -1])->map(function($item) {
             return [
                 'id' => $item->id,
