@@ -59,18 +59,15 @@ function loginFb(e){
     FB.getLoginStatus(function(response) {
         console.log(response);
         if (response.authResponse) {
-            console.log('Welcome!  Fetching your information.... ');
             handleSocial(SOCIAL_FB, response.authResponse.userID);
         } else {
-            console.log('Юзер был не залогинен в самом ФБ, запускаем окно логинизирования');
             FB.login(function(response){
                 if (response.authResponse) {
-                    console.log('Welcome!  Fetching your information.... ');
-                    console.log(response);
+                   handleSocial(SOCIAL_FB, response.authResponse.userID);
                 } else {
                     console.log('Походу пользователь передумал логиниться через ФБ');
                 }
-            });
+            },{scope:'email'});
         }
     }, {
         scope: 'email,id'
@@ -81,7 +78,8 @@ function loginVk(e) {
     e.preventDefault();
     VK.Auth.login(function(res){
         if (res.status == "connected" && res.hasOwnProperty('session')) {
-            handleSocial(SOCIAL_VK, res.session.user.id);
+            console.log(res);
+            //handleSocial(SOCIAL_VK, res.session.user.id);
         }
     }, 4194304 );
 }
