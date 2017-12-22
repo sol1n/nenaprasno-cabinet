@@ -84,8 +84,8 @@ function loginVk(e) {
     e.preventDefault();
     VK.Auth.login(function(res){
         if (res.status == "connected" && res.hasOwnProperty('session')) {
-            console.log(res);
-            //handleSocial(SOCIAL_VK, res.session.user.id);
+            // console.log(res);
+            handleSocial(SOCIAL_VK, res.session.user.id);
         }
     }, 4194304 );
 }
