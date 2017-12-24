@@ -59,19 +59,11 @@ function loginFb(e){
     FB.getLoginStatus(function(response) {
         console.log(response);
         if (response.authResponse) {
-            // FB.api('/me?fields=name,email', function(userInfo) {
-            //     console.log(userInfo);
-            // });
             handleSocial(SOCIAL_FB, response.authResponse.userID);
         } else {
             FB.login(function(response){
                 if (response.authResponse) {
-                    // FB.api('/me', function(userInfo) {
-                    //     console.log(userInfo);
-                    // });
                    handleSocial(SOCIAL_FB, response.authResponse.userID);
-                } else {
-                    console.log('Походу пользователь передумал логиниться через ФБ');
                 }
             },{scope:'email'});
         }
@@ -84,7 +76,6 @@ function loginVk(e) {
     e.preventDefault();
     VK.Auth.login(function(res){
         if (res.status == "connected" && res.hasOwnProperty('session')) {
-            // console.log(res);
             handleSocial(SOCIAL_VK, res.session.user.id);
         }
     }, 4194304 );

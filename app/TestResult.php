@@ -76,7 +76,7 @@ class TestResult
         $data = [];
 
         if (isset($this->raw)) {
-            foreach ($this->raw as $result) {
+            foreach ($this->lastResults() as $result) {
                 if (isset($result->Recommendations) && $result->Recommendations) {
 
                     $created = new Carbon($result->TestResult->createdAt);
@@ -103,5 +103,18 @@ class TestResult
         } else {
             return null;
         }
+    }
+
+    public function lastResults()
+    {
+        $maxId = 0;
+        foreach ($this->raw as $raw) {
+            if ($raw->TestResult->formResponceId > $maxId) {
+                $maxId = $raw->TestResult->formResponceId;
+            }
+        }
+        return array_where($this->raw, function ($value, $key) use ($maxId) {
+           return $value->TestResult->formResponceId == $maxId;
+        });
     }
 }

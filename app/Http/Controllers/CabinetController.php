@@ -155,7 +155,7 @@ class CabinetController extends Controller
         return view('dashboard', [
             'diseases' => $this->getDiseases($schemaManager, $objectManager),
             'procedures' => $results->getProcedures($medicalProcedures, $clinics, $userProcedures),
-            'results' => $results,
+            'results' => $results->lastResults(),
             'profile' => $profile,
             'selected' => 'cabinet'
         ]);

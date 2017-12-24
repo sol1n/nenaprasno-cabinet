@@ -20,13 +20,13 @@
       
       <div class="main-wrapper-column">
           <div class="cabinet-risks">
-            {% if results.raw|length %}
+            {% if results|length %}
               <div class="cabinet-risks-title">
                   Ваши риски
               </div>
               
               <div class="cabinet-risks-list">
-                {% for result in results.raw %}
+                {% for result in results %}
                   {% set disease = diseases.get(result.TestResult.diseaseId) %}
                   <div class="cabinet-risks-list-item cabinet-risks-list-item-{{ result.TestResult.levelOfRisk }}">
                       <div class="cabinet-risks-list-item-label"></div>
