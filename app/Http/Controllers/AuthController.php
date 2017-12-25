@@ -7,6 +7,7 @@ use App\Services\UserManager;
 use Cookie;
 use App\User;
 use App\Backend;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use App\Services\ObjectManager;
 use App\Services\SchemaManager;
@@ -39,6 +40,14 @@ class AuthController extends Controller
         'vkApp' => env('VK_APP'),
         'fbApp' => env('FB_APP')
       ]);
+    }
+
+    public function ShowRestoringForm()
+    {
+        return view('auth/restore', [
+            'selected' => 'login',
+            'message' => session('restore-error')
+        ]);
     }
 
     private function shareSession(Request $request, $user)
@@ -217,6 +226,92 @@ class AuthController extends Controller
         }
         else {
             $response->setResponseError($errors->toArray());
+        }
+
+        return response()->json($response);
+    }
+
+    public function createRecoveryCode(Request $request, Backend $backend)
+    {
+        $rules = [
+            'email' => 'email|restoringFields',
+            'username' => 'restoringFields'
+        ];
+
+        $messages = [
+            'restoringFields' => 'Для восстановление пароля требуется ввести email и/или имя пользователя',
+            'email' => 'Значение введенное в поле email не соотвествует формату электронной почты'
+        ];
+
+        $this->validate($request, $rules, $messages);
+
+        $response = new AjaxResponse();
+
+        $email = $request->input('email');
+        $username = $request->input('username');
+
+        $errors = [];
+
+        if ($email or $username) {
+            try {
+                $result = User::createRecoverCode($backend, ['username' => $username, 'email' => $email]);
+            }
+            catch (ClientException $exception) {
+                if ($exception->getResponse()->getStatusCode() == 404) {
+                    $errors[] = 'Пользователь не найден';
+                }
+            }
+        }
+        else {
+            $errors[] = 'Для восстановление пароля требуется ввести email и/или имя пользователя';
+        }
+
+        if (!empty($errors)) {
+            $response->setResponseError($errors);
+        }
+
+        return response()->json($response);
+    }
+
+    public function RestorePswd(Backend $backend, Request $request)
+    {
+        $rules = [
+            'email' => 'email|restoringFields',
+            'username' => 'restoringFields',
+            'password' => 'required',
+            'recoveryCode' => 'required'
+        ];
+
+        $messages = [
+            'restoringFields' => 'Для восстановление пароля требуется ввести email и/или имя пользователя',
+            'email' => 'Значение введенное в поле email не соотвествует формату электронной почты',
+            'required' => 'Поле :attribute является обязательным'
+        ];
+
+        $this->validate($request, $rules, $messages);
+
+        $response = new AjaxResponse();
+
+        $username = $request->input('username');
+        $email = $request->input('email');
+        $recoveryCode = $request->input('recoveryCode');
+        $password = $request->input('password');
+
+        if (!$username) {
+
+        }
+
+        if ($recoveryCode and $password) {
+            try {
+                $result = User::restorePassword($backend, ['username' => $username, 'recoveryCode' => $recoveryCode, 'newPassword' => $password ]);
+            } catch (ClientException $exception) {
+                if ($exception->getResponse()->getStatusCode() == 404) {
+                    $errors[] = 'Пользователь не найден';
+                }
+            }
+        }
+        else {
+
         }
 
         return response()->json($response);

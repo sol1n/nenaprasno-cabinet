@@ -29,6 +29,9 @@ function handleSocial(networkName, userId) {
     var _token = $('input[name="_token"]').val();
     $.ajax({
         url: url,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        },
         method: 'POST',
         data: {
             userId: userId,

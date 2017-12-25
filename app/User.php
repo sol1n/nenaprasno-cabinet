@@ -436,4 +436,48 @@ class User
 
         return true;
     }
+
+    public static function createRecoverCode(Backend $backend, array $data)
+    {
+        $fields = [];
+
+        if (isset($data['username']) and $data['username']) {
+            $fields['username'] = $data['username'];
+        }
+        if (isset($data['email']) and $data['email']) {
+            $fields['email'] = $data['email'];
+        }
+
+        $client = new Client;
+
+        $r = $client->post($backend->url  . 'recover/sendRecoveryCode', [
+            'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
+            'json' => $fields
+        ]);
+
+        $json = json_decode($r->getBody()->getContents(), 1);
+
+        return true;
+    }
+
+    /**
+     * Restore password
+     * $data has to contain username, password ad recoveryCode
+     * @param \App\Backend $backend
+     * @param $data
+     * @return bool
+     */
+    public static function restorePassword(Backend $backend, $data)
+    {
+        $client = new Client;
+
+        $r = $client->post($backend->url  . '/recover/changePassword', [
+            'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
+            'json' => $data
+        ]);
+
+        $json = json_decode($r->getBody()->getContents(), 1);
+
+        return true;
+    }
 }

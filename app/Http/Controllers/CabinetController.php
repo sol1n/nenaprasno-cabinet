@@ -138,6 +138,7 @@ class CabinetController extends Controller
     
     public function dashboard(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
+        //User::recoverPassword(app(Backend::class), '', 'tsyrya@gmail.com');
         $userId = app(Backend::class)->user();
         $results = TestResult::get($userId);
 

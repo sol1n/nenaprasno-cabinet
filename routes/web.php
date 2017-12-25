@@ -13,6 +13,9 @@
 
 Route::get('/login', 'AuthController@ShowAuthForm')->name('login');
 Route::get('/registration', 'AuthController@ShowRegistrationForm')->name('registration');
+Route::get('/restore', 'AuthController@ShowRestoringForm')->name('restore');
+Route::post('/recover-code', 'AuthController@createRecoveryCode')->name('recoverCode');
+Route::post('/restore-pswd', 'AuthController@RestorePswd')->name('restorePswd');
 Route::post('/login', 'AuthController@ProcessLogin');
 Route::post('/registration', 'AuthController@ProcessRegistration');
 Route::post('/loginByToken', 'AuthController@LoginByToken');

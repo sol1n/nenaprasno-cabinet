@@ -4,27 +4,36 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "./node_modules/gulp/bin/gulp.js"
+    "build": "./node_modules/gulp/bin/gulp.js",
+    "dev": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@fancyapps/fancybox": "^3.1.25",
+    "axios": "^0.17.1",
     "bxslider": "^4.2.13",
     "flatpickr": "^4.0.6",
     "flexboxgrid": "^6.3.1",
     "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.1.1",
+    "gulp-autoprefixer": "^4.0.0",
     "gulp-concat": "^2.6.1",
-    "gulp-cssmin": "^0.1.7",
+    "gulp-cssmin": "^0.2.0",
     "gulp-less": "^3.3.0",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^2.4.0",
-    "gulp-uglify": "^2.0.0",
+    "gulp-uglify": "^3.0.0",
     "gulp-watch": "^4.3.11",
     "inputmask": "^3.3.10",
     "jquery": "^3.2.1",
+    "laravel-mix": "^1.7.2",
     "normalize.css": "^7.0.0",
-    "tippy.js": "^1.4.1"
+    "tippy.js": "^2.0.8",
+    "vue": "^2.5.3"
+  },
+  "dependencies": {
+    "cross-env": "^5.1.3"
   }
 }

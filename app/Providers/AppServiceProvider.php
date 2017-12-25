@@ -25,6 +25,12 @@ class AppServiceProvider extends ServiceProvider
             $view->with('backend', app(Backend::Class));
             $view->with('MAIN_SITE', env('MAIN_SITE'));
         });
+
+        Validator::extend('restoringFields', function ($attribute, $value, $parameters, $validator) {
+            $email = array_get($validator->getData(),'email');
+            $username = array_get($validator->getData(),'username');
+            return ($username or $email);
+        });
     }
 
     /**
