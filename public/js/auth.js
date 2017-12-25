@@ -30,7 +30,9 @@ function handleSocial(networkName, userId) {
     $.ajax({
         url: url,
         headers: {
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Origin, Content-Type, Accept, Authorization, X-Request-With'
         },
         method: 'POST',
         data: {

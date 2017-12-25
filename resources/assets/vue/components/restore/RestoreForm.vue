@@ -19,6 +19,11 @@
             <input type="password" class="form-input" placeholder="Введите пароль" v-model="password">
         </div>
 
+        <div class="cabinet-profile-control">
+            <label class="cabinet-profile-label">Повторите новый пароль</label>
+            <input type="password" class="form-input" placeholder="Повторите пароль" v-model="_password">
+        </div>
+
         <div class="cabinet-profile-submit">
             <button @click="send()" type="button" class="button button-blue button-round">
                 Установить новый пароль пароль
@@ -34,16 +39,23 @@
             return {
                 recoveryCode: '',
                 password: '',
+                _password: '',
                 errors: []
             }
         },
         methods: {
             send() {
-                if (this.recoveryCode && this.password) {
+                this.errors = [];
+                if (this.password == this._password) {
+                    if (this.recoveryCode && this.password) {
 
+                    }
+                    else {
+                        this.errors.push('Для смены пароля введите код восстановления и новый пароль');
+                    }
                 }
-                else{
-                    this.errors.push('Для смены пароля введите код восстановления и новый пароль');
+                else {
+                    this.errors.push('Пароли не совпадают');
                 }
             }
         }

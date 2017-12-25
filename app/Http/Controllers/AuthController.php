@@ -306,7 +306,7 @@ class AuthController extends Controller
                 $result = User::restorePassword($backend, ['username' => $username, 'recoveryCode' => $recoveryCode, 'newPassword' => $password ]);
             } catch (ClientException $exception) {
                 if ($exception->getResponse()->getStatusCode() == 404) {
-                    $errors[] = 'Пользователь не найден';
+                    $errors[] = 'Данный код восстановления не найден';
                 }
             }
         }
