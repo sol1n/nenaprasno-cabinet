@@ -28,11 +28,6 @@ function handleSocial(networkName, userId) {
     var url = '/loginBySocial';
     $.ajax({
         url: url,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        },
         method: 'POST',
         data: {
             userId: userId,
