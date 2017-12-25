@@ -26,19 +26,17 @@ window.fbAsyncInit = function() {
 
 function handleSocial(networkName, userId) {
     var url = '/loginBySocial';
-    var _token = $('input[name="_token"]').val();
     $.ajax({
         url: url,
         headers: {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Origin, Content-Type, Accept, Authorization, X-Request-With'
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
         },
         method: 'POST',
         data: {
             userId: userId,
-            networkName: networkName,
-            _token: _token
+            networkName: networkName
         }
     })
         .done(function (response) {

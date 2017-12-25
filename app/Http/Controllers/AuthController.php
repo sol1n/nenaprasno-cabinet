@@ -228,7 +228,15 @@ class AuthController extends Controller
             $response->setResponseError($errors->toArray());
         }
 
-        return response()->json($response);
+        $headers = ['Access-Control-Allow-Credentials' => 'true'];
+        if (env('APP_DEBUG', false)) {
+            $headers['Access-Control-Allow-Origin'] =  '*';
+        } else {
+            $headers['Access-Control-Allow-Origin'] =  env('MAIN_SITE');
+        }
+
+
+        return response()->json($response)->withHeaders($headers);
     }
 
     public function createRecoveryCode(Request $request, Backend $backend)
