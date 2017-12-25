@@ -63,8 +63,8 @@ class CabinetController extends Controller
         $age = $response['t1-p3-s2-g1-c1'] ?? 0;
         $birthday->subYears($age)->startOfYear();
         return [
-            'regionId' => (integer) $response['reg1']['value'] ?? null,
-            'sex' => (integer) $response['t1-p1-s1-g1-c1']['value'],
+            'regionId' => isset($response['reg1']['value']) ? (integer) $response['reg1']['value'] : null,
+            'sex' => isset($response['t1-p1-s1-g1-c1']['value']) ? (integer) $response['t1-p1-s1-g1-c1']['value'] : null,
             'birthdate' => $birthday->format('d.m.Y')
         ];
     }
@@ -74,7 +74,7 @@ class CabinetController extends Controller
         $userResponse = Form::getOwnResponses(app(Backend::class), self::FORM_ID);
         if (! is_null($userResponse)) {
             $userResponse = $userResponse->mapWithKeys(function($item) {
-                $index = $item['value']['value'] ?? null;
+                $index = isset($item['value']['value']) ? $item['value']['value'] : null;
 
                 if ($item['controlType'] == 'numberInput') {
                     return [$item['controlId'] => $index];
