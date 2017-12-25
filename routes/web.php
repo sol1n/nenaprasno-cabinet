@@ -20,9 +20,8 @@ Route::post('/login', 'AuthController@ProcessLogin');
 Route::post('/registration', 'AuthController@ProcessRegistration');
 Route::post('/loginByToken', 'AuthController@LoginByToken');
 Route::options('/loginByToken', 'AuthController@LoginByTokenOptions');
-Route::group(['middleware' => ['Cors']], function () {
-    Route::post('/loginBySocial', 'AuthController@LoginBySocial');
-});
+Route::post('/loginBySocial', 'AuthController@LoginBySocial');
+Route::options('/loginBySocial', 'AuthController@LoginByTokenOptions');
 
 
 Route::group(['middleware' => ['appercodeAuth']], function () {

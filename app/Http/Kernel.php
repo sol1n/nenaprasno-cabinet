@@ -60,6 +60,5 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'appercodeAuth' => \App\Http\Middleware\AppercodeAuth::class,
         'CheckProfileExisting' => \App\Http\Middleware\CheckProfileExisting::class,
-        'Cors' => Cors::class
     ];
 }
