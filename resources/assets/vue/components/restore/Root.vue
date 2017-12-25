@@ -22,7 +22,9 @@
         },
         data() {
             return {
-                isRecovery: true
+                isRecovery: true,
+                email: '',
+                username: ''
             }
         },
         mounted() {

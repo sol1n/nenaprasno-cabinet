@@ -50,6 +50,8 @@
                             console.log(response);
                             if (response.data.type === 'success') {
                                 this.$parent.isRecovery = false;
+                                this.$parent.username = this.username;
+                                this.$parent.email = this.email;
                             }
                             else{
                                 response.data.msg.forEach((error) => {

@@ -25,7 +25,7 @@ window.fbAsyncInit = function() {
 
 
 function handleSocial(networkName, userId) {
-    var url = '/loginBySocial';
+    var url = 'http://nenaprasno-cabinet.webglyphs.ru/loginBySocial';
     var _token = $('input[name="_token"]').val();
     $.ajax({
         url: url,

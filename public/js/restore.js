@@ -13443,7 +13443,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     data: function data() {
         return {
-            isRecovery: true
+            isRecovery: true,
+            email: '',
+            username: ''
         };
     },
     mounted: function mounted() {
@@ -13635,6 +13637,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                     console.log(response);
                     if (response.data.type === 'success') {
                         _this.$parent.isRecovery = false;
+                        _this.$parent.username = _this.username;
+                        _this.$parent.email = _this.email;
                     } else {
                         response.data.msg.forEach(function (error) {
                             _this.errors.push(error);
@@ -13919,9 +13923,41 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     methods: {
         send: function send() {
+            var _this = this;
+
             this.errors = [];
             if (this.password == this._password) {
-                if (this.recoveryCode && this.password) {} else {
+                if (this.recoveryCode && this.password) {
+                    var url = '/restore-pswd';
+                    axios.post(url, {
+                        recoveryCode: this.recoveryCode,
+                        password: this.password,
+                        email: this.$parent.email,
+                        username: this.$parent.username
+                    }).then(function (response) {
+                        console.log(response);
+                        if (response.data.type === 'success') {
+                            window.location.href = '/settings';
+                        } else {
+                            response.data.msg.forEach(function (error) {
+                                _this.errors.push(error);
+                            });
+                        }
+                    }).catch(function (error) {
+                        console.log(error);
+                        if (error && error.hasOwnProperty('response') && error.response.hasOwnProperty('status') && error.response.status == 422) {
+                            for (var index in error.response.data) {
+                                if (error.response.data.hasOwnProperty(index)) {
+                                    error.response.data[index].forEach(function (error) {
+                                        _this.errors.push(error);
+                                    });
+                                }
+                            }
+                        } else {
+                            alert('Произошла ошибка во время выполнения запроса');
+                        }
+                    });
+                } else {
                     this.errors.push('Для смены пароля введите код восстановления и новый пароль');
                 }
             } else {

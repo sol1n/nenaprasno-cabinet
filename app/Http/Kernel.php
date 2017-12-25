@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Cors;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -58,5 +59,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'appercodeAuth' => \App\Http\Middleware\AppercodeAuth::class,
         'CheckProfileExisting' => \App\Http\Middleware\CheckProfileExisting::class,
+        'Cors' => Cors::class
     ];
 }

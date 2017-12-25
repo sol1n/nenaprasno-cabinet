@@ -48,7 +48,39 @@
                 this.errors = [];
                 if (this.password == this._password) {
                     if (this.recoveryCode && this.password) {
-
+                        var url = '/restore-pswd';
+                        axios.post(url, {
+                            recoveryCode: this.recoveryCode,
+                            password: this.password,
+                            email: this.$parent.email,
+                            username: this.$parent.username
+                        })
+                            .then((response) => {
+                                console.log(response);
+                                if (response.data.type === 'success') {
+                                    window.location.href = '/settings';
+                                }
+                                else{
+                                    response.data.msg.forEach((error) => {
+                                        this.errors.push(error);
+                                    })
+                                }
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                                if (error && error.hasOwnProperty('response') && error.response.hasOwnProperty('status') && error.response.status == 422) {
+                                    for(var index in error.response.data) {
+                                        if (error.response.data.hasOwnProperty(index)) {
+                                            error.response.data[index].forEach((error) => {
+                                                this.errors.push(error);
+                                            })
+                                        }
+                                    }
+                                }
+                                else {
+                                    alert('Произошла ошибка во время выполнения запроса');
+                                }
+                            })
                     }
                     else {
                         this.errors.push('Для смены пароля введите код восстановления и новый пароль');
