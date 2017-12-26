@@ -60,7 +60,7 @@ class CabinetController extends Controller
     private function extractProfileData($response)
     {
         $birthday = new Carbon();
-        $age = $response['t1-p3-s2-g1-c1'] ?? 0;
+        $age = isset($response['t1-p3-s2-g1-c1']) ? $response['t1-p3-s2-g1-c1'] : 0;
         $birthday->subYears($age)->startOfYear();
         return [
             'regionId' => isset($response['reg1']['value']) ? (integer) $response['reg1']['value'] : null,
@@ -104,7 +104,7 @@ class CabinetController extends Controller
                 return [$item->fields['value'] => $item->id];
             });
 
-            $profileData['regionId'] = $regions[$profileData['regionId']] ?? null;
+            $profileData['regionId'] = isset($regions[$profileData['regionId']]) ? $regions[$profileData['regionId']] : null;
 
         } else {
             $profileData = [
@@ -146,7 +146,7 @@ class CabinetController extends Controller
             $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         }
 
-        $regionId = $profile->fields['regionId'] ?? null;
+        $regionId = isset($profile->fields['regionId']) ? $profile->fields['regionId'] : null;
 
         $medicalProcedures = $this->getMedicalProcedures($schemaManager, $objectManager);
         $clinics = $this->getClinicsForRegion($regionId, $schemaManager, $objectManager);
@@ -174,7 +174,7 @@ class CabinetController extends Controller
         $regions = $objectManager->search($schemaManager->find('Region'), ['take' => -1])->map(function($item) {
             return [
                 'id' => $item->id,
-                'title' => $item->fields['title'] ?? ''
+                'title' => isset($item->fields['title']) ? $item->fields['title'] : ''
             ];
         });
 
@@ -277,7 +277,7 @@ class CabinetController extends Controller
         $result = $objectManager->create($schema, $fields);
 
         $procedure = $objectManager->find($schemaManager->find('MedicalProcedure'), $procedureId);
-        $periodicity = $procedure->fields['periodicity'] ?? null;
+        $periodicity = isset($procedure->fields['periodicity']) ? $procedure->fields['periodicity'] : null;
 
         if (! is_null($periodicity)) {
             $nextDate = new Carbon($request->input('date')); 

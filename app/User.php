@@ -471,7 +471,27 @@ class User
     {
         $client = new Client;
 
-        $r = $client->post($backend->url  . '/recover/changePassword', [
+        $r = $client->put($backend->url  . '/recover/changePassword', [
+            'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
+            'json' => $data
+        ]);
+
+        $json = json_decode($r->getBody()->getContents(), 1);
+
+        return true;
+    }
+
+    /**
+     * Call loginAndMerge
+     * @param \App\Backend $backend
+     * @param $data
+     * @return bool
+     */
+    public static function loginAndMerge(Backend $backend, $data)
+    {
+        $client = new Client;
+
+        $r = $client->post($backend->url  . '/users/loginAndMerge', [
             'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
             'json' => $data
         ]);

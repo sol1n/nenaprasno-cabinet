@@ -185,6 +185,9 @@ class AuthController extends Controller
             $errors->add('registration', 'Не передан название социальной сети');
         }
 
+        $sessionId = $request->input('sessionId');
+        $refreshToken = $request->input('refreshToken');
+
 
         if (!$errors->count()) {
             $login = $networkName . 'user' . $userId;
@@ -213,6 +216,18 @@ class AuthController extends Controller
                 ]);
 
                 $this->shareSession($request, $user);
+
+                if ($sessionId or $refreshToken) {
+                    try {
+                        $mergeResult = User::loginAndMerge($backend, [
+                            'sessionId' => $sessionId,
+                            'refreshToken' => $refreshToken,
+                            'userId' => $backend->user()
+                        ]);
+                    } catch (ClientException $e) {
+                        $response->setResponseError($e->getMessage());
+                    }
+                }
 
                 if ($isNew) {
                     $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
@@ -268,6 +283,9 @@ class AuthController extends Controller
                 if ($exception->getResponse()->getStatusCode() == 404) {
                     $errors[] = 'Пользователь не найден';
                 }
+                else{
+                    $errors[] = 'Ошибка во время выполнения запроса ('.$exception->getResponse()->getStatusCode().')';
+                }
             }
         }
         else {
@@ -284,15 +302,12 @@ class AuthController extends Controller
     public function RestorePswd(Backend $backend, Request $request)
     {
         $rules = [
-            'email' => 'email|restoringFields',
-            'username' => 'restoringFields',
+            'username' => 'required',
             'password' => 'required',
             'recoveryCode' => 'required'
         ];
 
         $messages = [
-            'restoringFields' => 'Для восстановление пароля требуется ввести email и/или имя пользователя',
-            'email' => 'Значение введенное в поле email не соотвествует формату электронной почты',
             'required' => 'Поле :attribute является обязательным'
         ];
 
@@ -301,25 +316,24 @@ class AuthController extends Controller
         $response = new AjaxResponse();
 
         $username = $request->input('username');
-        $email = $request->input('email');
         $recoveryCode = $request->input('recoveryCode');
         $password = $request->input('password');
 
-        if (!$username) {
+        $errors = [];
 
-        }
-
-        if ($recoveryCode and $password) {
-            try {
-                $result = User::restorePassword($backend, ['username' => $username, 'recoveryCode' => $recoveryCode, 'newPassword' => $password ]);
-            } catch (ClientException $exception) {
-                if ($exception->getResponse()->getStatusCode() == 404) {
-                    $errors[] = 'Данный код восстановления не найден';
-                }
+        try {
+            $result = User::restorePassword($backend, ['username' => $username, 'recoveryCode' => $recoveryCode, 'newPassword' => $password ]);
+        } catch (ClientException $exception) {
+            if ($exception->getResponse()->getStatusCode() == 404) {
+                $errors[] = 'Данный код восстановления не найден';
+            }
+            else{
+                $errors[] = 'Ошибка во время выполнения запроса ('.$exception->getResponse()->getStatusCode().')';
             }
         }
-        else {
 
+        if (!empty($errors)) {
+            $response->setResponseError($errors);
         }
 
         return response()->json($response);

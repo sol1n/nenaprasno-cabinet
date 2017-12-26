@@ -1,12 +1,17 @@
 <template>
     <div>
         <div class="info-msg">
-            Для восстановления вашего пароля введите код восстановления, который был выслан на вашу почту
+            Для восстановления вашего пароля введите код восстановления и имя пользователя, которые были высланы на вашу почту
         </div>
         <div class="cabinet-profile-control" v-if="errors.length > 0">
             <div v-for="error in errors" class="cabinet-error">
                 {{ error }}
             </div>
+        </div>
+
+        <div class="cabinet-profile-control">
+            <label class="cabinet-profile-label">Имя пользователя</label>
+            <input autofocus type="text" class="form-input" placeholder="Введите имя пользователя" v-model="username">
         </div>
 
         <div class="cabinet-profile-control">
@@ -21,7 +26,7 @@
 
         <div class="cabinet-profile-control">
             <label class="cabinet-profile-label">Повторите новый пароль</label>
-            <input type="password" class="form-input" placeholder="Повторите пароль" v-model="_password">
+            <input type="password" class="form-input" placeholder="Повторите пароль" v-model="passwordSecond">
         </div>
 
         <div class="cabinet-profile-submit">
@@ -39,26 +44,27 @@
             return {
                 recoveryCode: '',
                 password: '',
-                _password: '',
+                passwordSecond: '',
+                username: '',
                 errors: []
             }
         },
         methods: {
             send() {
                 this.errors = [];
-                if (this.password == this._password) {
-                    if (this.recoveryCode && this.password) {
+                if (this.password == this.passwordSecond) {
+                    if (this.recoveryCode && this.password && this.username) {
                         var url = '/restore-pswd';
                         axios.post(url, {
                             recoveryCode: this.recoveryCode,
                             password: this.password,
-                            email: this.$parent.email,
-                            username: this.$parent.username
+                            username: this.username
                         })
                             .then((response) => {
                                 console.log(response);
                                 if (response.data.type === 'success') {
-                                    window.location.href = '/settings';
+                                    this.$parent.isSuccess = true;
+                                    this.$parent.complete();
                                 }
                                 else{
                                     response.data.msg.forEach((error) => {
@@ -83,7 +89,7 @@
                             })
                     }
                     else {
-                        this.errors.push('Для смены пароля введите код восстановления и новый пароль');
+                        this.errors.push('Для смены пароля введите имя пользователся, код восстановления и новый пароль');
                     }
                 }
                 else {
