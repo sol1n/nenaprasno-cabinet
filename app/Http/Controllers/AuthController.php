@@ -207,9 +207,6 @@ class AuthController extends Controller
                 if ($e->getMessage() != 'Conflict when user creation') {
                     $response->setResponseError($e->getMessage());
                 }
-                else {
-                    $response->setResponseError($e->getMessage());
-                }
             }
 
             if ($response->type != AjaxResponse::ERROR) {
