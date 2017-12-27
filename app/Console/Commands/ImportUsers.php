@@ -133,7 +133,7 @@ class ImportUsers extends Command
                }
                catch (UserCreateException $e) {
                    if ($e->getMessage() == 'Conflict when user creation') {
-                       break;
+                       continue;
                    }
                }
 
