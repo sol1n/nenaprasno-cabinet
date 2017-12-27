@@ -124,10 +124,17 @@ class ImportUsers extends Command
                    return $region and mb_stripos($value['title'], $region) !== false;
                }));
 
-               $user = User::create([
-                   'username' => $email,
-                   'password' => $this->random_password()
-               ], $this->backend);
+               try {
+                   $user = User::create([
+                       'username' => $email,
+                       'password' => $this->random_password()
+                   ], $this->backend);
+               }
+               catch (UserCreateException $e) {
+                   if ($e->getMessage() != 'Conflict when user creation') {
+                       break;
+                   }
+               }
 
                if ($user->id) {
                    $data = [
