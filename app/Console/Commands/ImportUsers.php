@@ -109,7 +109,7 @@ class ImportUsers extends Command
 
         $this->info('start');
         $file = file_get_contents(base_path('vagrant/NNP3_CLIENT.csv'));
-        $rows = explode("\r\n", $file);
+        $rows = explode("\n", $file);
         unset($rows[0]);
         foreach ($rows as $index => $row) {
            if ($row) {
@@ -120,7 +120,7 @@ class ImportUsers extends Command
                $region = str_replace('"','',$item[16]);
 
                $regionObject = ($regions->filter(function($value, $key) use($region) {
-                   return mb_stripos($value['title'], $region) !== false;
+                   return $region and mb_stripos($value['title'], $region) !== false;
                }));
 
                $user = User::create([
