@@ -131,7 +131,7 @@ class ImportUsers extends Command
                    ], $this->backend);
                }
                catch (UserCreateException $e) {
-                   if ($e->getMessage() != 'Conflict when user creation') {
+                   if ($e->getMessage() == 'Conflict when user creation') {
                        break;
                    }
                }
