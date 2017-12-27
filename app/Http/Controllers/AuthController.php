@@ -8,6 +8,7 @@ use Cookie;
 use App\User;
 use App\Backend;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use App\Services\ObjectManager;
 use App\Services\SchemaManager;
@@ -206,14 +207,22 @@ class AuthController extends Controller
                 if ($e->getMessage() != 'Conflict when user creation') {
                     $response->setResponseError($e->getMessage());
                 }
+                else {
+                    $response->setResponseError($e->getMessage());
+                }
             }
 
             if ($response->type != AjaxResponse::ERROR) {
 
-                $user = User::login($backend, [
-                    'login' => $login,
-                    'password' => $password
-                ]);
+                try {
+                    $user = User::login($backend, [
+                        'login' => $login,
+                        'password' => $password
+                    ]);
+                }
+                catch (RequestException $e) {
+                    $response->setResponseError($e->getMessage());
+                }
 
                 $this->shareSession($request, $user);
 
