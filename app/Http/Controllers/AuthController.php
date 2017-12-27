@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\Object\ObjectCreateException;
 use App\Helpers\AjaxResponse;
 use App\Services\UserManager;
 use Cookie;
@@ -162,11 +163,12 @@ class AuthController extends Controller
     public function LoginByTokenOptions()
     {
         $response = response('');
-        if (env('APP_DEBUG', false)) {
-            $response->header('Access-Control-Allow-Origin', '*');
-        } else {
-            $response->header('Access-Control-Allow-Origin', env('MAIN_SITE'));
-        }
+//        if (env('APP_DEBUG', false)) {
+//            $response->header('Access-Control-Allow-Origin', '*');
+//        } else {
+//            $response->header('Access-Control-Allow-Origin', env('MAIN_SITE'));
+//        }
+        $response->header('Access-Control-Allow-Origin', env('MAIN_SITE'));
         $response->header('Access-Control-Allow-Credentials', 'true');
         $response->header('Access-Control-Allow-Headers', 'Content-Type');
         $response->header('Access-Methods-Allow-Methods', 'POST, OPTIONS');
@@ -236,10 +238,15 @@ class AuthController extends Controller
                 }
 
                 if ($isNew) {
-                    $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
-                        'userId' => $user->id,
-                        'email' => $request->input('email')
-                    ]);
+                    try {
+                        $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
+                            'userId' => $user->id,
+                            'email' => $request->input('email')
+                        ]);
+                    }
+                    catch (ObjectCreateException $exception) {
+                        $response->setResponseError($e->getMessage());
+                    }
                 }
 
                 $response->data = route('settings');
