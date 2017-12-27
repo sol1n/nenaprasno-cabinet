@@ -171,7 +171,7 @@ class AuthController extends Controller
         $response->header('Access-Control-Allow-Origin', env('MAIN_SITE'));
         $response->header('Access-Control-Allow-Credentials', 'true');
         $response->header('Access-Control-Allow-Headers', 'Content-Type');
-        $response->header('Access-Methods-Allow-Methods', 'POST, OPTIONS');
+        $response->header('Access-Control-Allow-Methods', 'POST, OPTIONS');
         return $response;
     }
 
