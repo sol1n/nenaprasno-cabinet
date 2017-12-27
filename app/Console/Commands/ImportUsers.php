@@ -111,6 +111,7 @@ class ImportUsers extends Command
         $file = file_get_contents(base_path('vagrant/NNP3_CLIENT.csv'));
         $rows = explode("\n", $file);
         unset($rows[0]);
+        $count =1;
         foreach ($rows as $index => $row) {
            if ($row) {
                $item = explode(';', $row);
@@ -142,7 +143,8 @@ class ImportUsers extends Command
 
                    $objectManager->create($schema, $data);
                }
-               $this->info($user->id);
+               $this->info($count . ' - ' . $user->id);
+               $count++;
 
                file_put_contents(base_path('vagrant/1.txt'), $user->id . "\n", FILE_APPEND);
            }
