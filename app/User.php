@@ -482,22 +482,46 @@ class User
     }
 
     /**
-     * Call loginAndMerge
      * @param \App\Backend $backend
+     * @param $sessionId
      * @param $data
-     * @return bool
+     * @param bool $storeSession
+     * @return User
+     * @throws WrongCredentialsException
      */
-    public static function loginAndMerge(Backend $backend, $data)
+    public static function loginAndMerge(Backend $backend, $sessionId, array $data, $storeSession = true)
     {
         $client = new Client;
 
-        $r = $client->post($backend->url  . '/users/loginAndMerge', [
-            'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
-            'json' => $data
-        ]);
+        try {
+            $r = $client->post($backend->url . '/users/loginAndMerge', [
+                'headers' => ['X-Appercode-Session-Token' => $sessionId ?? null],
+                'json' => [
+                    'username' => $data['username'],
+                    'password' => $data['password'],
+                    'installId' => '',
+                    'generateRefreshToken' => true
+                ]
+            ]);
+        } catch (RequestException $e) {
+            throw new WrongCredentialsException;
+        }
 
         $json = json_decode($r->getBody()->getContents(), 1);
 
-        return true;
+        $user = new self();
+        $user->id = $json['userId'];
+        $user->roleId = $json['roleId'];
+        $user->token = $json['sessionId'];
+        $user->refreshToken = $json['refreshToken'];
+
+        $backend->token = $json['sessionId'];
+
+
+        if ($storeSession) {
+            $user->storeSession($backend);
+        }
+
+        return $user;
     }
 }

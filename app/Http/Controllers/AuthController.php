@@ -213,29 +213,32 @@ class AuthController extends Controller
 
             if ($response->type != AjaxResponse::ERROR) {
 
-                try {
-                    $user = User::login($backend, [
-                        'login' => $login,
-                        'password' => $password
-                    ]);
-                }
-                catch (RequestException $e) {
-                    $response->setResponseError($e->getMessage());
-                }
-
-                $this->shareSession($request, $user);
-
                 if ($sessionId or $refreshToken) {
                     try {
-                        $mergeResult = User::loginAndMerge($backend, [
-                            'sessionId' => $sessionId,
-                            'refreshToken' => $refreshToken,
-                            'userId' => $backend->user()
+                        $user = User::loginAndMerge($backend, $sessionId, [
+                            'username' => $login,
+                            'password' => $password
                         ]);
                     } catch (ClientException $e) {
                         $response->setResponseError($e->getMessage());
                     }
                 }
+                else {
+                    try {
+                        $user = User::login($backend, [
+                            'login' => $login,
+                            'password' => $password
+                        ]);
+                    }
+                    catch (RequestException $e) {
+                        $response->setResponseError($e->getMessage());
+                    }
+
+                }
+
+                $this->shareSession($request, $user);
+
+
 
                 if ($isNew) {
                     try {
