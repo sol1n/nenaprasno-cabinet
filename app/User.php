@@ -410,12 +410,12 @@ class User
                 }
                 $template = str_replace(":id:", $this->id, $template);
                 $template = str_replace(":username:", $this->username, $template);
-                return $template;
+                return $template ?? '';
             } else {
-                return $this->username;
+                return $this->username ?? '';
             }
         } else {
-            return $this->username;
+            return $this->username ?? '';
         }
     }
 

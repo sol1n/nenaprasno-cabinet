@@ -204,7 +204,13 @@
 
                   <div class="cabinet-profile-control">
                       <div class="form-control-checkbox">
-                          <input id="cabinet-profile-notifications" name="notifications" {% if not profile.fields.getNotifications %}checked{% endif %} type="checkbox">
+                          {% set notifications = false %}
+                          {% if profile.fields.getNotifications is null  %}
+                              {% set notifications = false %}
+                          {% else %}
+                              {% set notifications = (not profile.fields.getNotifications) %}
+                          {% endif %}
+                          <input id="cabinet-profile-notifications" name="notifications" {% if notifications %}checked{% endif %} type="checkbox">
                           <label for="cabinet-profile-notifications">
                               Отказаться от напоминаний о прохождении обследований
                           </label>

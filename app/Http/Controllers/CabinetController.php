@@ -236,7 +236,7 @@ class CabinetController extends Controller
     public function subscribes(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
         $userId = app(Backend::class)->user();
-        
+
         $fields = [
             'getEmails' => $request->has('subscribe'),
             'getNotifications' => ! $request->has('notifications')

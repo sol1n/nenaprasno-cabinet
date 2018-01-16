@@ -108,7 +108,12 @@ class AuthController extends Controller
             ], $backend);
         } catch (UserCreateException $e) {
             $errors = new MessageBag();
-            $errors->add('registration', $e->getMessage());
+            if ($e->getMessage() == 'Conflict when user creation') {
+                $errors->add('registration', 'Пользователь с email: ' . $request->input('login') . ' уже зарегистрирован в системе');
+            }
+            else {
+                $errors->add('registration', $e->getMessage());
+            }
             return redirect()->route('registration')->withErrors($errors);
         }
 
@@ -240,11 +245,15 @@ class AuthController extends Controller
 
 
 
-                if ($isNew) {
+                if ($isNew and $request->get('data')) {
+                    $data= $request->get('data');
                     try {
                         $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
                             'userId' => $user->id,
-                            'email' => $request->input('email')
+                            'email' => $data['email'] ?? '',
+                            'sex' => (int)$data['gender'] ?? null,
+                            'firstName' => $data['fio'] ?? '',
+                            'birthdate' => $data['birthday'] ?? null
                         ]);
                     }
                     catch (ObjectCreateException $exception) {
