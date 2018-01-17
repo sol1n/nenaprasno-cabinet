@@ -31,6 +31,15 @@
                     Войти на сайт
                 </div>
 
+                <div class="social-auth auth-links">
+                    <div class="col-md-6">
+                        <a href="#" onclick="loginVk(event)" title="Вконтакте" class="social-auth-item-link social-auth-item-link-vk">Вконтакте</a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="#" onclick="loginFb(event)" title="Facebook" class="social-auth-item-link social-auth-item-link-fb">Facebook</a>
+                    </div>
+                </div>
+
                 <div class="cabinet-profile-control">
                     <label class="cabinet-profile-label">Логин</label>
                     <input autofocus type="text" class="form-input" name="login" placeholder="Введите логин" required>
@@ -48,18 +57,18 @@
                     <a class="float-right" href="{{ route('restore') }}">Восстановить пароль</a>
                 </div>
 
-                <div>
-                    <h3>Через социальные сети</h3>
-                </div>
+                {#<div>#}
+                    {#<h3>Через социальные сети</h3>#}
+                {#</div>#}
 
-                <div>
-                    <a href="#" onclick="loginVk(event)" target="_blank" title="Вконтакте">
-                        {{ source("icon-social-vk") }}
-                    </a>
-                    <a href="#" onclick="loginFb(event)" target="_blank" title="Facebook">
-                        {{ source("icon-social-facebook") }}
-                    </a>
-                </div>
+                {#<div>#}
+                    {#<a href="#" onclick="loginVk(event)" target="_blank" title="Вконтакте">#}
+                        {#{{ source("icon-social-vk") }}#}
+                    {#</a>#}
+                    {#<a href="#" onclick="loginFb(event)" target="_blank" title="Facebook">#}
+                        {#{{ source("icon-social-facebook") }}#}
+                    {#</a>#}
+                {#</div>#}
 
                 <div class="cabinet-profile-links">
                     или <a href="{{ route('registration') }}">зарегистрироваться</a>

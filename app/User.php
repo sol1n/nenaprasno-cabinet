@@ -445,7 +445,7 @@ class User
             $fields['username'] = $data['username'];
         }
         if (isset($data['email']) and $data['email']) {
-            $fields['email'] = $data['email'];
+            $fields['username'] = $data['email'];
         }
 
         $client = new Client;

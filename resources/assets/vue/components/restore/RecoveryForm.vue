@@ -10,14 +10,11 @@
             <label class="cabinet-profile-label">E-mail</label>
             <input autofocus type="email" class="form-input" name="email" placeholder="Введите email" v-model="email">
         </div>
-        <h3>И/Или</h3>
-        <div class="cabinet-profile-control danger">
-            <label class="cabinet-profile-label">Имя пользователя</label>
-            <input type="username" class="form-input" name="password" v-model="username" placeholder="Введите имя пользователя">
-            <!--<div class="control-msg">-->
-                <!--Test-->
-            <!--</div>-->
-        </div>
+        <!--<h3>И/Или</h3>-->
+        <!--<div class="cabinet-profile-control danger">-->
+            <!--<label class="cabinet-profile-label">Имя пользователя</label>-->
+            <!--<input type="username" class="form-input" name="password" v-model="username" placeholder="Введите имя пользователя">-->
+        <!--</div>-->
 
         <div class="cabinet-profile-submit">
             <button @click="send()" type="button" class="button button-blue button-round">
