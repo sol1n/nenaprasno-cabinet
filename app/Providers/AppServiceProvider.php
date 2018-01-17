@@ -31,6 +31,12 @@ class AppServiceProvider extends ServiceProvider
             $username = array_get($validator->getData(),'username');
             return ($username or $email);
         });
+
+        Validator::extend('password_repeat_validator', function($attribute, $value, $parameters, $validator) {
+            $password = array_get($validator->getData(),'password');
+            $confirm = array_get($validator->getData(),'confirm');
+            return ($password == $confirm);
+        });
     }
 
     /**

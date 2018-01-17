@@ -156,7 +156,7 @@
               </div>
 
             </form>
-
+            {% if not profile.fields.isSocial %}
             <form action="{{ route('change-password') }}" method="POST" class="cabinet-profile">
               {{ csrf_field() }}
               <div class="cabinet-profile-card">
@@ -186,6 +186,7 @@
                   </div>
               </div>
             </form>
+            {% endif %}
             <form action="{{ route('save-subscribes') }}" method="POST" class="cabinet-profile">
               {{ csrf_field() }}
               <div class="cabinet-profile-card">

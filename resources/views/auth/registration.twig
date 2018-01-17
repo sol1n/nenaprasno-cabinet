@@ -35,7 +35,7 @@
                     <div class="cabinet-profile-control">
                         {% for error in errors.all() %}
                             <div class="cabinet-error">
-                                {{ error }}
+                                {{ error|raw }}
                             </div>
                         {% endfor %}
                     </div>
@@ -48,12 +48,12 @@
 
                 <div class="cabinet-profile-control">
                     <label class="cabinet-profile-label">Пароль</label>
-                    <input type="password" class="form-input" name="password" placeholder="Введите пароль" required>
+                    <input type="password" class="form-input" id="password" name="password" placeholder="Введите пароль" required>
                 </div>
 
                 <div class="cabinet-profile-control">
                     <label class="cabinet-profile-label">Подтверждение пароля</label>
-                    <input type="password" class="form-input" name="confirm" placeholder="Введите подтверждение пароля" required>
+                    <input type="password" class="form-input" id="confirm" name="confirm" placeholder="Введите подтверждение пароля" required>
                 </div>
 
                 <div class="cabinet-profile-submit">

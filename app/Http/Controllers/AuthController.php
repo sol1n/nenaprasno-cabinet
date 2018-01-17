@@ -96,7 +96,7 @@ class AuthController extends Controller
 
         $messages = [
             'required' => 'Поле :attribute является обязательным',
-            'same' => 'Значение поля :attribute должно совпадать со значением поля :other'
+            'same' => 'Пароль и подтверждения пароля должны совпадать'
         ];
 
         $this->validate($request, $rules, $messages);
@@ -109,7 +109,9 @@ class AuthController extends Controller
         } catch (UserCreateException $e) {
             $errors = new MessageBag();
             if ($e->getMessage() == 'Conflict when user creation') {
-                $errors->add('registration', 'Пользователь с email: ' . $request->input('login') . ' уже зарегистрирован в системе');
+                $errors->add('registration', 'Пользователь с email: ' . $request->input('login') . ' уже зарегистрирован в системе
+                                        <p class="error-info">Если это ваш e-mail, <a href="'.route('restore').'">восстановите пароль</a></p>');
+//                $errors->add('exists','1');
             }
             else {
                 $errors->add('registration', $e->getMessage());
@@ -253,7 +255,8 @@ class AuthController extends Controller
                             'email' => $data['email'] ?? '',
                             'sex' => (int)$data['gender'] ?? null,
                             'firstName' => $data['fio'] ?? '',
-                            'birthdate' => $data['birthday'] ?? null
+                            'birthdate' => $data['birthday'] ?? null,
+                            'isSocial' => true
                         ]);
                     }
                     catch (ObjectCreateException $exception) {

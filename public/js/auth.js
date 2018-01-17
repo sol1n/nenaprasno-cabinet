@@ -129,3 +129,17 @@ function loginVk(e) {
         }
     }, 4194304 );
 }
+
+$(function() {
+    $('#confirm').keyup(function(){
+        var password = $('#password').val();
+        var confirm = $('#confirm').val();
+        var element = document.getElementById('confirm');
+        if (confirm != password){
+            element.setCustomValidity('Пароль и подтверждения пароля должны совпадать');
+        }
+        else{
+            element.setCustomValidity('');
+        }
+    });
+});
