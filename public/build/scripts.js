@@ -26408,6 +26408,16 @@ return tippy$2;
             options[option] = altOptions[option];
         }
 
+        var untilToday = $(this).data('untiltoday');
+
+        if (untilToday) {
+            options['disable'] = [
+                function(date) {
+                    return date > new Date();
+                }
+            ];
+        }
+
         $(this).flatpickr(options);
     })
 })();
