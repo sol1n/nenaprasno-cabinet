@@ -72,8 +72,11 @@ class AuthController extends Controller
         try {
             $user = User::login($backend, $request->all());
         } catch (WrongCredentialsException $e) {
-            $request->session()->flash('login-error', 'Wrong сredentials data');
-            return redirect('/login/');
+            //dd($e);
+            $errors = new MessageBag();
+            $errors->add('email', 'Неверный логин или пароль');
+//            $request->session()->flash('login-error', 'Wrong сredentials data');
+            return redirect('/login/')->withErrors($errors);
         }
 
         $this->shareSession($request, $user);

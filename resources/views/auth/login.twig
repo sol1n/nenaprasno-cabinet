@@ -30,7 +30,15 @@
                 <div class="cabinet-profile-title">
                     Войти на сайт
                 </div>
-
+                {% if errors.all()|length %}
+                    <div class="cabinet-profile-control">
+                        {% for error in errors.all() %}
+                            <div class="cabinet-error">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 <div class="social-auth auth-links">
                     <div class="social-auth-item">
                         <a href="#" onclick="loginVk(event)" title="Вконтакте" class="social-auth-item-link social-auth-item-link-vk">Вконтакте</a>

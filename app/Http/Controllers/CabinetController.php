@@ -187,16 +187,27 @@ class CabinetController extends Controller
         ]);
     }
 
-    public function saveProfile(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
+    public function saveProfile(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager, UserManager $userManager)
     {
         $fields = $request->except('_token');
+
         $userId = app(Backend::class)->user();
 
-        if (isset($fields['email'])) {
-            app(UserManager::Class)->save($userId, ['username' => $fields['email']]);
+        $profile = $this->getProfile($schemaManager, $objectManager, $userId);
+
+        if (!$profile->fields['isSocial'] and isset($fields['email'])) {
+            try {
+                app(UserManager::Class)->save($userId, ['username' => $fields['email']]);
+            }
+            catch (\Exception $e) {
+                if ($e->getCode() == 409) {
+                    $errors = new MessageBag();
+                    $errors->add('email', 'Пользователь с данным E-mail уже зарегистрирован в системе');
+                    return redirect()->route('settings')->withErrors($errors);
+                }
+            }
         }
 
-        $profile = $this->getProfile($schemaManager, $objectManager, $userId);
         $profile = $objectManager->save($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profile->id, $fields);
 
         return redirect()->route('settings');
