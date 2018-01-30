@@ -4,4 +4,17 @@ $(document).ready(function () {
     tippy('[data-tooltip]', {
         theme: 'light'
     });
+    $('#test-again-btn').click(function() {
+        $('#test-again-modal').removeClass('hidden');
+        setTimeout(function() {
+            $('#test-again-modal').addClass('show');
+        }, 50)
+
+    })
+    $('#test-again-close').click(function() {
+        $('#test-again-modal').removeClass('show');
+        setTimeout(function() {
+            $('#test-again-modal').addClass('hidden');
+        }, 100)
+    })
 });
