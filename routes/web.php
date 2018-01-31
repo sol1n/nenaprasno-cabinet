@@ -32,7 +32,7 @@ Route::group(['middleware' => ['appercodeAuth']], function () {
   Route::post('/password', 'CabinetController@changePassword')->name('change-password');
   Route::post('/declineSubscribe', 'CabinetController@declineSubscribe')->name('decline-subscribe');
   Route::post('/procedure', 'CabinetController@procedure');
-  Route::get('/logout', 'AuthController@logout');
+  Route::get('/logout', 'AuthController@logout')->name('logout');
 });
 
 

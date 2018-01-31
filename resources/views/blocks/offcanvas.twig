@@ -29,12 +29,21 @@
 
         <div class="main-offcanvas-user">
             <div class="main-offcanvas-padding">
-                <a href="{{ route('login') }}" class="main-offcanvas-user-login">
-                    Войти на сайт
-                </a>
-                <a href="{{ route('registration') }}" class="main-offcanvas-user-registration">
-                    Зарегистрироваться
-                </a>
+                {% if backend.user %}
+                    <a href="{{ route('cabinet') }}" class="main-offcanvas-user-registration">
+                        Личный кабинет
+                    </a>
+                    <a href="{{ route('logout') }}" class="main-offcanvas-user-registration">
+                        Выход
+                    </a>
+                {% else %}
+                    <a href="{{ route('login') }}" class="main-offcanvas-user-login">
+                        Войти на сайт
+                    </a>
+                    <a href="{{ route('registration') }}" class="main-offcanvas-user-registration">
+                        Зарегистрироваться
+                    </a>
+                {% endif %}
             </div>
         </div>
     </nav>
