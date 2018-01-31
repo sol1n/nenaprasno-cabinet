@@ -90,10 +90,10 @@ function loginFb(e){
                 if (response.authResponse) {
                     getFbData(response.authResponse.userID);
                 }
-            },{scope:'email, birthday, gender'});
+            },{scope:'email, public_profile'});
         }
     }, {
-        scope: 'email,id, birthday, gender'
+        scope: 'email, public_profile'
     });
 }
 

@@ -32,7 +32,6 @@
   left: -300px;
   top: 0;
   background: #fff;
-  border-right: 2px solid @c-blue;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.16);
   opacity: 0;
   transition: all 300ms;
@@ -42,28 +41,37 @@
   padding: 0 15px;
 }
 
+.main-offcanvas-logo {
+  text-align: center;
+  border-bottom: 1px solid #e4e4e4;
+  padding: 8px;
+
+  img {
+    height: 42px;
+  }
+}
+
 .main-offcanvas-menu {
   .ul-reset;
   margin-bottom: 25px;
+  border-bottom: 1px solid #e4e4e4;
 
   & > li {
     & > a {
       display: block;
-      background: @c-blue;
-      color: #fff;
+      color: #222222;
       padding: 15px;
-      font-weight: bold;
       border-bottom: 1px solid rgba(255,255,255,.2);
 
       &:hover,
       &:focus {
-        background: @c-blue-2;
+        color: @c-blue;
       }
     }
 
     &.active {
       & > a {
-        background: @c-blue-2;
+        color: @c-blue;
       }
     }
 
@@ -72,13 +80,25 @@
 
       & > li {
         & > a {
+          color: #222;
           display: block;
           padding: 10px 15px;
+
+          &:hover,
+          &:focus {
+            color: @c-blue;
+          }
 
           &::before {
             content: '—';
             display: inline-block;
             margin-right: 10px;
+          }
+        }
+
+        &.active {
+          & > a {
+            color: @c-blue;
           }
         }
       }
@@ -88,4 +108,31 @@
 
 .main-offcanvas-user {
   margin: 15px 0;
+  text-align: center;
+}
+
+.main-offcanvas-user-login {
+  display: block;
+  color: @c-blue;
+  text-align: center;
+  border: 1px solid @c-blue;
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 2px;
+}
+
+.main-offcanvas-user-link {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.main-offcanvas-user-registration {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 12px;
+  display: block;
 }

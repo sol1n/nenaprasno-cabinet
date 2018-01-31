@@ -13,6 +13,10 @@
     {% include "blocks/header.twig" %}
   {% endblock %}
 
+  {% block offcanvas %}
+      {% include "blocks/offcanvas.twig" %}
+  {% endblock %}
+
   <main class="main-content">
     <div class="wrapper m-b-lg">
       {% block breadcrumbs %}{% endblock %}

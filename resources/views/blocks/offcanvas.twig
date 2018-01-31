@@ -1,0 +1,38 @@
+<div id="offcanvas" class="main-offcanvas-overlay">
+    <nav class="main-offcanvas">
+        <div class="main-offcanvas-logo">
+            <a href="#">
+                <img height="60px;" src="/images/logo.svg" alt="Фонд профилактики рака. Живу не напрасно.">
+            </a>
+        </div>
+
+        <ul class="main-offcanvas-menu">
+            <li>
+                <a href="{{ MAIN_SITE }}/fund/">Фонд</a>
+            </li>
+            <li>
+                <a href="{{ MAIN_SITE }}/projects/">Проекты</a>
+            </li>
+            <li>
+                <a href="{{ MAIN_SITE }}/help">Как помочь?</a>
+            </li>
+            <li>
+                <a href="{{ MAIN_SITE }}/partners/">Партнеры</a>
+            </li>
+            <li>
+                <a href="{{ MAIN_SITE }}/contacts/">Контакты</a>
+            </li>
+        </ul>
+
+        <div class="main-offcanvas-user">
+            <div class="main-offcanvas-padding">
+                <a href="{{ route('login') }}" class="main-offcanvas-user-login">
+                    Войти на сайт
+                </a>
+                <a href="{{ route('registration') }}" class="main-offcanvas-user-registration">
+                    Зарегистрироваться
+                </a>
+            </div>
+        </div>
+    </nav>
+</div>
