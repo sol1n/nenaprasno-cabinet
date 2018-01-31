@@ -1,0 +1,91 @@
+.main-sidebar-menu-mobile {
+  position: relative;
+  border: 1px solid #dededc;
+  border-radius: 3px;
+  margin-bottom: 15px;
+  display: none;
+
+  @media all and (max-width: 1080px) {
+    display: block;
+  }
+
+  &::before {
+    left: 2%;
+    bottom: -5px;
+    width: 96%;
+  }
+
+  &::after {
+    left: 4%;
+    bottom: -9px;
+    width: 92%;
+    height: 3px;
+  }
+
+  & > ul {
+    position: relative;
+    z-index: 100;
+    .ul-reset;
+
+    & > li {
+      font-size: 15px;
+      color: #454545;
+      display: inline-block;
+      width: 49.5%;
+      text-align: center;
+
+      & > a {
+        display: block;
+        position: relative;
+        color: #454545;
+        text-decoration: none;
+        border-bottom: 1px solid #dededc;
+        padding: 15px 20px;
+        transition: all 200ms;
+
+        &:hover {
+          color: #298DCF;
+          transition: all 200ms;
+        }
+      }
+
+      &.active {
+        & > a {
+          color: #fff;
+          background-color: #3baffd;
+          text-decoration: none;
+          border-bottom-color: #3baffd;
+        }
+      }
+
+      &.parent {
+        & > a {
+          &::before {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            top: 10%;
+            vertical-align: middle;
+            width: 3px;
+            height: 80%;
+            background: #298DCF;
+          }
+        }
+      }
+
+      &:first-child {
+        & > a {
+          border-radius: 2px 2px 0 0;
+        }
+      }
+
+      &:last-child {
+        & > a {
+          border-radius: 0 0 2px 2px;
+          border-bottom: none;
+        }
+      }
+    }
+  }
+}

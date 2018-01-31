@@ -1,0 +1,10 @@
+<nav class="main-sidebar-menu-mobile">
+    <ul>
+        <li {% if selected == 'cabinet' %}class="active"{% endif %}>
+            <a href="{{ route('cabinet', {id:null}) }}">Риски и рекомендации</a>
+        </li>
+        <li {% if selected == 'settings' %}class="active"{% endif %}>
+            <a href="{{ route('settings') }}">Настройки</a>
+        </li>
+    </ul>
+</nav>
