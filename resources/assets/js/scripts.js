@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $('[data-toggle]').toggler();
-    $(':input').inputmask();
+    $('[data-inputmask]').inputmask();
     tippy('[data-tooltip]', {
         theme: 'light'
     });
@@ -16,5 +16,10 @@ $(document).ready(function () {
         setTimeout(function() {
             $('#test-again-modal').addClass('hidden');
         }, 100)
-    })
+    });
+
+    $('[data-html]').click(function() {
+        var elemntId = $(this).data('html');
+        $('#' + elemntId).toggle();
+    });
 });
