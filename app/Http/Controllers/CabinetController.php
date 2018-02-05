@@ -164,7 +164,6 @@ class CabinetController extends Controller
 
     public function settings(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
-        dd(app(Backend::class));
         $userId = app(Backend::class)->user();
 
         if ($userId) {
