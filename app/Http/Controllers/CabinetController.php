@@ -182,12 +182,12 @@ class CabinetController extends Controller
 
         $regions = [];
 
-        $firstCities = ['Москва', 'Санкт-Петербург'];
+        $firstCities = ['1d736ba2-a721-4b7a-b08f-a836ae163a09', '36d7840d-f7b7-4607-8ec8-702667ebbe42'];
 
         $temp = [];
 
         $regionList->each(function($item, $index) use($firstCities, &$temp, &$regions) {
-            if (in_array($item['title'], $firstCities)) {
+            if (in_array($item['id'], $firstCities)) {
                 $temp[] = $item;
             }
             else {
