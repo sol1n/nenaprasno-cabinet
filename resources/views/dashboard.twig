@@ -125,14 +125,14 @@
                                 <div id="risk-{{ procedure.id }}-clinics" style="display: none">
                                     <div class="cabinet-risks-recommendation-clinics-list">
                                       {% for clinic in procedure.clinics %}
-                                        <a href="#" target="_blank" class="cabinet-risks-recommendation-clinics-list-item">
+                                        <div class="cabinet-risks-recommendation-clinics-list-item">
                                             <div class="cabinet-risks-recommendation-clinics-name">
                                               {{ clinic.name }}
                                             </div>
                                             <div class="cabinet-risks-recommendation-clinics-desc">
                                               {{ clinic.address }}
                                             </div>
-                                        </a>
+                                        </div>
                                       {% endfor %}
                                     </div>
                                 </div>

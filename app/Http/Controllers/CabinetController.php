@@ -164,6 +164,7 @@ class CabinetController extends Controller
 
     public function settings(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
     {
+        dd(app(Backend::class));
         $userId = app(Backend::class)->user();
 
         if ($userId) {
@@ -171,12 +172,31 @@ class CabinetController extends Controller
         }
 
 
-        $regions = $objectManager->search($schemaManager->find('Region'), ['take' => -1])->map(function($item) {
+        $regionList = $objectManager->search($schemaManager->find('Region'), ['take' => -1])->map(function($item) {
             return [
                 'id' => $item->id,
                 'title' => isset($item->fields['title']) ? $item->fields['title'] : ''
             ];
         });
+
+        $regionList = $regionList->sortBy('title');
+
+        $regions = [];
+
+        $firstCities = ['Москва', 'Санкт-Петербург'];
+
+        $temp = [];
+
+        $regionList->each(function($item, $index) use($firstCities, &$temp, &$regions) {
+            if (in_array($item['title'], $firstCities)) {
+                $temp[] = $item;
+            }
+            else {
+                $regions[] = $item;
+            }
+        });
+
+        $regions = $temp + $regions;
 
         $profile->fields['birthdate'] = isset($profile->fields['birthdate']) ? new Carbon($profile->fields['birthdate'], 'UTC') : null;
 
