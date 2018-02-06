@@ -1,3 +1,31 @@
 <footer class="main-footer">
-    &copy; Фонд профилактики рака, {{ "now"|date("Y") }}
+    <div class="wrapper">
+		<div class="main-footer-copyright">
+			&copy; Фонд профилактики рака, {{ "now"|date("Y") }}
+		</div>
+		<nav class="main-footer-menu">
+			<ul>
+				<li>
+					<a target="_blank" href="{{ MAIN_SITE }}/screen/about/">
+						О системе SCREEN
+					</a>
+				</li>
+				<li>
+					<a target="_blank" href="{{ MAIN_SITE }}/screen/experts/">
+						Экспертный совет
+					</a>
+				</li>
+				<li>
+					<a target="_blank" href="{{ MAIN_SITE }}/screen/faq/">
+						FAQ
+					</a>
+				</li>
+				<li>
+					<a target="_blank" href="{{ MAIN_SITE }}/screen/privacy/">
+						Политика конфиденциальности
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
 </footer>
