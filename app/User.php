@@ -190,7 +190,12 @@ class User
         if (!$lifetime) {
             $lifetime = config('auth.cookieLifetime');
         }
-        $profileName = $this->username;
+
+        $profileName = '';
+
+        if (isset($this->username)) {
+            $profileName = $this->username;
+        }
         $schema = app(SchemaManager::class)->find('UserProfiles');
         $profile = app(ObjectManager::class)->search($schema, ['where' => json_encode(['userId' => $this->id])])->first();
         if ($profile) {
@@ -230,6 +235,12 @@ class User
         $this->token = $json['sessionId'];
         $this->refreshToken = $json['refreshToken'];
         $this->id = $json['userId'];
+
+        $backend->token = $this->token;
+        $user = User::get($json['userId'],$backend);
+        if ($user) {
+            $this->username = $user->username;
+        }
         $language = Cookie::get($backend->code . '-language');
 
         if ($storeSession) {
