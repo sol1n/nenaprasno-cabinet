@@ -49,7 +49,7 @@ class CabinetController extends Controller
 
     private function getClinicsForRegion($region, $schemaManager, $objectManager)
     {
-        $query = json_encode(['regionId' => $region]);
+        $query = json_encode(['$or' => [['regionId' => $region], ['allCities' => true]]]);
         return $objectManager
             ->search($schemaManager->find('Clinic'), ['where' => $query, 'take' => -1])
             ->mapWithKeys(function ($item) {
