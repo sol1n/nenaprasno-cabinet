@@ -11,6 +11,7 @@ use App\Services\UserManager;
 use App\Settings;
 use App\Backend;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cookie;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,7 +23,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer('*', function($view){
-            $view->with('backend', app(Backend::Class));
+            $backend = app(Backend::Class);
+            $view->with('backend', $backend);
+            $view->with('profileName', Cookie::get($backend->code . '-profileName'));
             $view->with('MAIN_SITE', env('MAIN_SITE'));
         });
 

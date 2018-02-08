@@ -127,7 +127,11 @@
                                       {% for clinic in procedure.clinics %}
                                         <div class="cabinet-risks-recommendation-clinics-list-item">
                                             <div class="cabinet-risks-recommendation-clinics-name">
-                                              {{ clinic.name }}
+                                               {% if clinic.link %}
+                                                <a href="{{ clinic.link }}" target="_blank">{{ clinic.name }}</a>
+                                               {% else %}
+                                                   {{ clinic.name }}
+                                               {% endif %}
                                             </div>
                                             <div class="cabinet-risks-recommendation-clinics-desc">
                                               {{ clinic.address }}

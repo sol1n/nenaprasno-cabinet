@@ -168,6 +168,7 @@ class User
         $json = json_decode($r->getBody()->getContents(), 1);
 
         $user = new self();
+        $user->username = $credentials['login'];
         $user->id = $json['userId'];
         $user->roleId = $json['roleId'];
         $user->token = $json['sessionId'];
@@ -189,10 +190,23 @@ class User
         if (!$lifetime) {
             $lifetime = config('auth.cookieLifetime');
         }
+        $profileName = $this->username;
+        $schema = app(SchemaManager::class)->find('UserProfiles');
+        $profile = app(ObjectManager::class)->search($schema, ['where' => json_encode(['userId' => $this->id])])->first();
+        if ($profile) {
+            if ($profile->fields['email']) {
+                $profileName = $profile->fields['email'];
+            }
+            if ($profile->fields['firstName']) {
+                $profileName = $profile->fields['firstName'];
+            }
+        }
+
         Cookie::queue($backend->code . '-session-token', $this->token, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         Cookie::queue($backend->code . '-id', $this->id, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         Cookie::queue($backend->code . '-language', $language, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
+        Cookie::queue($backend->code . '-profileName', $profileName, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         return $this;
     }
 
@@ -510,6 +524,7 @@ class User
         $json = json_decode($r->getBody()->getContents(), 1);
 
         $user = new self();
+        $user->username = $data['username'];
         $user->id = $json['userId'];
         $user->roleId = $json['roleId'];
         $user->token = $json['sessionId'];
