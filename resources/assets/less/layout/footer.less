@@ -4,4 +4,40 @@
   padding-top: 15px;
   padding-bottom: 15px;
   border-top: 1px solid #ECECED;
+
+  & > .wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @media (max-width: 1130px) {
+      flex-direction: column-reverse;
+      justify-content: center;
+    }
+  }
+}
+
+.main-footer-copyright {
+  font-size: 14px;
+}
+
+.main-footer-menu {
+  font-size: 14px;
+
+  ul {
+    .ul-reset;
+
+    li {
+      display: inline-block;
+      margin-left: 20px;
+
+      @media (max-width: 1130px) {
+        margin-bottom: 10px;
+      }
+    }
+  }
+
+  @media (max-width: 1130px) {
+    margin-bottom: 10px;
+  }
 }
