@@ -57,7 +57,8 @@ class AuthController extends Controller
         $userInfo = json_encode([
             'id' => $user->id,
             'token' => $user->token(),
-            'refreshToken' => $user->refreshToken()
+            'refreshToken' => $user->refreshToken(),
+            'userName' => $user->getProfileName()
         ]);
         Cookie::queue(Cookie::make(self::COOKIE_NAME, $userInfo, 60*96, '/', env('MAIN_SITE_SHARE_COOKIE'), false, false));
     }

@@ -184,13 +184,8 @@ class User
         return $user;
     }
 
-    public function storeSession(Backend $backend, $language = ''): User
+    public function getProfileName()
     {
-        $lifetime = env('COOKIE_LIFETIME');
-        if (!$lifetime) {
-            $lifetime = config('auth.cookieLifetime');
-        }
-
         $profileName = '';
 
         if (isset($this->username)) {
@@ -207,11 +202,21 @@ class User
             }
         }
 
+        return $profileName;
+    }
+
+    public function storeSession(Backend $backend, $language = ''): User
+    {
+        $lifetime = env('COOKIE_LIFETIME');
+        if (!$lifetime) {
+            $lifetime = config('auth.cookieLifetime');
+        }
+
         Cookie::queue($backend->code . '-session-token', $this->token, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         Cookie::queue($backend->code . '-id', $this->id, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         Cookie::queue($backend->code . '-language', $language, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
-        Cookie::queue($backend->code . '-profileName', $profileName, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
+        Cookie::queue($backend->code . '-profileName', $this->getProfileName(), $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
         return $this;
     }
 
@@ -283,6 +288,7 @@ class User
         Cookie::queue(Cookie::make($backend->code . '-refresh-token', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
         Cookie::queue(Cookie::make($backend->code . '-id', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
         Cookie::queue(Cookie::make($backend->code . '-language', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
+        Cookie::queue(Cookie::make($backend->code . '-profileName', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
     }
 
     public static function list(Backend $backend, $params = []): Collection
