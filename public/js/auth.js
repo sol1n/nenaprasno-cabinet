@@ -102,7 +102,7 @@ function loginVk(e) {
     VK.Auth.login(function(res){
         console.log(res);
         if (res.status == "connected" && res.hasOwnProperty('session')) {
-            VK.api('users.get', {'user_ids': res.session.user.id, 'fields': 'id,first_name,last_name,sex,bdate,email'}, function(response) {
+            VK.api('users.get', {'user_ids': res.session.user.id, 'fields': 'id,first_name,last_name,sex,bdate,email', v:'5.73'}, function(response) {
                 if (response.hasOwnProperty('response') && response.response.length > 0) {
                     response = response.response[0];
                     var data = {};
