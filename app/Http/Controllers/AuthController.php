@@ -152,11 +152,7 @@ class AuthController extends Controller
     public function LoginByToken(Request $request)
     {
         $headers = ['Access-Control-Allow-Credentials' => 'true'];
-        if (env('APP_DEBUG', false)) {
-            $headers['Access-Control-Allow-Origin'] =  '*';
-        } else {
-            $headers['Access-Control-Allow-Origin'] =  env('MAIN_SITE');
-        }
+        $headers['Access-Control-Allow-Origin'] =  env('MAIN_SITE');
 
         try {
             $user = new User;
@@ -174,11 +170,6 @@ class AuthController extends Controller
     public function LoginByTokenOptions()
     {
         $response = response('');
-//        if (env('APP_DEBUG', false)) {
-//            $response->header('Access-Control-Allow-Origin', '*');
-//        } else {
-//            $response->header('Access-Control-Allow-Origin', env('MAIN_SITE'));
-//        }
         $response->header('Access-Control-Allow-Origin', env('MAIN_SITE'));
         $response->header('Access-Control-Allow-Credentials', 'true');
         $response->header('Access-Control-Allow-Headers', 'Content-Type');
@@ -244,12 +235,9 @@ class AuthController extends Controller
                     catch (RequestException $e) {
                         $response->setResponseError($e->getMessage());
                     }
-
                 }
 
                 $this->shareSession($request, $user);
-
-
 
                 if ($isNew and $request->get('data')) {
                     $data= $request->get('data');
@@ -276,12 +264,7 @@ class AuthController extends Controller
         }
 
         $headers = ['Access-Control-Allow-Credentials' => 'true'];
-        if (env('APP_DEBUG', false)) {
-            $headers['Access-Control-Allow-Origin'] =  '*';
-        } else {
-            $headers['Access-Control-Allow-Origin'] =  env('MAIN_SITE');
-        }
-
+        $headers['Access-Control-Allow-Origin'] =  env('MAIN_SITE');
 
         return response()->json($response)->withHeaders($headers);
     }
