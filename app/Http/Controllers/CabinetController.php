@@ -14,9 +14,12 @@ use App\Services\UserManager;
 use App\Services\ObjectManager;
 use App\Services\SchemaManager;
 use App\Exceptions\User\WrongCredentialsException;
+use App\Traits\Models\AppercodeRequest;
 
 class CabinetController extends Controller
 {
+    use AppercodeRequest;
+
     const FORM_ID = 1;
     const PROFILE_SCHEMA_NAME = 'UserProfiles';
 
@@ -117,12 +120,18 @@ class CabinetController extends Controller
 
     private function getProfile($schemaManager, $objectManager, int $userId)
     {
-        $profile = $objectManager->search($schemaManager->find(self::PROFILE_SCHEMA_NAME), ['where' => json_encode(['userId' => $userId])]);
-
-        if ($profile->isEmpty()) {
-            return $this->createProfile($schemaManager, $objectManager, $userId);
+        $profiles = self::jsonRequest([
+            'url' => app(Backend::Class)->url . "/users/$userId/profiles",
+            'method' => 'GET',
+            'headers' => [
+                'X-Appercode-Session-Token' => app(Backend::Class)->token
+            ]
+        ]);
+        if (is_array($profiles) && count($profiles) && isset($profiles[0])) {
+            $schema = $schemaManager->find($profiles[0]['schemaId']);
+            return $objectManager->find($schema, $profiles[0]['itemId']);
         } else {
-            return $profile->first();
+            return $this->createProfile($schemaManager, $objectManager, $userId);
         }
     }
 

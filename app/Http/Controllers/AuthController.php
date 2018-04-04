@@ -73,10 +73,8 @@ class AuthController extends Controller
         try {
             $user = User::login($backend, $request->all());
         } catch (WrongCredentialsException $e) {
-            //dd($e);
             $errors = new MessageBag();
             $errors->add('email', 'Неверный логин или пароль');
-//            $request->session()->flash('login-error', 'Wrong сredentials data');
             return redirect('/login/')->withErrors($errors);
         }
 
@@ -115,7 +113,6 @@ class AuthController extends Controller
             if ($e->getMessage() == 'Conflict when user creation') {
                 $errors->add('registration', 'Пользователь с email: ' . $request->input('login') . ' уже зарегистрирован в системе
                                         <p class="error-info">Если это ваш e-mail, <a href="'.route('restore').'">восстановите пароль</a></p>');
-//                $errors->add('exists','1');
             }
             else {
                 $errors->add('registration', $e->getMessage());
@@ -180,8 +177,6 @@ class AuthController extends Controller
     public function LoginBySocial(Backend $backend, Request $request, ObjectManager $objectManager, SchemaManager $schemaManager) {
         $response = new AjaxResponse();
         $errors = new MessageBag();
-//        $errors->add('registration', $e->getMessage());
-//        return redirect()->route('registration')->withErrors($errors);
         if (!$userId = $request->input('userId')) {
             $errors->add('registration', 'Не передан идентификатор пользователя');
         }
@@ -192,7 +187,6 @@ class AuthController extends Controller
 
         $sessionId = $request->input('sessionId');
         $refreshToken = $request->input('refreshToken');
-
 
         if (!$errors->count()) {
             $login = $networkName . 'user' . $userId;
