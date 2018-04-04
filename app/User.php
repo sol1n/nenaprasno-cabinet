@@ -25,10 +25,11 @@ use App\Exceptions\User\UserGetProfilesException;
 use App\Traits\Controllers\ModelActions;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cookie;
+use App\Traits\Models\AppercodeRequest;
 
 class User
 {
-    use ModelActions, SchemaSearch;
+    use ModelActions, SchemaSearch, AppercodeRequest;
 
     private $token;
     private $refreshToken;
@@ -184,6 +185,23 @@ class User
         return $user;
     }
 
+    private function getProfile()
+    {
+        $profiles = self::jsonRequest([
+            'url' => app(Backend::Class)->url . "/users/{$this->id}/profiles",
+            'method' => 'GET',
+            'headers' => [
+                'X-Appercode-Session-Token' => app(Backend::Class)->token
+            ]
+        ]);
+        if (is_array($profiles) && count($profiles) && isset($profiles[0])) {
+            $schema = app(SchemaManager::class)->find($profiles[0]['schemaId']);
+            return app(ObjectManagerManager::class)->find($schema, $profiles[0]['itemId']);
+        } else {
+            return null;
+        }
+    }
+
     public function getProfileName()
     {
         $profileName = '';
@@ -191,13 +209,12 @@ class User
         if (isset($this->username)) {
             $profileName = $this->username;
         }
-        $schema = app(SchemaManager::class)->find('UserProfiles');
-        $profile = app(ObjectManager::class)->search($schema, ['where' => json_encode(['userId' => $this->id])])->first();
-        if ($profile) {
-            if ($profile->fields['email']) {
+        $profile = $this->getProfile();
+        if (!is_null($profile)) {
+            if (isset($profile->fields['email']) && !empty($profile->fields['email'])) {
                 $profileName = $profile->fields['email'];
             }
-            if ($profile->fields['firstName']) {
+            if (isset($profile->fields['firstName']) && !empty($profile->fields['email'])) {
                 $profileName = $profile->fields['firstName'];
             }
         }
