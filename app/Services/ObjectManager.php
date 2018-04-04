@@ -62,13 +62,17 @@ class ObjectManager
 
     public function find(Schema $schema, $id): Object
     {
-        $this->initList($schema);
-        $object = $this->lists->get($schema->id)->where('id', $id)->first();
-        if (! is_null($object)) {
-            return $object;
-        } else {
-            return $this->model::get($schema, $id, $this->backend);
+        try {
+            $this->initList($schema);
+            $object = $this->lists->get($schema->id)->where('id', $id)->first();
+            if (! is_null($object)) {
+                return $object;
+            }
+        } catch (\Exception $e) {
+
         }
+        
+        return $this->model::get($schema, $id, $this->backend);
     }
 
     public function all(Schema $schema, $query = []): Collection
