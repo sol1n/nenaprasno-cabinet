@@ -30,7 +30,11 @@ class ObjectManager
         {
             if (! $objects = $this->getFromCache($schema)) 
             {
-                $objects = $this->model::list($schema, $this->backend, $query);
+                try {
+                    $objects = $this->model::list($schema, $this->backend, $query);
+                } catch (\Exception $e) {
+                    $objects = [];
+                }
                 $this->saveToCache($schema, $objects);
             }
 
