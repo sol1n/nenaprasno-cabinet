@@ -196,7 +196,7 @@ class User
         ]);
         if (is_array($profiles) && count($profiles) && isset($profiles[0])) {
             $schema = app(SchemaManager::class)->find($profiles[0]['schemaId']);
-            return app(ObjectManagerManager::class)->find($schema, $profiles[0]['itemId']);
+            return app(ObjectManager::class)->find($schema, $profiles[0]['itemId']);
         } else {
             return null;
         }
