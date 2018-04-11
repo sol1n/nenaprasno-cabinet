@@ -7,15 +7,16 @@ use App\Backend;
 use App\Services\SchemaManager;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Cache;
-use App\Exceptions\SettingsSaveException;
-use App\Exceptions\SettingsGetException;
+use App\Exceptions\Settings\SettingsSaveException;
+use App\Exceptions\Settings\SettingsGetException;
 use Illuminate\Support\Collection;
+use App\Traits\Models\AppercodeRequest;
 
 class Settings
 {
+    use AppercodeRequest;
+
     public $title;
     public $languages;
     public $userProfiles;
@@ -48,16 +49,11 @@ class Settings
 
     private function fetch(Backend $backend): array
     {
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url . 'settings', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            throw new SettingsGetException;
-        };
-
-        $data = json_decode($r->getBody()->getContents(), 1);
+        $data = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'settings'
+        ]);
         
         $this->saveToCache($data);
 
@@ -114,14 +110,12 @@ class Settings
             }
         }
 
-        $client = new Client;
-        try {
-            $r = $client->put($backend->url . 'settings', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ], 'json' => $json]);
-        } catch (RequestException $e) {
-            throw new SettingsSaveException;
-        };
+        self::request([
+            'method' => 'PUT',
+            'json' => $json,
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'settings'
+        ]);
 
         $data = $this->fetch($backend);
 

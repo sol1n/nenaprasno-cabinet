@@ -4,6 +4,7 @@ namespace App\Traits\Models;
 
 use App\Schema;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cookie;
 
 trait FieldsFormats
 {
@@ -124,14 +125,21 @@ trait FieldsFormats
         return $data;
     }
 
-    private static function formatDateTimeField($data, $field)
+    private static function formatDateTimeField($data, $field, Schema $schema)
     {
+        $timezone = $schema->getTimezoneForField($field['name']);
+        $convert = function ($data) use($timezone) {
+            $date = new Carbon($data, $timezone);
+            if ($timezone != 'UTC') {
+                $date->setTimezone('UTC');
+            }
+            return $date->toAtomString();
+        };
         if ($field['multiple']) {
             if ($data) {
                 foreach ($data as $k => $v) {
                     if ($v) {
-                        $date = new Carbon($v, 'UTC');
-                        $data[$k] = $date->toAtomString();
+                        $data[$k] = $convert($v);
                     } else {
                         unset($data[$k]);
                     }
@@ -144,13 +152,12 @@ trait FieldsFormats
             }
         } else {
             if ($data) {
-                $date = new Carbon($data, 'UTC');
-                $data = $date->toAtomString();
+//                $date = new Carbon($data, $timezone);
+                $data = $convert($data);// $date->toAtomString();
             } else {
                 $data = null;
             }
         }
-
         return $data;
     }
 
@@ -184,7 +191,7 @@ trait FieldsFormats
 
     private static function prepareRawData($data, Schema $schema, $keepNull = true): array
     {
-        $systemFields = ['id', 'createdAt', 'updatedAt', 'ownerId'];
+        $systemFields = ['id', 'createdAt', 'ownerId'];
         foreach ($systemFields as $field) {
             if (array_key_exists($field, $data)) {
                 unset($data[$field]);
@@ -203,17 +210,13 @@ trait FieldsFormats
                         $data[$field['name']] = self::formatJsonField($data[$field['name']], $field);
                         break;
                     case 'DateTime':
-                        $data[$field['name']] = self::formatDateTimeField($data[$field['name']], $field);
+                        $data[$field['name']] = self::formatDateTimeField($data[$field['name']], $field, $schema);
                         break;
                     case 'Integer':
                         $data[$field['name']] = self::formatIntegerField($data[$field['name']], $field);
                         break;
                     case 'Boolean':
-                        if (isset($data[$field['name']])) {
                             $data[$field['name']] = self::formatBooleanField($data[$field['name']], $field);
-                        } else {
-                            $data[$field['name']] = false;
-                        }
                         break;
                     case 'Double':
                     case 'Money':
@@ -222,7 +225,18 @@ trait FieldsFormats
                     default:
                         break;
                 }
+                if ($field['multiple'] and !is_null($data[$field['name']]) and !is_array($data[$field['name']])) {
+                    $data[$field['name']] = [$data[$field['name']]];
+                }
             }
+            else {
+                switch ($field['type']) {
+                    case 'Boolean':
+                        $data[$field['name']] = false;
+                    break;
+                }
+            }
+
         }
 
         if (!$keepNull) {

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Exception;
 use App\Role;
 use App\Backend;
 use App\Settings;
@@ -9,11 +10,9 @@ use App\Language;
 use App\Services\ObjectManager;
 use App\Services\SchemaManager;
 use App\Traits\Models\SchemaSearch;
-use function GuzzleHttp\Psr7\build_query;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use App\Exceptions\User\UnAuthorizedException;
 use App\Exceptions\User\WrongCredentialsException;
@@ -24,8 +23,9 @@ use App\Exceptions\User\UserCreateException;
 use App\Exceptions\User\UserGetProfilesException;
 use App\Traits\Controllers\ModelActions;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cookie;
 use App\Traits\Models\AppercodeRequest;
+use Illuminate\Support\Facades\Cookie;
+use GuzzleHttp\Exception\ClientException;
 
 class User
 {
@@ -37,7 +37,7 @@ class User
     protected function baseUrl(): String
     {
         return 'users';
-    }
+    } 
 
     public function token(): string
     {
@@ -50,11 +50,16 @@ class User
 
     public function refreshToken(): string
     {
-        if ($this->refreshToken !== null) {
-            return $this->refreshToken;
-        } else {
-            throw new UnAuthorizedException;
-        }
+        if ($this->refreshToken !== null) { 
+            return $this->refreshToken; 
+        } else { 
+            throw new UnAuthorizedException; 
+        } 
+    }
+
+    public function setToken($token)
+    {
+        $this->token = $token;
     }
 
     public function setRefreshToken($token)
@@ -80,26 +85,20 @@ class User
 
     public function getProfiles(Backend $backend)
     {
-        $client = new Client;
-
-        try {
-            $r = $client->get(
-                $backend->url . 'users/' . $this->id . '/profiles',
-                [
-                'headers' => ['X-Appercode-Session-Token' => $backend->token]]
-            );
-        } catch (RequestException $e) {
-            throw new UserGetProfilesException;
-        }
-
-        $json = json_decode($r->getBody()->getContents(), 1);
+        $json = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'users/' . $this->id . '/profiles'
+        ]);
 
         $profiles = new Collection;
 
-        if (count($json)) {
-            foreach ($json as $profile) {
-                $schema = app(SchemaManager::class)->find($profile['schemaId'])->withRelations();
-                $object = app(ObjectManager::class)->find($schema, $profile['itemId']);
+        if (count($json))
+        {
+            foreach($json as $profile)
+            {
+                $schema = app(SchemaManager::Class)->find($profile['schemaId'])->withRelations();
+                $object = app(ObjectManager::Class)->find($schema, $profile['itemId']);
                 $profiles->put($schema->id, ['object' => $object->withRelations(), 'code' => $schema->id]);
             }
         }
@@ -120,14 +119,15 @@ class User
             }
 
             $this->profiles = $profiles->sortBy('code');
-        } else {
+        }
+        else{
             $this->profiles = $profiles;
         }
 
         return $this;
     }
 
-    public static function build(array $data): User
+    public static function build(Array $data): User
     {
         $user = new self();
         $user->token = null;
@@ -142,8 +142,10 @@ class User
 
         $user->language = null;
         $languages = Language::list();
-        foreach ($languages as $long => $short) {
-            if ($data['language'] == $short) {
+        foreach ($languages as $long => $short)
+        {
+            if ($data['language'] == $short)
+            {
                 $user->language = collect(['short' => $short, 'long' => $long]);
             }
         }
@@ -151,38 +153,305 @@ class User
         return $user;
     }
 
-    public static function login(Backend $backend, array $credentials, Bool $storeSession = true): User
+    public static function login(Backend $backend, Array $credentials, Bool $storeSession = true): User
     {
-        $client = new Client;
+        $data = [
+          'username' => $credentials['login'],
+          'password' => $credentials['password'],
+          'installId' => '',
+          'generateRefreshToken' => true
+        ];
 
-        try {
-            $r = $client->post($backend->url . 'login', ['json' => [
-              'username' => $credentials['login'],
-              'password' => $credentials['password'],
-              'installId' => '',
-              'generateRefreshToken' => true
-            ]]);
-        } catch (RequestException $e) {
-            throw new WrongCredentialsException;
+        $timezone = $credentials['timezone'] ?? '';
+        if ($timezone) {
+            $timezone = timezone_name_from_abbr('', intval($timezone * 60), false);
         }
 
-        $json = json_decode($r->getBody()->getContents(), 1);
+        try {
+            $json = self::jsonRequest([
+                'method' => 'POST',
+                'json' => $data,
+                'url' => $backend->url . 'login',
+            ], false);
+        } catch (Exception $e) {
+            if ($e instanceof ClientException && self::checkTokenExpiration($e)) {
+                throw new WrongCredentialsException;
+            }
+        }
 
         $user = new self();
-        $user->username = $credentials['login'];
         $user->id = $json['userId'];
         $user->roleId = $json['roleId'];
         $user->token = $json['sessionId'];
+        $user->username = $credentials['login'];
         $user->refreshToken = $json['refreshToken'];
 
         $backend->token = $json['sessionId'];
 
-        
-        if ($storeSession) {
+        if ($storeSession)
+        {
             $user->storeSession($backend);
         }
 
         return $user;
+    }
+
+    public function storeSession(Backend $backend, $language = '', $timezone = ''): User
+    {
+        $lifetime = env('COOKIE_LIFETIME');
+        if (!$lifetime) {
+            $lifetime = config('auth.cookieLifetime');
+        }
+        Cookie::queue($backend->code . '-session-token', $this->token, $lifetime);
+        Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime);
+        Cookie::queue($backend->code . '-id', $this->id, $lifetime);
+        Cookie::queue($backend->code . '-language', $language, $lifetime);
+        Cookie::queue('appercode-timezone', $timezone, $lifetime);
+        return $this;
+    }
+
+    public static function forgetSession($backend)
+    {
+        Cookie::forget($backend->code . '-session-token');
+        Cookie::forget($backend->code . '-refresh-token');
+        Cookie::forget($backend->code . '-id');
+        Cookie::forget($backend->code . '-language');
+        Cookie::queue('appercode-timezone');
+    }
+
+    public function regenerate(Backend $backend, Bool $storeSession = true): User
+    {
+        $regenerationToken = isset($backend->refreshToken) ? $backend->refreshToken : $this->refreshToken;
+        $json = self::jsonRequest([
+            'method' => 'POST',
+            'headers' => ['Content-Type' => 'application/json'],
+            'body' => '"' . $regenerationToken . '"',
+            'url' => $backend->url . 'login/byToken'
+        ]);
+
+        $this->id = $json['userId'];
+        $this->token = $json['sessionId'];
+        $this->refreshToken = $json['refreshToken'];
+
+        $language = Cookie::get($backend->code . '-language');
+        $timezone = Cookie::get('appercode-timezone');
+
+        if ($storeSession)
+        {
+            $this->storeSession($backend, $language, $timezone);
+        }
+
+        return $this;
+    }
+
+    public static function getSearchFilter(Backend $backend)
+    {
+        $result = '';
+        $schemas = app(Settings::class)->getProfileSchemas();
+        $schemasData = [];
+        $getUsers = function ($list) {
+            $result = [];
+            foreach ($list as $item) {
+                if (isset($item->fields['userId'])) {
+                    $result[] = $item->fields['userId'];
+                }
+            }
+            return $result;
+        };
+        foreach ($schemas as $schema) {
+            $schemasData = array_merge($schemasData, $getUsers(Object::list($schema, $backend)));
+        }
+
+        if ($schemasData) {
+            $result = ['id' => [
+                '$in' => $schemasData
+            ]];
+        }
+
+        return $result;
+
+    }
+
+    public static function list(Backend $backend, $params = ['take' => -1]): Collection
+    {
+        $result = new Collection;
+
+        $json = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'users/?' . http_build_query($params)
+        ]);
+        
+        foreach ($json as $raw)
+        {
+            $result->push(self::build($raw));
+        }
+
+        return $result;
+    }
+
+    public static function findMultiple(Backend $backend, $params) : Collection
+    {
+
+    }
+
+    public static function getUsersAmount($backend, $params = []) {
+        if (!$params) {
+            $params['take'] = 0;
+        }
+
+        $params['count'] = 'true';
+
+        return self::countRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'users/?' . http_build_query($params)
+        ]);
+    }
+
+    public static function get(String $id, Backend $backend): User
+    {
+        $json = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'users/' . $id
+        ]);
+
+        return self::build($json);
+    }
+
+    public function save(Array $fields, Backend $backend): User
+    {
+        $json = self::jsonRequest([
+            'method' => 'PUT',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'json' => $fields,
+            'url' => $backend->url  . 'users/' . $this->id
+        ]);
+
+        return self::build($json);
+    }
+
+    public static function create(Array $fields, Backend $backend): User
+    {
+        $json = self::jsonRequest([
+            'method' => 'POST',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'json' => $fields,
+            'url' => $backend->url  . 'users/'
+        ]);
+
+        return self::build($json);
+    }
+
+    public function delete(Backend $backend): User
+    {
+        self::request([
+            'method' => 'DELETE',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'users/' . $this->id
+        ]);
+
+        return $this;
+    }
+
+    public function shortView(): String
+    {
+        if (isset(app(\App\Settings::Class)->properties['usersShortView']))
+        {
+            $template = app(\App\Settings::Class)->properties['usersShortView'];
+
+            if (isset($this->profiles) && (!$this->profiles->isEmpty()))
+            {
+                foreach ($this->profiles as $schema => $profile){
+
+                    if (!$this->profiles->isEmpty() and isset($this->profiles[$schema]['object']))
+                    {
+                        $profile = $this->profiles[$schema]['object'];
+
+                        foreach ($profile->fields as $code => $value)
+                        {
+                            $replace = is_null($value) ? '' : $value;
+                            if ((is_string($replace) || is_numeric($replace)) && mb_strpos($template, ":$schema.$code:") !== false)
+                            {
+                                $template = str_replace(":$schema.$code:", $replace, $template);
+                            }
+                        }
+                    }
+                }
+                $template = str_replace(":id:", $this->id, $template);
+                $template = str_replace(":username:", $this->username, $template);
+                return $template;
+            }
+            else
+            {
+                return $this->username;
+            }
+        }
+        else
+        {
+            if (isset($this->profiles) && (!$this->profiles->isEmpty())) {
+                $shortView = '';
+                foreach ($this->profiles as $schema => $profile) {
+                    $profile = $this->profiles[$schema]['object'];
+                    $shortView = $profile->shortView();
+                    if ($shortView) {
+                        break;
+                    }
+                }
+                return $shortView ? $shortView : $this->username;
+            }
+            else {
+                return $this->username;
+            }
+        }
+    }
+
+    public static function searchByProfile($backend, $query, $schemaId = 'UserProfiles')
+    {
+        $result = [];
+        $condition = [];
+        if (is_array($query)) {
+            $condition = $query;
+        }
+        else {
+            $condition[] = ['firstName' => ['$regex' => "(?i).*$query.*"]];
+            $condition[] = ['lastName' => ['$regex' => "(?i).*$query.*"]];
+            $condition[] = ['position' => ['$regex' => "(?i).*$query.*"]];
+            $condition[] = ['company' => ['$regex' => "(?i).*$query.*"]];
+            $condition[] = ['email' => ['$regex' => "(?i).*$query.*"]];
+            $condition[] = ['phoneNumber' => ['$regex' => "(?i).*$query.*"]];
+        }
+        if (count($condition) > 1) {
+            $param['search'] = ['$or' => $condition];
+        }
+        else {
+            $param['search'] = $condition;
+        }
+        $schema = Schema::get($schemaId, $backend);
+        $profiles = Object::list($schema, $backend, $param);
+        foreach ($profiles as $profile) {
+            if (!in_array($profile->fields['userId'], $result)) {
+                $result[] = $profile->fields['userId'];
+            }
+        }
+        return $result;
+    }
+
+
+    public static function getLanguage(backend $backend)
+    {
+        $defaultLanguage = env('DEFAULT_LANGUAGE');
+        $language = Cookie::get($backend->code . '-language');
+        return $language ? $language : $defaultLanguage;
+    }
+
+    public function getUserProfile() {
+        $result = [];
+        if (isset($this->profiles['UserProfiles']['object'])) {
+            $result = $this->profiles['UserProfiles']['object'];
+        }
+        return $result;
     }
 
     private function getProfile()
@@ -220,269 +489,25 @@ class User
         }
 
         return $profileName;
-    }
+    }   
 
-    public function storeSession(Backend $backend, $language = ''): User
-    {
-        $lifetime = env('COOKIE_LIFETIME');
-        if (!$lifetime) {
-            $lifetime = config('auth.cookieLifetime');
-        }
-
-        Cookie::queue($backend->code . '-session-token', $this->token, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
-        Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
-        Cookie::queue($backend->code . '-id', $this->id, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
-        Cookie::queue($backend->code . '-language', $language, $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
-        Cookie::queue($backend->code . '-profileName', $this->getProfileName(), $lifetime, '/', env('MAIN_SITE_SHARE_COOKIE'), false);
-        return $this;
-    }
-
-    public function regenerate(Backend $backend, Bool $storeSession = true): User
-    {
-        $client = new Client;
-
-        try {
-            $r = $client->post(
-                $backend->url . 'login/byToken',
-                [
-                'headers' => ['Content-Type' => 'application/json'],
-                'body' => '"' . $this->refreshToken . '"']
-            );
-        } catch (RequestException $e) {
-            throw new WrongCredentialsException;
-        }
-
-        $json = json_decode($r->getBody()->getContents(), 1);
-
-        $this->token = $json['sessionId'];
-        $this->refreshToken = $json['refreshToken'];
-        $this->id = $json['userId'];
-
-        $backend->token = $this->token;
-        $user = User::get($json['userId'],$backend);
-        if ($user) {
-            $this->username = $user->username;
-        }
-        $language = Cookie::get($backend->code . '-language');
-
-        if ($storeSession) {
-            $this->storeSession($backend, $language);
-        }
-
-        return $this;
-    }
-
-    public static function getSearchFilter(Backend $backend)
-    {
-        $result = '';
-        $schemas = app(Settings::class)->getProfileSchemas();
-        $schemasData = [];
-        $getUsers = function ($list) {
-            $result = [];
-            foreach ($list as $item) {
-                if (isset($item->fields['userId'])) {
-                    $result[] = $item->fields['userId'];
-                }
-            }
-            return $result;
-        };
-        foreach ($schemas as $schema) {
-            $schemasData = array_merge($schemasData, $getUsers(Object::list($schema, $backend)));
-        }
-
-        if ($schemasData) {
-            $result = ['id' => [
-                '$in' => $schemasData
-            ]];
-        }
-
-        return $result;
-    }
-
-    public static function forgetSession($backend)
-    {
-        Cookie::queue(Cookie::make($backend->code . '-session-token', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
-        Cookie::queue(Cookie::make($backend->code . '-refresh-token', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
-        Cookie::queue(Cookie::make($backend->code . '-id', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
-        Cookie::queue(Cookie::make($backend->code . '-language', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
-        Cookie::queue(Cookie::make($backend->code . '-profileName', null, -2628000, '/', env('MAIN_SITE_SHARE_COOKIE'), false));
-    }
-
-    public static function list(Backend $backend, $params = []): Collection
-    {
-        $client = new Client;
-
-        if (!$params) {
-            $params['take'] = -1;
-        }
-
-        // $filter = static::getSearchFilter($backend);
-        // if ($filter) {
-        //     $params['where'] = json_encode($filter);
-        //     $params['take'] = 10;
-        // }
-
-        $getParams = http_build_query($params);
-
-        try {
-            $r = $client->get($backend->url  . 'users/?' . $getParams, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            throw new UsersListGetException;
-        };
-
-        $json = json_decode($r->getBody()->getContents(), 1);
-        
-        $result = new Collection;
-        foreach ($json as $raw) {
-            $result->push(self::build($raw));
-        }
-
-        return $result;
-    }
-
-    public static function findMultiple(Backend $backend, $params) : Collection
-    {
-    }
-
-    public static function getUsersAmount($backend, $params = [])
-    {
-        $result = 0;
-        $client = new Client;
-        $params['take'] = 0;
-        $params['count'] = 'true';
-
-        $query = http_build_query($params);
-
-        try {
-            $r = $client->get($backend->url  . 'users/?' . $query, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            throw new UsersListGetException;
-        };
-        if ($r->getHeader('x-appercode-totalitems')) {
-            $result = $r->getHeader('x-appercode-totalitems')[0];
-        }
-
-        return $result;
-    }
-
-    public static function get(String $id, Backend $backend): User
-    {
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url  . 'users/' . $id, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            throw new UserNotFoundException;
-        };
-
-        $json = json_decode($r->getBody()->getContents(), 1);
-
-        return self::build($json);
-    }
-
-    public function save(array $fields, Backend $backend): User
-    {
-        $client = new Client;
-        $r = $client->put($backend->url  . 'users/' . $this->id, [
-                'headers' => ['X-Appercode-Session-Token' => $backend->token],
-                'json' => $fields
-            ]);
-        try {
-            $r = $client->put($backend->url  . 'users/' . $this->id, [
-                'headers' => ['X-Appercode-Session-Token' => $backend->token],
-                'json' => $fields
-            ]);
-        } catch (RequestException $e) {
-            throw new UserSaveException;
-        };
-
-        $json = json_decode($r->getBody()->getContents(), 1);
-
-        return self::build($json);
-    }
-
-    public static function create(array $fields, Backend $backend): User
-    {
-        $client = new Client;
-        try {
-            $r = $client->post($backend->url  . 'users/', [
-                'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
-                'json' => $fields
-            ]);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                if ($e->getResponse()->getStatusCode() == 409) {
-                    throw new UserCreateException('Conflict when user creation');
-                }
-            }
-            throw new UserCreateException;
-        };
-
-        $json = json_decode($r->getBody()->getContents(), 1);
-
-        return self::build($json);
-    }
-
-    public function delete(Backend $backend): User
-    {
-        $client = new Client;
-        try {
-            $r = $client->delete($backend->url  . 'users/' . $this->id, [
-                'headers' => ['X-Appercode-Session-Token' => $backend->token],
-            ]);
-        } catch (RequestException $e) {
-            throw new UserDeleteException;
-        };
-
-        return $this;
-    }
-
-    public function shortView(): String
-    {
-        if (isset(app(\App\Settings::class)->properties['usersShortView'])) {
-            $template = app(\App\Settings::class)->properties['usersShortView'];
-            if (isset($this->profiles) && (!$this->profiles->isEmpty())) {
-                foreach ($this->profiles as $schema => $profile) {
-                    if (isset($profile['object'])) {
-                        foreach ($profile['object']->fields as $code => $value) {
-                            if ((is_string($value) || is_numeric($value)) && mb_strpos($template, ":$schema.$code:") !== false) {
-                                $template = str_replace(":$schema.$code:", $value, $template);
-                            }
-                        }
-                    }
-                }
-                $template = str_replace(":id:", $this->id, $template);
-                $template = str_replace(":username:", $this->username, $template);
-                return $template ?? '';
-            } else {
-                return $this->username ?? '';
-            }
-        } else {
-            return $this->username ?? '';
-        }
-    }
-
-    /**
-     * Change current user`s password via non-administrative session
-     * @param  Backend $backend
-     * @param  $userId
-     * @param  array $data contains "oldPassword" & "newPassword" values
-     * @return
-     */
-    public static function changePassword(Backend $backend, $userId, $data)
-    {
-        $client = new Client;
-        $r = $client->put($backend->url  . 'users/' . $userId . '/changePassword', [
+    /** 
+     * Change current user`s password via non-administrative session 
+     * @param  Backend $backend 
+     * @param  $userId 
+     * @param  array $data contains "oldPassword" & "newPassword" values 
+     * @return 
+     */ 
+    public static function changePassword(Backend $backend, $userId, $data) 
+    { 
+        self::request([
+            'method' => 'PUT',
             'headers' => ['X-Appercode-Session-Token' => $backend->token],
-            'json' => $data
+            'url' => $backend->url  . 'users/' . $userId . '/changePassword',
+            'json' => $data 
         ]);
-
-        return true;
+ 
+        return true; 
     }
 
     public static function createRecoverCode(Backend $backend, array $data)
@@ -496,14 +521,12 @@ class User
             $fields['username'] = $data['email'];
         }
 
-        $client = new Client;
-
-        $r = $client->post($backend->url  . 'recover/sendRecoveryCode', [
+        self::request([
+            'method' => 'POST',
             'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
+            'url' => $backend->url  . 'recover/sendRecoveryCode',
             'json' => $fields
         ]);
-
-        $json = json_decode($r->getBody()->getContents(), 1);
 
         return true;
     }
@@ -517,14 +540,12 @@ class User
      */
     public static function restorePassword(Backend $backend, $data)
     {
-        $client = new Client;
-
-        $r = $client->put($backend->url  . '/recover/changePassword', [
+        self::request([
+            'method' => 'PUT',
             'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
+            'url' => $backend->url  . '/recover/changePassword',
             'json' => $data
         ]);
-
-        $json = json_decode($r->getBody()->getContents(), 1);
 
         return true;
     }
@@ -542,8 +563,10 @@ class User
         $client = new Client;
 
         try {
-            $r = $client->post($backend->url . '/users/loginAndMerge', [
-                'headers' => ['X-Appercode-Session-Token' => $sessionId ?? null],
+            $json = self::jsonRequest([
+                'method' => 'POST',
+                'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
+                'url' => $backend->url . '/users/loginAndMerge',
                 'json' => [
                     'username' => $data['username'],
                     'password' => $data['password'],
@@ -555,8 +578,6 @@ class User
             throw new WrongCredentialsException;
         }
 
-        $json = json_decode($r->getBody()->getContents(), 1);
-
         $user = new self();
         $user->username = $data['username'];
         $user->id = $json['userId'];
@@ -566,11 +587,11 @@ class User
 
         $backend->token = $json['sessionId'];
 
-
         if ($storeSession) {
             $user->storeSession($backend);
         }
 
         return $user;
     }
+
 }

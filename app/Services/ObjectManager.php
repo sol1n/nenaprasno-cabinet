@@ -33,7 +33,7 @@ class ObjectManager
                 try {
                     $objects = $this->model::list($schema, $this->backend, $query);
                 } catch (\Exception $e) {
-                    $objects = [];
+                    $objects = collect([]);
                 }
                 $this->saveToCache($schema, $objects);
             }

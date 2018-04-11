@@ -4,15 +4,13 @@ namespace App;
 
 use App\Backend;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Collection;
 use App\Traits\Controllers\ModelActions;
-use App\Exceptions\Backend\TokenExpiredException;
+use App\Traits\Models\AppercodeRequest;
 
 class Form
 {
-    use ModelActions;
+    use ModelActions, AppercodeRequest;
 
     private $backend;
 
@@ -24,7 +22,7 @@ class Form
         return 'forms';
     }
 
-    private function setBackend(Backend &$backend): Form
+    public function setBackend(Backend &$backend): Form
     {
         $this->backend = $backend;
         return $this;
@@ -64,68 +62,49 @@ class Form
 
     public static function getRaw(Backend $backend, $id): string
     {
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url . 'forms/' . $id, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                if ($e->getResponse()->getStatusCode() == 401) {
-                    throw new TokenExpiredException;
-                }
-            }
-            throw new \Exception('Error while getting form, id: ' . $id);
-        };
+        $result = self::request([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'forms/' . $id,
+        ]);
 
-        return $r->getBody()->getContents();
+        return $result->getBody()->getContents();
     }
 
     public static function getFromRaw(string $data): Form
     {
-        return new self(json_decode($data, 1));
+        $decodedData = json_decode($data, 1);
+        if (is_null($decodedData)) {
+            throw new \Exception('Can`t parse json data');
+        }
+        return new self($decodedData);
     }
 
     private static function fetch(Backend $backend): array
     {
-        $query = http_build_query(['take' => -1]);
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url . 'forms?' . $query, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                if ($e->getResponse()->getStatusCode() == 401) {
-                    throw new TokenExpiredException;
-                }
-            }
-            throw new \Exception('Error while getting forms list');
-        };
-
-        $data = json_decode($r->getBody()->getContents(), 1);
+        $data = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'forms?take=-1',
+        ]);
 
         return $data;
     }
 
     public function save(): Form
     {
-        $backend = $this->backend;
         if (isset($this->backend->token)) {
-            $client = new Client;
-            try {
-                $r = $client->put($this->backend->url . 'forms/' . $this->id, [
-                    'headers' => ['X-Appercode-Session-Token' => $this->backend->token],
-                    'json' => $this->toArray()
-                ]);
-            } catch (RequestException $e) {
-                throw new \Exception('Update form error');
-            };
+            $result = self::request([
+                'method' => 'PUT',
+                'json' => $this->toArray(),
+                'headers' => ['X-Appercode-Session-Token' => $this->backend->token],
+                'url' => $this->backend->url . 'forms/' . $this->id,
+            ]);
         } else {
             throw new \Exception('No backend provided');
         }
 
-        return self::getFromRaw($r->getBody()->getContents())->setBackend($backend);
+        return self::getFromRaw($result->getBody()->getContents())->setBackend($this->backend);
     }
 
     public static function get(String $id, Backend $backend): Form
@@ -174,28 +153,19 @@ class Form
         return $this;
     }
 
-    public static function getOwnResponses(Backend $backend, $id)
-    {
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url . 'forms/' . $id . '/response/own', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                if ($e->getResponse()->getStatusCode() == 401) {
-                    throw new TokenExpiredException;
-                }
-            }
-            throw new \Exception('Error while getting forms list');
-        };
+    public static function getOwnResponses(Backend $backend, $id) 
+    { 
+        $decoded = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'forms/' . $id . '/response/own',
+        ]);
 
-        $decoded = json_decode($r->getBody()->getContents(), 1);
-        if (isset($decoded[0])) {
-            $data = $decoded[0]['data'];
-            return collect($data);
+        if (isset($decoded[0])) { 
+            $data = $decoded[0]['data']; 
+            return collect($data); 
         }
-
-        return null;
-    }
+ 
+        return null; 
+    } 
 }

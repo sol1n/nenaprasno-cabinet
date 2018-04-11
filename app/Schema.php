@@ -3,31 +3,51 @@
 namespace App;
 
 use App\Backend;
+use App\Services\ObjectManager;
 use App\Services\UserManager;
+use App\Traits\Models\ViewData;
+use App\Helpers\Schema\ViewData as ViewDataHelper;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Collection;
 use App\Exceptions\Schema\SchemaSaveException;
 use App\Exceptions\Schema\SchemaCreateException;
 use App\Exceptions\Schema\SchemaDeleteException;
 use App\Exceptions\Schema\SchemaListGetException;
 use App\Exceptions\Schema\SchemaNotFoundException;
-use App\Exceptions\Backend\TokenExpiredException;
 use App\Traits\Controllers\ModelActions;
-
+use App\Traits\Models\AppercodeRequest;
+use Illuminate\Support\Facades\Cookie;
 
 class Schema
 {
-    use ModelActions;
+    use ModelActions, AppercodeRequest, ViewData;
 
     public $id;
     public $title;
     public $fields;
     public $isDeferredDeletion;
     public $isLogged;
+    /**
+     * Used as a filter for get user relation
+     * @var array
+     */
+    public $filterUsers;
+    public $viewDataHelper;
+
+    const COLLECTION_TYPES = [
+        'areaCatalogItem',
+        'baseItem',
+        'eventCatalogItem',
+        'feedbackMessage',
+        'htmlPage',
+        'newsCatalogItem',
+        'photoCatalogItem',
+        'tag',
+        'userProfile',
+        'videoCatalogItem'
+    ];
+
+    CONST PARENT_FIELD_NAME = 'parentId';
 
     protected function baseUrl(): String
     {
@@ -96,7 +116,9 @@ class Schema
             $fields = $data['fields'];
             unset($data['fields']);
             foreach ($fields as $fieldName => &$fieldData){
+
                 $field = [];
+//                var_dump(($fieldData));die();
                 $fieldData = $this->prepareField($fieldData);
 
                 foreach ($this->fields as $key => $value){
@@ -105,7 +127,7 @@ class Schema
                     }
                 }
 
-                if ($field['multiple'])
+                if ($field and $field['multiple'])
                 {
                     $field['type'] = '[' . $field['type'] . ']';
                 }
@@ -175,7 +197,7 @@ class Schema
                 ];
             }
         }
-        
+
         foreach ($data as $name => $value){
             if ($value != $this->{$name}){
                 $changes[] = [
@@ -186,6 +208,7 @@ class Schema
             }
         }
 
+
         return $changes;
     }
 
@@ -193,17 +216,17 @@ class Schema
     {
         $fields = [
             "id" => (String)$data['name'],
-            "title" => (String)$data['title'],
-            "isLogged" => $data['isLogged'],
-            "isDeferredDeletion" => $data['isDeferredDeletion'],
-            "viewData" => $data['viewData'],
+            "title" => (String)$data['title'] ?? '',
+            "isLogged" => $data['isLogged'] ?? false,
+            "isDeferredDeletion" => $data['isDeferredDeletion'] ?? false,
+            "viewData" => $data['viewData'] ?? [],
             "fields" => []
         ];
 
-        foreach ($data['fields'] as $field)
+        foreach ($data['newFields'] as $field)
         {
             $type = (String)$field['type'];
-            if ($field['multiple'] == 'true')
+            if (isset($field['multiple']) and $field['multiple'] == 'true')
             {
                 $type = "[$type]";
             }
@@ -215,18 +238,21 @@ class Schema
             ];
         }
 
-        $client = new Client;
-        try {
-            $r = $client->post($backend->url  . 'schemas', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ], 'json' => $fields]);
-        } catch (RequestException $e) {
-            dd(json_encode($backend));
-            throw new SchemaCreateException;
-        };
 
-        $json = json_decode($r->getBody()->getContents(), 1);
+
+        $json = self::jsonRequest([
+            'method' => 'POST',
+            'json' => $fields,
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'schemas',
+        ]);
+
         return self::build($json);
+    }
+
+    public function __construct()
+    {
+        $this->viewDataHelper = new ViewDataHelper($this);
     }
 
     public static function build(Array $data): Schema
@@ -253,29 +279,19 @@ class Schema
                 $field['multiple'] = false;
             }
         }
-
+        
         return $schema;
     }
 
     public static function list(Backend $backend): Collection
     {
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url  . 'schemas/?take=-1', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        }
-        catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                if ($e->getResponse()->getStatusCode() == 401) {
-                    throw new TokenExpiredException;
-                }
-            }
-            throw new SchemaListGetException;
-        };
-
-        $json = json_decode($r->getBody()->getContents(), 1);
         $result = new Collection;
+
+        $json = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'schemas/?take=-1',
+        ]);
 
         foreach ($json as $raw) {
             $result->push(static::build($raw));
@@ -286,21 +302,11 @@ class Schema
 
     public static function get(String $id, Backend $backend): Schema
     {
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url  . 'schemas/' . $id, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                if ($e->getResponse()->getStatusCode() == 401) {
-                    throw new TokenExpiredException;
-                }
-            }
-            throw new SchemaNotFoundException;
-        };
-
-        $json = json_decode($r->getBody()->getContents(), 1);
+        $json = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'schemas/' . $id,
+        ]);
 
         return static::build($json);
     }
@@ -309,28 +315,23 @@ class Schema
     {
         $changes = $this->getChanges($data);
 
-        $client = new Client;
-        try {
-            $r = $client->put($backend->url  . 'schemas', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ], 'json' => $changes]);
-        } catch (RequestException $e) {
-            throw new SchemaSaveException;
-        };
+        self::request([
+            'method' => 'PUT',
+            'json' => $changes,
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'schemas',
+        ]);
 
         return self::get($this->id, $backend);
     }
 
     public function delete(Backend $backend): Schema
     {
-        $client = new Client;
-        try {
-            $r = $client->delete($backend->url  . 'schemas/' . $this->id, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            throw new SchemaDeleteException;
-        };
+        self::request([
+            'method' => 'DELETE',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'schemas/' . $this->id,
+        ]);
 
         return $this;
     }
@@ -339,40 +340,20 @@ class Schema
         return app(UserManager::class)->count();
     }
 
-    private function getUserRelation($field)
+    private function getUserRelation()
     {
         if (! isset($this->relations['ref Users']))
         {
-            $count = $this->getRelationUserCount();
-            $users = [];
-            if ($count > config('objects.ref_count_for_select')) {
-                $userIds = [];
-                if (isset($this->fields[$field['name']])) {
-                    if (is_array($this->fields[$field['name']])) {
-                        if (
-                            isset($this->fields[$field['name']][0]) &&
-                            is_object($this->fields[$field['name']][0]))
-                        {
-                            foreach ($this->fields[$field['name']] as $obj)
-                            {
-                                $userIds[] = $obj->id;
-                            }
-                        }
-                        $userIds = $this->fields[$field['name']];
-                    }
-                    elseif (is_object($this->fields[$field['name']])) {
-                        $userIds = [$this->fields[$field['name']]->id];
-                    } else {
-                        $userIds = [$this->fields[$field['name']]];
-                    }
-                }
+            $query = [];
+            if ($this->filterUsers) {
+                $query['where'] = json_encode(['id' => ['$in' => $this->filterUsers]]);
+            } else {
+                $query['take'] = config('objects.ref_count_for_select');
+            }
 
-                $users = $userIds ? app(\App\Services\UserManager::Class)->findMultipleWithProfiles($userIds) : [];
-            }
-            else {
-                $users = app(\App\Services\UserManager::Class)->allWithProfiles();
-            }
-            $this->relations['ref Users'] = $users;
+            $profileSchemas = app(\App\Settings::class)->getProfileSchemas();
+
+            $this->relations['ref Users'] = app(UserManager::class)->allWithProfiles($query);
         }
     }
 
@@ -399,7 +380,7 @@ class Schema
         $code = str_replace('ref ', '', $field['type']);
         if ($code == 'Users')
         {
-            $this->getUserRelation($field);
+            $this->getUserRelation();
         }
         elseif ($code == 'Files')
         {
@@ -451,9 +432,25 @@ class Schema
         return $result;
     }
 
+    public function getLocalizedFields() : array
+    {
+        $result = [];
+        foreach ($this->fields as $field) {
+            if (isset($field['localized']) and $field['localized']) {
+                $result[$field['name']] = $field;
+            }
+        }
+        return $result;
+    }
+
     public function getViewData(): array
     {
         return isset($this->viewData) ? (array) $this->viewData : [];
+    }
+
+    public function getViewDataItem($key)
+    {
+        return isset($this->viewData[$key]) ? $this->viewData[$key] : '';
     }
 
     public function getShortViewTemplate()
@@ -501,4 +498,104 @@ class Schema
         }
         return $userField;
     }
+
+    public static function getUsrProfileSchema(Backend $backend)
+    {
+        return static::get('UserProfiles', $backend);
+    }
+
+    public function hideInLeftMenu() : bool
+    {
+        $result = false;
+        if (isset($this->viewData['hideInLeftMenu'])) {
+            $result = $this->viewData['hideInLeftMenu'];
+        }
+        return $result;
+    }
+
+    public function collectionType() : string
+    {
+        $result = '';
+        if (isset($this->viewData['collectionType'])) {
+            $result = $this->viewData['collectionType'];
+        }
+        return $result;
+    }
+
+    public function isHierarchical()
+    {
+        $result = false;
+        foreach ($this->fields as $field) {
+            if ($field['name'] == static::PARENT_FIELD_NAME) {
+                $result = true;
+                break;
+            }
+        }
+        return $result;
+    }
+
+    public static function getFieldOptions()
+    {
+        return config('viewdata.schema_field_options');
+    }
+
+    public static function getLocale()
+    {
+        $locale = __('schema');
+        $locale['delete'] = __('common.delete');
+        $locale['close'] = __('common.close');
+        return $locale;
+    }
+
+    public static function templates($name = false)
+    {
+        $result = [];
+        $getContent = function($fileName, $withRaw = true) {
+            $content = [];
+            $rawData = file_get_contents($fileName);
+            $content = json_decode($rawData, 1);
+            if ($withRaw) {
+                $content['raw_data'] = $rawData;
+            }
+            return $content;
+        };
+        $dirName = resource_path() . '/schema_templates';
+        if (is_dir($dirName)) {
+            if (!$name) {
+                $files = scandir($dirName);
+                foreach ($files as $file) {
+                    if ($file != '.' and $file != '..') {
+                        $content = $getContent($dirName . '/' . $file);
+                        if ($content and isset($content['viewData']['shortView'])) {
+                            $result[$file] = $content;
+                        }
+                    }
+                }
+            }
+            else {
+                $result = $getContent($dirName . '/' . $name, false);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Returns true if field is a parent link field
+     * @param $field
+     * @return bool
+     */
+    public function isParentLinkField($field) {
+        return $field['name'] == static::PARENT_FIELD_NAME;
+    }
+
+    public function getTimezoneForField($fieldName)
+    {
+        $timezone = Cookie::get('appercode-timezone') ?? 'UTC';
+        $useUTC = $this->viewDataHelper->getFieldSettingValue($fieldName, 'useUTC');
+        if (!$useUTC) {
+            $timezone = 'UTC';
+        }
+        return $timezone;
+    }
+
 }

@@ -4,19 +4,17 @@ namespace App;
 
 use App\Backend;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use App\Exceptions\Role\RoleNotFoundException;
 use App\Exceptions\Role\RoleGetListException;
 use App\Exceptions\Role\RoleCreateException;
 use App\Exceptions\Role\RoleSaveException;
-use App\Exceptions\Backend\TokenExpiredException;
 use Illuminate\Support\Collection;
 use App\Traits\Controllers\ModelActions;
+use App\Traits\Models\AppercodeRequest;
 
 class Role
 {
-    use ModelActions;
+    use ModelActions, AppercodeRequest;
 
     const ADMIN = 'Administrator';
 
@@ -37,39 +35,39 @@ class Role
         return $this;
     }
 
+    private static function getAdmin() {
+        return new Role([
+            'id' => static::ADMIN,
+            'baseRoleId' => null,
+            'rights' => [
+                  "adds" => [],
+                  "total" => []
+            ],
+            "createdAt" => "2018-02-20T07:12:08.830Z",
+            "updatedAt" => "2018-02-20T07:12:08.831Z",
+            "isDeleted" => false
+        ]);
+    }
+
     private static function fetch(Backend $backend): Array
     {
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url . 'roles', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                if ($e->getResponse()->getStatusCode() == 401) {
-                    throw new TokenExpiredException;
-                }
-            }
-            throw new RoleGetListException;
-        };
-
-        $data = json_decode($r->getBody()->getContents(), 1);
-
-        return $data;
+        return self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'roles'
+        ]);
     }
 
     public static function get(String $id, Backend $backend): Role
     {
-        $client = new Client;
-        try {
-            $r = $client->get($backend->url . 'roles/' . $id, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            throw new RoleNotFoundException;
-        };
-
-        $data = json_decode($r->getBody()->getContents(), 1);
+        if ($id == static::ADMIN) {
+            return static::getAdmin();
+        }
+        $data = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'roles/' . $id
+        ]);
 
         return new Role($data);
     }
@@ -77,6 +75,8 @@ class Role
     public static function list(Backend $backend): Collection
     {
         $result = new Collection;
+
+        $result->push(static::getAdmin());
 
         foreach (static::fetch($backend) as $raw) {
             $result->push(new Role($raw));
@@ -87,49 +87,36 @@ class Role
 
     public function delete(Backend $backend): Role
     {
-        $client = new Client;
-        try {
-            $r = $client->delete($backend->url  . 'roles/' . $this->id, ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            throw new RoleDeleteException;
-        };
+        self::request([
+            'method' => 'DELETE',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'roles/' . $this->id
+        ]);
 
         return $this;
     }
 
     public static function create(Array $fields, Backend $backend): Role
     {
-        $client = new Client;
-        try {
-            $r = $client->post($backend->url  . 'roles', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ], 'json' => $fields]);
-        } catch (RequestException $e) {
-            throw new RoleCreateException;
-        };
+        $data = self::jsonRequest([
+            'method' => 'POST',
+            'json' => $fields,
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'roles'
+        ]);
 
-        $json = json_decode($r->getBody()->getContents(), 1);
-
-        return new Role($json);
+        return new Role($data);
     }
 
     public function save(Array $fields, Backend $backend): Role
     {
-        $fields['id'] = $this->id;
-
-        $client = new Client;
-        try {
-            $r = $client->put($backend->url  . 'roles', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ], 'json' => $fields]);
-        } catch (RequestException $e) {
-            throw new RoleSaveException;
-        };
-
-        $json = json_decode($r->getBody()->getContents(), 1);
+        $data = self::jsonRequest([
+            'method' => 'PUT',
+            'json' => array_merge($fields, ['id' => $this->id]),
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url  . 'roles'
+        ]);
         
-        return new Role($json);
+        return new Role($data);
     }
 }

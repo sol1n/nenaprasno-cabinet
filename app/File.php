@@ -13,9 +13,11 @@ use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Collection;
 use Mockery\Exception;
 use phpDocumentor\Reflection\Types\Integer;
+use App\Traits\Models\AppercodeRequest;
 
 class File
 {
+    use AppercodeRequest;
 
     public $id;
     public $name;
@@ -31,6 +33,7 @@ class File
     public $length;
     public $children;
     public $link;
+    public $directLink;
 
     CONST ROOT_PARENT_ID = '00000000-0000-0000-0000-000000000000';
     CONST BASE_LINK = '/files/';
@@ -38,9 +41,12 @@ class File
     CONST STATUS_SHARED = 'shared';
     CONST STATUS_LOCAL = 'local';
 
-    public static function getbaseLink()
+    public static function getbaseLink($backend = null)
     {
-        return '/' . app(Backend::class)->code . static::BASE_LINK;
+        if (!$backend) {
+            $backend = app(Backend::class);
+        }
+        return '/' . $backend->code . static::BASE_LINK;
     }
 
     /**
@@ -50,16 +56,11 @@ class File
      */
     public static function tree(Backend $backend) : Collection
     {
-        $client = new Client();
-        try {
-            $r = $client->get($backend->url . '/files/tree', ['headers' => [
-                'X-Appercode-Session-Token' => $backend->token
-            ]]);
-        } catch (RequestException $e) {
-            throw new RoleGetListException;
-        };
-
-        $data = json_decode($r->getBody()->getContents(), 1);
+        $data = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . '/files/tree'
+        ]);
 
         $result = new Collection();
 
@@ -133,7 +134,7 @@ class File
         $rootFile = new File();
         $rootFile->link = static::getbaseLink();
         $rootFile->id = static::ROOT_PARENT_ID;
-        $rootFile->name = 'Main folder';
+        $rootFile->name = __('file.main folder');
         $rootFile->fileType = 'directory';
         $result[static::ROOT_PARENT_ID] = $rootFile;
 
@@ -151,8 +152,12 @@ class File
     }
 
     private static function getUser($id, $backend) {
-        $user = User::get($id, $backend);
-        return [$user->id => $user->username];
+        try {
+            $user = User::get($id, $backend);
+            return [$user->id => $user->username];
+        } catch (ClientException $e) {
+            return null;
+        }
     }
 
     /**
@@ -179,13 +184,29 @@ class File
         $file->length = (integer) $data['file']['length'];
         if ($file->fileType == 'directory'){
             $file->link = $baseLink . $file->id;
+//            if ($file->id == '409bcbaf-53bb-4041-8d26-be4551e40e56') {
+//                dd($baseLink);
+//            }
+//            if ($file->parentId != static::ROOT_PARENT_ID) {
+//                $file->link = $baseLink . '/' . $file->id;
+//            }
+//            else{
+//
+//            }
         }
         else{
             $file->link = static::getbaseLink() . 'get/' . $file->id;
+            $file->directLink = static::getDirectLink($file->id, $file->name);
         }
         $file->children = [];
 
         return $file;
+    }
+
+    public static function getDirectLink($fileId, $fileName)
+    {
+        $backend = app(Backend::class);
+        return env('APPERCODE_SERVER') . $backend->code . '/files/' . $fileId . '/download/' . $fileName;
     }
 
     public function getSize(){
@@ -289,13 +310,14 @@ class File
 
     public static function addFolder($fields, Backend $backend) : File
     {
-        $client = new Client;
-        $fields['fileType'] = 'directory';
-        $r = $client->post($backend->url . 'files', ['headers' => [
-            'X-Appercode-Session-Token' => $backend->token
-        ], 'json' => $fields]);
+        $data = self::jsonRequest([
+            'method' => 'POST',
+            'json' => $fields,
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'files'
+        ]);
 
-        $json = ['file' => json_decode($r->getBody()->getContents(), 1)];
+        $json = ['file' => $data];
 
         $users = static::getUser($json['file']['ownerId'], $backend);
 
@@ -304,18 +326,18 @@ class File
         return $folder;// static::build($schema, $json);
     }
 
-    public static function createFile($props, Backend $backend){
-        $client = new Client;
+    public static function createFile($props, Backend $backend)
+    {
+        $data = self::jsonRequest([
+            'method' => 'POST',
+            'json' => $props,
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'files'
+        ]);
 
-        $r = $client->post($backend->url . 'files', ['headers' => [
-            'X-Appercode-Session-Token' => $backend->token
-        ], 'json' => $props]);
+        if ($data) {
 
-        $createdFile = null;
-        $response  = $r->getBody()->getContents();
-        if ($response) {
-
-            $json = ['file' => json_decode($response, 1)];
+            $json = ['file' => $data];
 
             $users = static::getUser($json['file']['ownerId'],$backend);
 
@@ -327,46 +349,50 @@ class File
 
     public static function uploadFile($fileId, $multipart, Backend $backend)
     {
-        $result = true;
-        $client = new Client;
-        $fields['fileType'] = 'directory';
-
         try {
-            $res = $client->request('POST', $backend->url . 'files/' . $fileId . '/upload', [
-                'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            self::request([
+                'method' => 'POST',
                 'multipart' => $multipart,
-            ], ['debug' => true]);
+                'headers' => ['X-Appercode-Session-Token' => $backend->token],
+                'url' => $backend->url . 'files/' . $fileId . '/upload'
+            ]);
         }
-        catch (ServerException $e) {
-            $result = false;
+        catch (\Exception $e) {
+            return false;
         }
-
-        return $result;
-    }
-
-    public static function delete($fileId, $props, Backend $backend) {
-        $client = new Client;
-        $props['_method'] = 'DELETE';
-        $r = $client->delete($backend->url . 'files/' . $fileId . '?markupAsDeleted=true', ['headers' => [
-            'X-Appercode-Session-Token' => $backend->token
-        ]]);
 
         return true;
     }
 
-    public static function update($fileId, $props, Backend $backend){
-        $client = new Client();
-        $props = $props;
+    public static function delete($fileId, $props, Backend $backend)
+    {
+        self::request([
+            'method' => 'DELETE',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'files/' . $fileId . '?markupAsDeleted=true'
+        ]);
+
+        return true;
+    }
+
+    public static function update($fileId, $props, Backend $backend)
+    {
+        if (isset($props['parentId']) and $props['parentId'] == static::ROOT_PARENT_ID) {
+            $props['parentId'] = null;
+        }
         try {
-            $r = $client->put($backend->url . 'files/' . $fileId, [
+            $data = self::jsonRequest([
+                'method' => 'PUT',
+                'json' => $props,
                 'headers' => ['X-Appercode-Session-Token' => $backend->token],
-                'json' => $props
+                'url' => $backend->url . 'files/' . $fileId
             ]);
         } catch (ClientException $e) {
+            throw $e;
             throw new FileUpdateException();
         }
 
-        $json = ['file' => json_decode($r->getBody()->getContents(), 1)];
+        $json = ['file' => $data];
 
         $users = static::getUser($json['file']['ownerId'], $backend);
 
@@ -380,12 +406,15 @@ class File
         $tmpFile = tempnam(sys_get_temp_dir(), '');
         $client = new Client();
         $resource = fopen($tmpFile, 'w');
+
         try {
-            $r = $client->request('GET', $backend->url . 'files/' . $this->id . '/download',
-                [
-                    'headers' => ['X-Appercode-Session-Token' => $backend->token],
-                    'sink' => $tmpFile
-                ]);
+            $r = self::request([
+                'method' => 'GET',
+                'headers' => ['X-Appercode-Session-Token' => $backend->token],
+                'sink' => $tmpFile,
+                'url' => $backend->url . 'files/' . $this->id . '/download'
+            ]);
+
             $result['statusCode'] = $r->getStatusCode();
             $result['fileName'] = $tmpFile;
         }
@@ -393,18 +422,32 @@ class File
             $result['result'] = false;
             $result['statusCode'] = $exception->getResponse()->getStatusCode();
         }
-        //dd($r->getBody()->getContents());
+
         return $result;
     }
 
     public static function resize(Backend $backend, $id)
     {
-        $client = new Client;
-        $r = $client->get($backend->url . 'images/' . $id . '/resize', ['headers' => [
-            'X-Appercode-Session-Token' => $backend->token
-        ]]);
+        self::request([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'images/' . $id . '/resize'
+        ]);
 
         return true;
     }
 
+    public function extension() {
+        return pathinfo($this->name, PATHINFO_EXTENSION);
+    }
+
+    public static function find(Backend $backend, $id) {
+        $data = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'files/' . $id
+        ]);
+
+        return static::build(['file' => $data], [], '');
+    }
 }
