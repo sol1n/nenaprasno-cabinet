@@ -88,7 +88,7 @@ class AuthController extends Controller
         return redirect('/');
     }
 
-    public function ProcessRegistration(Backend $backend, Request $request, ObjectManager $objectManager, SchemaManager $schemaManager)
+    public function ProcessRegistration(Backend $backend, Request $request)
     {
         $rules = [
             'login' => 'required',
@@ -126,6 +126,9 @@ class AuthController extends Controller
         ]);
 
         $this->shareSession($request, $user);
+
+        $objectManager = app(ObjectManager::Class);
+        $schemaManager = app(SchemaManager::Class);
 
         $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
             'userId' => $user->id,
