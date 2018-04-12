@@ -105,17 +105,17 @@ class AuthController extends Controller
 
         try {
             $user = User::create([
-                'username' => $request->input('login'),
-                'password' => $request->input('password')
+                'username' => $login,
+                'password' => $password,
             ], $backend);
-        } catch (UserCreateException $e) {
+
+        } catch (ClientException $e) {
             $errors = new MessageBag();
-            if ($e->getMessage() == 'Conflict when user creation') {
+            if ($e->getResponse()->getStatus() != 409) {
+                $errors->add('registration', $e->getMessage());
+            } else {
                 $errors->add('registration', 'Пользователь с email: ' . $request->input('login') . ' уже зарегистрирован в системе
                                         <p class="error-info">Если это ваш e-mail, <a href="'.route('restore').'">восстановите пароль</a></p>');
-            }
-            else {
-                $errors->add('registration', $e->getMessage());
             }
             return redirect()->route('registration')->withErrors($errors);
         }
@@ -202,7 +202,7 @@ class AuthController extends Controller
                 $isNew = true;
 
             } catch (ClientException $e) {
-                if ($e->getMessage()->getStatus() != 409) {
+                if ($e->getResponse()->getStatus() != 409) {
                     $response->setResponseError($e->getMessage());
                 }
             }
