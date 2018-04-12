@@ -111,7 +111,7 @@ class AuthController extends Controller
 
         } catch (ClientException $e) {
             $errors = new MessageBag();
-            if ($e->getResponse()->getStatus() != 409) {
+            if ($e->getResponse()->getStatusCode() != 409) {
                 $errors->add('registration', $e->getMessage());
             } else {
                 $errors->add('registration', 'Пользователь с email: ' . $request->input('login') . ' уже зарегистрирован в системе
@@ -202,7 +202,7 @@ class AuthController extends Controller
                 $isNew = true;
 
             } catch (ClientException $e) {
-                if ($e->getResponse()->getStatus() != 409) {
+                if ($e->getResponse()->getStatusCode() != 409) {
                     $response->setResponseError($e->getMessage());
                 }
             }
