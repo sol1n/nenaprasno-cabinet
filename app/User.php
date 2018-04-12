@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\App;
 use App\Traits\Models\AppercodeRequest;
 use Illuminate\Support\Facades\Cookie;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Log;
 
 class User
 {
