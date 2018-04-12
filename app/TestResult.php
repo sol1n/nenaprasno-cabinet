@@ -64,7 +64,7 @@ class TestResult
     {
         $clinicsSet = [];
         foreach ($clinics as $clinic) {
-            if (in_array($procedureId, $clinic['medicalProcedures'])) {
+            if (isset($clinic['medicalProcedures']) && in_array($procedureId, $clinic['medicalProcedures'])) {
                 $clinicsSet[] = $clinic;
             }
         }

@@ -174,7 +174,7 @@ class AuthController extends Controller
         return $response;
     }
 
-    public function LoginBySocial(Backend $backend, Request $request, ObjectManager $objectManager, SchemaManager $schemaManager) {
+    public function LoginBySocial(Backend $backend, Request $request) {
         $response = new AjaxResponse();
         $errors = new MessageBag();
         if (!$userId = $request->input('userId')) {
@@ -196,13 +196,13 @@ class AuthController extends Controller
             try {
                 $user = User::create([
                     'username' => $login,
-                    'password' => $password
+                    'password' => $password,
                 ], $backend);
 
                 $isNew = true;
 
-            } catch (UserCreateException $e) {
-                if ($e->getMessage() != 'Conflict when user creation') {
+            } catch (ClientException $e) {
+                if ($e->getMessage()->getStatus() != 409) {
                     $response->setResponseError($e->getMessage());
                 }
             }
@@ -236,6 +236,8 @@ class AuthController extends Controller
                 if ($isNew and $request->get('data')) {
                     $data= $request->get('data');
                     try {
+                        $objectManager = app(ObjectManager::Class);
+                        $schemaManager = app(SchemaManager::Class);
                         $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), [
                             'userId' => $user->id,
                             'email' => $data['email'] ?? '',

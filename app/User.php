@@ -462,8 +462,16 @@ class User
             ]
         ]);
         if (is_array($profiles) && count($profiles) && isset($profiles[0])) {
-            $schema = app(SchemaManager::class)->find($profiles[0]['schemaId']);
-            return app(ObjectManager::class)->find($schema, $profiles[0]['itemId']);
+            try {
+                $schema = app(SchemaManager::class)->find($profiles[0]['schemaId']);
+                return app(ObjectManager::class)->find($schema, $profiles[0]['itemId']);
+            } catch (ClientException $e) {
+                Log::debug('Schema list exception');
+                Log::debug('Backend: ' . print_r(app(Backend::Class), 1));
+                Log::debug('User: ' . print_r($this, 1));
+                return null;
+            }
+            
         } else {
             return null;
         }
