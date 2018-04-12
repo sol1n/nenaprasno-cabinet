@@ -558,8 +558,6 @@ class User
      */
     public static function loginAndMerge(Backend $backend, $sessionId, array $data, $storeSession = true)
     {
-        $client = new Client;
-
         try {
             $json = self::jsonRequest([
                 'method' => 'POST',
