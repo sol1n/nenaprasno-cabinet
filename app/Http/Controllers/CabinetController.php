@@ -15,6 +15,7 @@ use App\Services\ObjectManager;
 use App\Services\SchemaManager;
 use App\Exceptions\User\WrongCredentialsException;
 use App\Traits\Models\AppercodeRequest;
+use GuzzleHttp\Exception\ClientException;
 
 class CabinetController extends Controller
 {
@@ -145,8 +146,20 @@ class CabinetController extends Controller
         });
     }
     
-    public function dashboard(Request $request, SchemaManager $schemaManager, ObjectManager $objectManager)
+    public function dashboard(Request $request)
     {
+        try {
+            $schemaManager = app(SchemaManager::Class);
+            $objectManager = app(ObjectManager::Class);
+        } catch (ClientException $e) {
+            User::forgetSession(app(Backend::Class));
+            return view('auth/login', [
+                'selected' => 'login',
+                'vkApp' => env('VK_APP'),
+                'fbApp' => env('FB_APP')
+            ]);
+        }
+
         $userId = app(Backend::class)->user();
         $results = TestResult::get($userId);
 

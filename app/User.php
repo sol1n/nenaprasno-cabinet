@@ -206,7 +206,6 @@ class User
         Cookie::queue($backend->code . '-refresh-token', $this->refreshToken, $lifetime);
         Cookie::queue($backend->code . '-id', $this->id, $lifetime);
         Cookie::queue($backend->code . '-language', $language, $lifetime);
-        Cookie::queue('appercode-timezone', $timezone, $lifetime);
         return $this;
     }
 
@@ -216,29 +215,28 @@ class User
         Cookie::forget($backend->code . '-refresh-token');
         Cookie::forget($backend->code . '-id');
         Cookie::forget($backend->code . '-language');
-        Cookie::queue('appercode-timezone');
     }
 
-    public function regenerate(Backend $backend, Bool $storeSession = true): User
+    public function regenerate(Backend $backend, Bool $storeSession = true)
     {
         $regenerationToken = isset($backend->refreshToken) ? $backend->refreshToken : $this->refreshToken;
+
         $json = self::jsonRequest([
             'method' => 'POST',
             'headers' => ['Content-Type' => 'application/json'],
             'body' => '"' . $regenerationToken . '"',
             'url' => $backend->url . 'login/byToken'
-        ]);
+        ], false);
 
         $this->id = $json['userId'];
         $this->token = $json['sessionId'];
         $this->refreshToken = $json['refreshToken'];
 
         $language = Cookie::get($backend->code . '-language');
-        $timezone = Cookie::get('appercode-timezone');
 
         if ($storeSession)
         {
-            $this->storeSession($backend, $language, $timezone);
+            $this->storeSession($backend, $language);
         }
 
         return $this;
@@ -336,7 +334,7 @@ class User
     {
         $json = self::jsonRequest([
             'method' => 'POST',
-            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'headers' => ['X-Appercode-Session-Token' => $backend->token ?? null],
             'json' => $fields,
             'url' => $backend->url  . 'users/'
         ]);
