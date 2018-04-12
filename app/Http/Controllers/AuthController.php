@@ -105,8 +105,8 @@ class AuthController extends Controller
 
         try {
             $user = User::create([
-                'username' => $login,
-                'password' => $password,
+                'username' => $request->input('login'),
+                'password' => $request->input('password'),
             ], $backend);
 
         } catch (ClientException $e) {
