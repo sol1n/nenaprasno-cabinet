@@ -48,7 +48,7 @@ class Notification extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->initBackend();
+        //$this->initBackend();
 
     }
 

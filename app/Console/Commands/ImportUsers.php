@@ -61,7 +61,7 @@ class ImportUsers extends Command
     {
         parent::__construct();
 
-        $this->initBackend();
+        //$this->initBackend();
     }
 
     /**
