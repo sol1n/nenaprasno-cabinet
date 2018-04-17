@@ -138,7 +138,7 @@ class CabinetController extends Controller
 
     private function getUserProcedures($schemaManager, $objectManager, $userId)
     {
-        $query = json_encode(['userId' => $userId]);
+        $query = json_encode(['userId' => (int) $userId]);
         $schema = $schemaManager->find('UserMedicalProcedure');
         $userProcedures = $objectManager->search($schema, ['take' => -1, 'order' => 'createdAt', 'where' => $query]);
         return $userProcedures->mapWithKeys(function ($item) {
