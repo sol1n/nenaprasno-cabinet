@@ -2,18 +2,14 @@
 
 namespace App;
 
-use App\Form;
 use App\Backend;
 use Carbon\Carbon;
-use GuzzleHttp\Psr7;
-use GuzzleHttp\Client;
-use Illuminate\Http\Request;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
-use App\Exceptions\Backend\TokenExpiredException;
+use App\Traits\Models\AppercodeRequest;
 
 class TestResult
 {
+    use AppercodeRequest;
+    
     const REQUEST_PATH = 'testResults/byUser/';
 
     public $raw;
@@ -21,22 +17,13 @@ class TestResult
     public static function get($userId)
     {
         $backend = app(Backend::class);
-        $client = new Client();
-        try {
-            $r = $client->get($backend->url . self::REQUEST_PATH . $userId . '?recommendation=true', ['headers' => [
-              'X-Appercode-Session-Token' => $backend->token
-          ]]);
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                if ($e->getResponse()->getStatusCode() == 401) {
-                    throw new TokenExpiredException;
-                }
-            }
-            throw new \Exception('Error while getting test results');
-        };
 
         $result = new self;
-        $result->raw = json_decode($r->getBody()->getContents());
+        $result->raw = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . self::REQUEST_PATH . $userId . '?recommendation=true',
+        ]);
 
         return $result;
     }
@@ -44,18 +31,13 @@ class TestResult
     public static function getUserData($userId)
     {
         $backend = app(Backend::class);
-        $client = new Client();
-
-        try {
-            $r = $client->get($backend->url . 'forms/1/response', ['headers' => [
-              'X-Appercode-Session-Token' => $backend->token
-          ]]);
-        } catch (RequestException $e) {
-            throw new \Exception('Error while getting user data');
-        };
 
         $result = new self;
-        $result->raw = json_decode($r->getBody()->getContents());
+        $result->raw = self::jsonRequest([
+            'method' => 'GET',
+            'headers' => ['X-Appercode-Session-Token' => $backend->token],
+            'url' => $backend->url . 'forms/1/response',
+        ]);
 
         return $result;
     }

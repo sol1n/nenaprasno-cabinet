@@ -108,6 +108,7 @@ class AdminTokens
                 ], false);
 
                 $backend->token = $json['sessionId'];
+                $backend->refreshToken = $refreshToken;
                 $session = $backend;
             }
             catch (ClientException $e) {

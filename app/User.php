@@ -468,7 +468,6 @@ class User
                 return app(ObjectManager::class)->find($schema, $profiles[0]['itemId']);
             } catch (ClientException $e) {
                 Log::debug('Schema list exception');
-                Log::debug('Backend: ' . print_r(app(Backend::Class), 1));
                 Log::debug('User: ' . print_r($this, 1));
                 return null;
             }

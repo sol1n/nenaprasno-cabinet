@@ -34,15 +34,15 @@ sudo apt-get install git-core -y
 sudo apt-get install nginx -y
 sudo apt-get install memcached -y
 
-# PHP 7.0 is our primary PHP version.
-sudo apt-get install php7.0-fpm -y
-sudo apt-get install php7.0-dev -y
+# PHP 7.1 is our primary PHP version.
+sudo apt-get install php7.1-fpm -y
+sudo apt-get install php7.1-dev -y
 
 # PHP's curl & memcached extensions.
-sudo apt-get install php7.0-curl -y
-sudo apt-get install php7.0-memcached -y
-sudo apt-get install php7.0-mbstring
-sudo apt-get install php7.0-xml
+sudo apt-get install php7.1-curl -y
+sudo apt-get install php7.1-memcached -y
+sudo apt-get install php7.1-mbstring
+sudo apt-get install php7.1-xml
 
 # Additional extensions.
 sudo pecl channel-update pecl.php.net
@@ -75,8 +75,8 @@ sudo rm /etc/nginx/sites-available/default
 sudo ln -s /vagrant/vagrant/configs/nginx-vhosts.conf /etc/nginx/sites-enabled/vhosts.conf
 
 # Add some php.ini tweak.
-sudo ln -s /vagrant/vagrant/configs/php.ini /etc/php/7.0/fpm/conf.d/00-php.ini
-sudo ln -s /vagrant/vagrant/configs/php.ini /etc/php/7.0/cli/conf.d/00-php.ini
+sudo ln -s /vagrant/vagrant/configs/php.ini /etc/php/7.1/fpm/conf.d/00-php.ini
+sudo ln -s /vagrant/vagrant/configs/php.ini /etc/php/7.1/cli/conf.d/00-php.ini
 
 
 # Export some paths to $PATH env variable.
@@ -90,7 +90,7 @@ sudo apt-get autoremove -y
 
 # Restart services.
 sudo service nginx restart
-sudo service php7.0-fpm restart
+sudo service php7.1-fpm restart
 
 # Ok, we're ready.
 provisioningEndTime=`date +%s`
