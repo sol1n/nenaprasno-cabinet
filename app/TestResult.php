@@ -91,12 +91,12 @@ class TestResult
     {
         $maxId = 0;
         foreach ($this->raw as $raw) {
-            if ($raw->TestResult->formResponceId > $maxId) {
-                $maxId = $raw->TestResult->formResponceId;
+            if (array_get($raw, 'TestResult.formResponceId') > $maxId) {
+                $maxId = array_get($raw, 'TestResult.formResponceId');
             }
         }
         return array_where($this->raw, function ($value, $key) use ($maxId) {
-           return $value->TestResult->formResponceId == $maxId;
+           return array_get($value, 'TestResult.formResponceId') == $maxId;
         });
     }
 }
