@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <svg width="16px" height="12px" viewBox="0 0 16 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: sketchtool 41.2 (35397) - http://www.bohemiancoding.com/sketch -->
-    <title>AF67554A-6CAE-48AC-A7DF-C26D7FC57599</title>
-    <desc>Created with sketchtool.</desc>
     <defs></defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="desktop-header" transform="translate(-754.000000, -46.000000)">
             <g id="Group-2" transform="translate(573.000000, 21.000000)">
                 <g id="close-envelope" transform="translate(181.000000, 22.000000)">
                     <rect id="Rectangle-2" fill-opacity="0" fill="#D8D8D8" x="0" y="0" width="16" height="16"></rect>
-                    <g id="Group" transform="translate(0.000000, 3.000000)" fill="#48ABEC">
+                    <g id="Group" transform="translate(0.000000, 3.000000)" fill="#666666">
                         <path d="M7.96728889,7.96728889 L5.99466667,6.23928889 L0.361244444,11.0663111 C0.566044444,11.2611556 0.839111111,11.3777778 1.14488889,11.3777778 L14.784,11.3777778 C15.0883556,11.3777778 15.3614222,11.2611556 15.5662222,11.0663111 L9.9328,6.23928889 L7.96728889,7.96728889 Z" id="Fill-1"></path>
                         <path d="M15.5662222,0.311466667 C15.3671111,0.116622222 15.0883556,0 14.784,0 L1.14488889,0 C0.8448,0 0.566044444,0.116622222 0.361244444,0.311466667 L7.96728889,6.82808889 L15.5662222,0.311466667 Z" id="Fill-2"></path>
                         <polygon id="Fill-3" points="0 0.999822222 0 10.4504889 5.49973333 5.77706667"></polygon>

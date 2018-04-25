@@ -26,7 +26,8 @@ class AppServiceProvider extends ServiceProvider
             $backend = app(Backend::Class);
             $view->with('backend', $backend);
             $view->with('profileName', Cookie::get($backend->code . '-profileName'));
-            $view->with('MAIN_SITE', env('MAIN_SITE'));
+            $view->with('MAIN_SITE', env('MAIN_SITE', 'https://nenaprasno.ru'));
+            $view->with('MEDIA_SITE', env('MEDIA_SITE', 'https://media.nenaprasno.ru'));
         });
 
         Validator::extend('restoringFields', function ($attribute, $value, $parameters, $validator) {

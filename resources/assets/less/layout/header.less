@@ -1,5 +1,5 @@
 .main-header {
-  padding-top: 10px;
+  padding-top: 15px;
   background-color: #fff;
   z-index: 1;
 
@@ -37,11 +37,11 @@
 }
 
 .main-header-right {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-align: center;
-  align-items: center;
-  margin-left: auto;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    margin-left: auto;
 
   @media all and (max-width: 1080px) {
     margin-left: 0;
@@ -50,35 +50,36 @@
 }
 
 .main-header-contacts {
-  margin-right: 10px;
+  margin-left: 80px;
+
   @media all and (max-width: 1080px) {
     display: none;
   }
-}
 
-.phone-col {
-  margin-right: 30px;
+  img {
+    vertical-align: bottom;
+  }
 }
 
 .main-header-contacts-phone {
   display: block;
-  color: #2B2929;
-  font-size: 15px;
+  color: rgba(102, 102, 102, 0.9);;
+  font-size: 14px;
+  margin-bottom: 8px;
+
+  img {
+    margin-right: 5px;
+  }
 }
 
 .main-header-contacts-email {
   display: block;
-  color: #2B2929;
-  font-size: 15px;
-}
+  color: rgba(102, 102, 102, 0.9);;
+  font-size: 14px;
 
-.main-header-contacts img{
-  vertical-align: bottom;
-}
-
-.main-header-contacts-email img{
-  width:16px;
-  height:16px;
+  img {
+    margin-right: 5px;
+  }
 }
 
 .wrapper-nav {
@@ -97,7 +98,9 @@
 .main-header-buttons {
   .social-buttons {
     display: inline-block;
+    font-size: 0;
     vertical-align: middle;
+    margin-right: 20px;
   }
 
   @media all and (max-width: 1080px) {
@@ -107,15 +110,29 @@
 
 .main-header-button-login {
   display: inline-block;
-  margin-left: 10px;
+  margin-right: 20px;
   color: @c-blue;
 
   a {
-    text-decoration: underline;
-    margin-right: 15px;
+    text-decoration: none;
+    margin-right: 6px;
+
+    &::after {
+      content: '';
+      display: inline-block;
+      width: 1px;
+      height: 10px;
+      vertical-align: middle;
+      background: #d8d8d8;
+      margin-left: 8px;
+    }
 
     &:last-child {
       margin-right: 0;
+
+      &::after {
+        display: none;
+      }
     }
   }
 
@@ -130,8 +147,6 @@
 }
 
 .main-header-logo {
-  margin-bottom: 10px;
-
   @media all and (max-width: 1080px) {
     display: inline-block;
     margin-bottom: 0;
@@ -145,6 +160,7 @@
 }
 
 .main-header-nav {
+  margin-top: 15px;
   background-color: @c-blue;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.16);
 
@@ -158,19 +174,25 @@
   }
 }
 
+.main-header-nav-right {
+  display: flex;
+  align-items: center;
+}
+
 .main-header-nav-list {
   font-size: 0;
   .ul-reset;
 
   & > li {
-    font-size: 16px;
+    .ff-system;
+    font-size: 14px;
     display: inline-block;
 
     & > a {
       display: block;
       color: #fff;
-      padding: 13px 24px;
-      border-left: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 13px 15px;
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
       transition: background-color 200ms;
 
       &:hover {
@@ -187,19 +209,58 @@
   }
 }
 
-.main-header-separator {
-  display: block;
-  width: 1px;
-  height: 20px;
-  background-color: #d8d8d9;
-  margin-left: 20px;
-  margin-right: 20px;
+.main-header-nav-button {
+  display: inline-block;
+  margin-left: 8px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: -0.3px;
+  padding: 5px 12px 8px;
+  transition: all 200ms;
 
-  @media all and (max-width: 1080px) {
-    display: none;
+  svg {
+    position: relative;
+    top: 1px;
+    margin-right: 4px;
+    vertical-align: baseline;
+
+    * {
+      transition: all 200ms;
+    }
+  }
+
+  &:hover,
+  &:active,
+  &.active {
+    background-color: rgba(255, 255, 255, 1);
+    color: #47abec;
+    transition: all 200ms;
+
+    svg {
+      * {
+        transition: all 200ms;
+        fill: #47abec;
+      }
+    }
   }
 }
 
-.profile-name {
-  margin-right: 20px;
+.main-header-button-donate {
+  border-radius: 2px;
+  background-color: @c-red;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 15px 8px;
+  transition: all 200ms;
+
+  &:hover,
+  &:active {
+    color: #fff;
+    background-color: lighten(@c-red, 5%);
+    transition: all 200ms;
+  }
 }

@@ -1,84 +1,93 @@
-<header class="main-header">
-    <div class="wrapper">
-        <a href="#" class="main-header-toggler js-offcanvas">
-            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 21 16">
-                <path fill="#48ABEC" d="M34,40H55v2.094H34V40Zm0,6.938H55v2.125H34V46.937Zm0,6.969H55V56H34V53.906Z" transform="translate(-34 -40)"></path>
-            </svg>
-        </a>
-        <div class="main-header-logo">
-            <a href="{{ MAIN_SITE }}">
-                <img height="60px;" src="/images/logo.svg" alt="Фонд профилактики рака. Живу не напрасно.">
+    <header class="main-header">
+        <div class="wrapper">
+            <a href="#" class="main-header-toggler js-offcanvas">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 21 16">
+                    <path fill="#48ABEC" d="M34,40H55v2.094H34V40Zm0,6.938H55v2.125H34V46.937Zm0,6.969H55V56H34V53.906Z" transform="translate(-34 -40)"></path>
+                </svg>
             </a>
-        </div>
-        <div class="main-header-right">
-            <div class="main-header-contacts phone-col">
-                <a href="callto:+78123163434" class="main-header-contacts-phone">
-                    <img src="/images/call-answer.svg">
-                    +7 812 468-57-97
-                </a>
-            </div>
-            <div class="main-header-contacts mail-col">
-                <a href="mailto:fond@nenaprasno.ru" class="main-header-contacts-email">
-                    <img src="/images/close-envelope.svg">
-                    fond@nenaprasno.ru
+            <div class="main-header-logo">
+                <a href="{{ MAIN_SITE }}">
+                    <img height="60px;" src="/images/logo.svg" alt="Фонд профилактики рака. Живу не напрасно.">
                 </a>
             </div>
 
-            <div class="main-header-separator"></div>
-
-            <div class="main-header-buttons">
-                <div class="social-buttons">
-                    <a href="https://vk.com/nenaprasno" target="_blank" title="Вконтакте">
-                        {{ source("icon-social-vk") }}
+            <div class="main-header-contacts">
+                <div class="main-header-contacts-phone">
+                    <a href="tel:+78124685797" class="main-header-contacts-phone">
+                        <img src="/images/call-answer.svg">
+                        +7 812 468-57-97
                     </a>
-                    <a href="https://www.facebook.com/nenaprasno" target="_blank" title="Facebook">
-                        {{ source("icon-social-facebook") }}
+                </div>
+                <div class="main-header-contacts-mail">
+                    <a href="mailto:fond@nenaprasno.ru" class="main-header-contacts-email">
+                        <img src="/images/close-envelope.svg">
+                        fond@nenaprasno.ru
                     </a>
                 </div>
             </div>
 
-            <div class="main-header-separator"></div>
+            <div class="main-header-right">
+                <div class="main-header-button-login">
+                    {% if selected == 'login' %}
+                        <a href="/login">Вход</a>
+                        <a href="/registration">Регистрация</a>
+                    {% else %}
+                        <a href="/">
+                            {{ profileName ? profileName : 'Личный кабинет' }}
+                        </a>
+                        <a href="/logout">Выход</a>
+                    {% endif %}
+                </div>
 
-            <div class="main-header-button-login">
-                {% if selected == 'login' %}
-                    <a href="/registration">Регистрация</a>
-                    <a href="/login">Вход</a>
-                {% else %}
-                    <span class="profile-name">
-                        {{ profileName ? profileName : 'Личный кабинет' }}
-                    </span>
-                    <a href="/logout">Выход</a>
-                {% endif %}
+                <div class="main-header-buttons">
+                    <div class="social-buttons">
+                        <a href="https://vk.com/nenaprasno" target="_blank" title="Вконтакте">
+                            {{ source("icon-social-vk") }}
+                        </a>
+                        <a href="https://www.facebook.com/nenaprasno" target="_blank" title="Facebook">
+                            {{ source("icon-social-facebook") }}
+                        </a>
+                    </div>
+
+                    <a href="{{ MAIN_SITE }}/#donate" class="main-header-button-donate">Помочь фонду</a>
+                </div>
+
             </div>
         </div>
-    </div>
-    <nav class="main-header-nav">
-        <div class="wrapper-nav">
+        <nav class="main-header-nav">
+            <div class="wrapper">
 
-            <ul class="main-header-nav-list">
-                <li>
-                    <a target="_blank" href="{{ MAIN_SITE }}/">Главная</a>
-                </li>
-                <li>
-                    <a target="_blank" href="{{ MAIN_SITE }}/fund/">Фонд</a>
-                </li>
-                <li>
-                    <a target="_blank" href="{{ MAIN_SITE }}/projects/">Проекты</a>
-                </li>
-                <li>
-                    <a target="_blank" href="{{ MAIN_SITE }}/help">Как помочь?</a>
-                </li>
-                <li>
-                    <a target="_blank" href="{{ MAIN_SITE }}/partners/">Партнеры</a>
-                </li>
-                <li>
-                    <a target="_blank" href="{{ MAIN_SITE }}/contacts/">Контакты</a>
-                </li>
-            </ul>
+                <ul class="main-header-nav-list">
+                    <li>
+                        <a target="_blank" href="{{ MAIN_SITE }}/">Главная</a>
+                    </li>
+                    <li>
+                        <a target="_blank" href="{{ MAIN_SITE }}/fund/">Фонд</a>
+                    </li>
+                    <li>
+                        <a target="_blank" href="{{ MAIN_SITE }}/projects/">Проекты</a>
+                    </li>
+                    <li>
+                        <a target="_blank" href="{{ MAIN_SITE }}/help">Как помочь?</a>
+                    </li>
+                    <li>
+                        <a target="_blank" href="{{ MAIN_SITE }}/partners/">Партнеры</a>
+                    </li>
+                    <li>
+                        <a target="_blank" href="{{ MAIN_SITE }}/contacts/">Контакты</a>
+                    </li>
+                </ul>
 
-            <div class="main-header-nav-right">
-                <a href="{{ MAIN_SITE }}#donate" class="button button-red">Помочь прямо сейчас</a>
+                <div class="main-header-nav-right">
+                    <a href="{{ MAIN_SITE }}/screen" class="main-header-nav-button">
+                        {{ source('icon-button-screen') }}
+                        Пройти тест
+                    </a>
+                    <a href="{{ MEDIA_SITE }}" target="_blank" class="main-header-nav-button">
+                        {{ source('icon-button-media') }}
+                        Профилактика-медиа
+                    </a>
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
