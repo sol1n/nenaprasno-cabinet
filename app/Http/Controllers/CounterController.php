@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App;
 use App\User;
 use App\Backend;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\ObjectManager;
 use App\Services\SchemaManager;
@@ -31,8 +32,9 @@ class CounterController extends Controller
         $this->objectManager = new ObjectManager();
 
         $schema = $this->schemaManager->find('UserProfiles');
-        
-        $users = $this->objectManager->count($schema);
+
+        $date = new Carbon('2018-04-02');
+        $users = $this->objectManager->count($schema, ['search' => ['createdAt' => ['$gt' => $date->toAtomString()]]]);
 
         return $users + self::OLD_USERS_COUNT;
     }
