@@ -24,8 +24,15 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('*', function($view){
             $backend = app(Backend::Class);
+            $userInfo = Cookie::get('userInfo');
+            if (! is_null($userInfo)) {
+                $userInfo = json_decode($userInfo);
+                $profileName = $userInfo->userName ?? null;
+            } else {
+                $profileName = null;
+            }
             $view->with('backend', $backend);
-            $view->with('profileName', Cookie::get($backend->code . '-profileName'));
+            $view->with('profileName', $profileName);
             $view->with('MAIN_SITE', env('MAIN_SITE', 'https://nenaprasno.ru'));
             $view->with('MEDIA_SITE', env('MEDIA_SITE', 'https://media.nenaprasno.ru'));
         });
