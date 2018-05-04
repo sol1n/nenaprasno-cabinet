@@ -9,6 +9,7 @@ use App\Backend;
 use Carbon\Carbon;
 use App\TestResult;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\MessageBag;
 use App\Services\UserManager;
 use App\Services\ObjectManager;
@@ -116,7 +117,11 @@ class CabinetController extends Controller
             ];
         }
         
-        return $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profileData);
+        try {
+            return $objectManager->create($schemaManager->find(self::PROFILE_SCHEMA_NAME), $profileData);
+        } catch(\Exception $e) {
+            Log::debug($profileData);
+        }
     }
 
     private function getProfile($schemaManager, $objectManager, int $userId)
