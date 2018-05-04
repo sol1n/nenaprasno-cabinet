@@ -206,6 +206,15 @@
 
                   <div class="cabinet-profile-control">
                       <div class="form-control-checkbox">
+                          <input id="cabinet-profile-media-subscribe" {% if profile.fields.getMediaEmails %}checked{% endif %} name="subscribe-media" type="checkbox">
+                          <label for="cabinet-profile-media-subscribe">
+                              Хочу получать уведомления о новых статьях проекта Profilaktika.Media
+                          </label>
+                      </div>
+                  </div>
+
+                  <div class="cabinet-profile-control">
+                      <div class="form-control-checkbox">
                           {% set notifications = false %}
                           {% if profile.fields.getNotifications is null  %}
                               {% set notifications = false %}

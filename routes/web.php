@@ -23,6 +23,7 @@ Route::options('/loginByToken', 'AuthController@LoginByTokenOptions');
 Route::post('/loginBySocial', 'AuthController@LoginBySocial');
 Route::options('/loginBySocial', 'AuthController@LoginByTokenOptions');
 Route::get('/users', 'CounterController@index')->name('counter');
+Route::post('/subscribe', 'UserController@subscribe');
 
 
 Route::group(['middleware' => ['appercodeAuth']], function () {

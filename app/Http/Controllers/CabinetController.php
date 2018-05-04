@@ -290,6 +290,7 @@ class CabinetController extends Controller
 
         $fields = [
             'getEmails' => $request->has('subscribe'),
+            'getMediaEmails' => $request->has('subscribe-media'),
             'getNotifications' => ! $request->has('notifications')
         ];
 
