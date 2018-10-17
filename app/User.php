@@ -258,7 +258,7 @@ class User
             return $result;
         };
         foreach ($schemas as $schema) {
-            $schemasData = array_merge($schemasData, $getUsers(Object::list($schema, $backend)));
+            $schemasData = array_merge($schemasData, $getUsers(AppObject::list($schema, $backend)));
         }
 
         if ($schemasData) {
@@ -428,7 +428,7 @@ class User
             $param['search'] = $condition;
         }
         $schema = Schema::get($schemaId, $backend);
-        $profiles = Object::list($schema, $backend, $param);
+        $profiles = AppObject::list($schema, $backend, $param);
         foreach ($profiles as $profile) {
             if (!in_array($profile->fields['userId'], $result)) {
                 $result[] = $profile->fields['userId'];

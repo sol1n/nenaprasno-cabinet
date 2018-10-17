@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Backend;
-use App\Object;
+use App\AppObject;
 use App\Schema;
 use App\Traits\Models\SchemaSearch;
 use Illuminate\Support\Collection;
@@ -15,7 +15,7 @@ class ObjectManager
     private $backend;
     private $lists;
 
-    protected $model = Object::class;
+    protected $model = AppObject::class;
     protected $cacheLifetime = 10;
 
     public function __construct()
@@ -64,7 +64,7 @@ class ObjectManager
         }
     }
 
-    public function find(Schema $schema, $id): Object
+    public function find(Schema $schema, $id): AppObject
     {
         try {
             $this->initList($schema);
@@ -112,7 +112,7 @@ class ObjectManager
         return $this->model::listWithLangs($schema, $this->backend, $query, $language);
     }
 
-    public function save(Schema $schema, $id, array $fields, string $language = null): Object
+    public function save(Schema $schema, $id, array $fields, string $language = null): AppObject
     {
         $this->initList($schema);
         $list = $this->lists->get($schema->id);
@@ -157,7 +157,7 @@ class ObjectManager
         return $object;
     }
 
-    public function create(Schema $schema, array $fields): Object
+    public function create(Schema $schema, array $fields): AppObject
     {
         $object = $this->model::create($schema, $fields, $this->backend);
         //$this->initList($schema);
@@ -168,7 +168,7 @@ class ObjectManager
         return $object;
     }
 
-    public function delete(Schema $schema, $id): Object
+    public function delete(Schema $schema, $id): AppObject
     {
         $this->initList($schema);
         $object = $this->find($schema, $id)->delete($this->backend);
@@ -184,19 +184,19 @@ class ObjectManager
     }
 
     public function count(Schema $schema, $query = []) {
-        return Object::count($schema, $this->backend, $query);
+        return AppObject::count($schema, $this->backend, $query);
     }
 
     public function search(Schema $schema, $query = []) {
         $result = new Collection();
         if ($query) {
-            $result = Object::list($schema, $this->backend, $query);
+            $result = AppObject::list($schema, $this->backend, $query);
         }
         return $result;
     }
 
     public function makeSearchQuery($schema) {
-        $searchQuery = Object::makeSearchQuery($schema);
+        $searchQuery = AppObject::makeSearchQuery($schema);
 //        if ($searchQuery) {
 //            $searchQuery = ['where' => json_encode($searchQuery)];
 //        }

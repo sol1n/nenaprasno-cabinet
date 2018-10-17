@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Backend;
 use App\Exceptions\User\UserCreateException;
 use App\Exceptions\User\UserNotFoundException;
-use App\Object;
+use App\AppObject;
 use App\Services\ObjectManager;
 use App\Services\SchemaManager;
 use App\User;

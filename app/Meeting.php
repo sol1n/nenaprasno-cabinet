@@ -735,7 +735,7 @@ class Meeting
         $result = [];
         if ($json) {
 
-            $object = Object::build($profileSchema, $json[0]);
+            $object = AppObject::build($profileSchema, $json[0]);
             $result = [
                 'id' => $userId,
                 'shortView' => static::userData($object),
@@ -791,7 +791,7 @@ class Meeting
         ]);
 
         foreach ($json as $item) {
-            $list->push(Object::build($schema, $item));
+            $list->push(AppObject::build($schema, $item));
         }
 
         return $list;

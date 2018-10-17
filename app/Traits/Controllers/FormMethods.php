@@ -3,7 +3,7 @@
 namespace App\Traits\Controllers;
 
 use App\Form;
-use App\Object;
+use App\AppObject;
 use App\Backend;
 use App\Services\ObjectManager;
 use App\Services\SchemaManager;
@@ -18,7 +18,7 @@ trait FormMethods
      * @param  App\Object $response
      * @return array of saved form asnwers
      */
-    private function parseAnswers(Object $response): array
+    private function parseAnswers(AppObject $response): array
     {
         if ($response && isset($response->fields['result'])) {
             return json_decode($response->fields['result'], 1);
@@ -83,11 +83,11 @@ trait FormMethods
 
     /**
      * Fills up "correctAnswers" field for response object
-     * @param  Object $response
+     * @param  AppObject $response
      * @param  array  $correctAnswers returned by getCorrectAnswers method
-     * @return Object with correctAnswers field
+     * @return AppObject with correctAnswers field
      */
-    private function checkCorrects(Object $response, array $correctAnswers): Object
+    private function checkCorrects(AppObject $response, array $correctAnswers): AppObject
     {
         $corrects = [];
         $response->parsed = $this->parseAnswers($response);

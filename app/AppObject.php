@@ -21,7 +21,7 @@ use App\Traits\Models\AppercodeRequest;
 use PhpParser\Node\Stmt\Catch_;
 
 
-class Object
+class AppObject
 {
     use ModelActions, FieldsFormats, SchemaSearch, AppercodeRequest;
 
@@ -33,7 +33,7 @@ class Object
         return $this->schema->id;
     }
 
-    public function save($data, Backend $backend, $language = null): Object
+    public function save($data, Backend $backend, $language = null): AppObject
     {
         $this->fields = static::prepareRawData($data, $this->schema, true);
 
@@ -71,7 +71,7 @@ class Object
         return $json['updatedAt'] ?? '';
     }
 
-    public static function get(Schema $schema, $id, Backend $backend): Object
+    public static function get(Schema $schema, $id, Backend $backend): AppObject
     {
         $json = self::jsonRequest([
             'method' => 'GET',
@@ -82,7 +82,7 @@ class Object
         return static::build($schema, $json);
     }
 
-    public static function create(Schema $schema, $fields, Backend $backend): Object
+    public static function create(Schema $schema, $fields, Backend $backend): AppObject
     {
         $json = self::jsonRequest([
             'method' => 'POST',
@@ -94,7 +94,7 @@ class Object
         return static::build($schema, $json);
     }
 
-    public function delete(Backend $backend): Object
+    public function delete(Backend $backend): AppObject
     {
         self::request([
             'method' => 'DELETE',
@@ -133,7 +133,7 @@ class Object
         ]);
 
         foreach ($json as $rawData) {
-            $list->push(Object::build($schema, $rawData));
+            $list->push(AppObject::build($schema, $rawData));
         }
 
         return $list;
@@ -178,7 +178,7 @@ class Object
             $localizedData = [
                 $language => $localizedRawData
             ];
-            $list->push(Object::build($schema, $tempData[$id], $localizedData));
+            $list->push(AppObject::build($schema, $tempData[$id], $localizedData));
         }
 
         return $list;
@@ -200,7 +200,7 @@ class Object
         ]);
     }
 
-    public static function build(Schema $schema, $data, $localizedData = null): Object
+    public static function build(Schema $schema, $data, $localizedData = null): AppObject
     {
         $object = new static();
 
@@ -359,7 +359,7 @@ class Object
         return isset($this->relations[$field['type']][$field['name']]) ?? ($field->multiple ? [] : null);
     }
 
-    public function withRelations(): Object
+    public function withRelations(): AppObject
     {
         $this->relations = [];
 

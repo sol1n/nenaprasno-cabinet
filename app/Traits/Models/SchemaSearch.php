@@ -2,7 +2,7 @@
 
 namespace App\Traits\Models;
 
-use App\Object;
+use App\AppObject;
 use App\Schema;
 
 trait SchemaSearch
