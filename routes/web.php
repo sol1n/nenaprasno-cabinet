@@ -37,6 +37,9 @@ Route::group(['middleware' => ['appercodeAuth']], function () {
   Route::get('/logout', 'AuthController@logout')->name('logout');
 });
 
+Route::group([], function () {
+    Route::post('/external/auth/sign-in', 'ExternalApi\AuthController@signIn')->name('external-api-sign-in');
+});
 
 
 

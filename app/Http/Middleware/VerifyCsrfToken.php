@@ -14,6 +14,7 @@ class VerifyCsrfToken extends BaseVerifier
     protected $except = [
         '/loginByToken',
         '/loginBySocial',
-        '/subscribe'
+        '/subscribe',
+        '/external/*',
     ];
 }
