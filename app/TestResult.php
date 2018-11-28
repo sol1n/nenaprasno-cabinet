@@ -59,20 +59,20 @@ class TestResult
 
         if (isset($this->raw)) {
             foreach ($this->lastResults() as $result) {
-                if (isset($result->Recommendations) && $result->Recommendations) {
+                if (isset($result['Recommendations']) && $result['Recommendations']) {
 
-                    $created = new Carbon($result->TestResult->createdAt);
+                    $created = new Carbon($result['TestResult']['createdAt']);
 
-                    foreach ($result->Recommendations as $recommendation) {
-                        $procedure = $medicalProcedures[$recommendation->medicalProcedureId];
+                    foreach ($result['Recommendations'] as $recommendation) {
+                        $procedure = $medicalProcedures[$recommendation['medicalProcedureId']];
 
                         $procedureDate = isset($userProcedures[$procedure['id']]) ? new Carbon($userProcedures[$procedure['id']]) : null;
 
                         $data[$procedure['id']] = [
-                            'id' => $recommendation->medicalProcedureId,
+                            'id' => $recommendation['medicalProcedureId'],
                             'name' => $procedure['name'] ?? null,
                             'description' => $procedure['description'] ?? null,
-                            'repeatCount' => $recommendation->repeatCount,
+                            'repeatCount' => $recommendation['repeatCount'],
                             'clinics' => $this->getClinicsForProcedure($clinics, $procedure['id']),
                             'firstShown' => is_null($procedureDate),
                             'nextDate' => isset($procedure['periodicity']) && $procedure['periodicity'] && $procedureDate ? $procedureDate->addDays($procedure['periodicity']) : null,

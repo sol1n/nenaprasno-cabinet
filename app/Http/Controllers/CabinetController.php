@@ -179,6 +179,8 @@ class CabinetController extends Controller
 
         $userProcedures = $this->getUserProcedures($schemaManager, $objectManager, $userId);
 
+        $results->getProcedures($medicalProcedures, $clinics, $userProcedures);
+
         return view('dashboard', [
             'diseases' => $this->getDiseases($schemaManager, $objectManager),
             'results' => $results->lastResults(),
