@@ -39,6 +39,7 @@ Route::group(['middleware' => ['appercodeAuth']], function () {
 
 Route::group([], function () {
     Route::post('/external/auth/sign-in', 'ExternalApi\AuthController@signIn')->name('external-api-sign-in');
+    Route::post('/external/auth/sign-up', 'ExternalApi\AuthController@signUp')->name('external-api-sign-up');
 });
 
 
